@@ -1,0 +1,263 @@
+<script setup lang="ts">
+import { ElMessage } from "element-plus";
+import Contact from "./contact.vue";
+
+import setDark from "../hooks/dark";
+import setTheme from "../hooks/theme";
+import { useStore } from "@/store";
+import useCurrentInstance from "@/hooks/useCurrentInstance";
+import api from "@/services/api";
+
+import setSvg from "../assets/svg/Settings.svg";
+import darkSvg from "../assets/svg/Dark Mode.svg";
+import lightSvg from "../assets/svg/brightness.svg";
+import helpSvg from "../assets/svg/Help.svg";
+import communitySvg from "../assets/svg/Community.svg";
+import quitSvg from "../assets/svg/Quit.svg";
+import zhSvg from "../assets/svg/zh.svg";
+import enSvg from "../assets/svg/en.svg";
+
+import setwSvg from "../assets/svg/Settingsw.svg";
+import darkwSvg from "../assets/svg/Dark Modew.svg";
+import lightwSvg from "../assets/svg/brightnessw.svg";
+import helpwSvg from "../assets/svg/Helpw.svg";
+import communitywSvg from "../assets/svg/Communityw.svg";
+import quitwSvg from "../assets/svg/Quitw.svg";
+import zhwSvg from "../assets/svg/zhw.svg";
+import enwSvg from "../assets/svg/enw.svg";
+import { ResultProps } from "@/interface/Common";
+import { uploadImage } from "@/services/util";
+import { User } from "@/interface/User";
+
+const store = useStore();
+const { proxy } = useCurrentInstance();
+const user = computed(() => store.state.auth.user);
+const locale = computed(() => store.state.common.locale);
+const dark = computed(() => store.state.common.dark);
+const theme = computed(() => store.state.common.theme);
+const uploadToken = computed(() => store.state.auth.uploadToken);
+
+const userVisible = ref<boolean>(false);
+const avatar = ref<string>("");
+const userName = ref<string>("");
+const email = ref<string>("");
+const themeIndex = ref<number>(0);
+
+onMounted(() => {
+  if (user.value) {
+    avatar.value = user.value?.userAvatar ? user.value.userAvatar : "";
+    userName.value = user.value?.userName ? user.value.userName : "";
+    email.value = user.value?.email ? user.value.email : "";
+  }
+});
+const changeLanguage = (value: string) => {
+  proxy.$i18n.locale = value;
+  changeConfig("locale", value);
+  store.commit("common/setLocale", value);
+  localStorage.setItem("LANGUAGE", value);
+};
+const changeDark = (value: boolean) => {
+  setDark(value);
+  changeConfig("dark", value);
+  store.commit("common/setDark", value);
+};
+// const setTheme = (value: boolean) => {
+//   let lang = value ? "zh" : "en";
+//   proxy.$i18n.locale = lang;
+//   changeConfig("locale", lang);
+//   store.commit("common/setLocale", lang);
+// };
+const changeConfig = async (key?: string, value?: string | boolean) => {
+  let config = {
+    userAvatar: "",
+    userName: "",
+    email: "",
+    config: {
+      locale: locale.value,
+      dark: dark.value,
+      theme: theme.value,
+    },
+  };
+  if (key && config?.config) {
+    config.config[key] = value;
+  } else {
+    config.userAvatar = avatar.value;
+    config.userName = userName.value;
+    config.email = email.value;
+  }
+  const configRes = (await api.request.patch("user/config", {
+    ...config,
+  })) as ResultProps;
+  if (configRes.msg === "OK") {
+    console.log(key);
+    if (!key) {
+      ElMessage.success("edit success");
+      userVisible.value = false;
+      store.commit("auth/setUserInfo", { ...user.value, ...config });
+    }
+  }
+};
+
+const chooseImg = (e) => {
+  console.log(e.target.files[0]);
+  let mimeType = ["image/png", "image/jpeg"];
+  uploadImage(e.target.files[0], uploadToken.value, mimeType, (url: string) => {
+    avatar.value = url;
+  });
+};
+const saveUser = () => {};
+</script>
+<template>
+  <div class="userCenter-user" @click="userVisible = true">
+    <el-avatar :src="user?.userAvatar" :size="100" />
+    <div class="center">{{ user?.userName }}</div>
+    <div class="bottom">{{ user?.email }}</div>
+  </div>
+  <div class="userCenter-item dp--center">
+    <img :src="dark ? setwSvg : setSvg" alt="" />
+    <span>
+      {{ $t(`surface.Settings`) }}
+    </span>
+  </div>
+  <div class="userCenter-item dp--center" @click="changeDark(!dark)">
+    <img :src="dark ? darkwSvg : lightSvg" alt="" />
+    <span>
+      {{ dark ? $t(`surface.DarkMode`) : $t(`surface.LightMode`) }}
+    </span>
+  </div>
+  <div
+    class="userCenter-item"
+    @click="changeLanguage(locale === 'zh' ? 'en' : 'zh')"
+  >
+    <img
+      :src="locale === 'zh' ? (dark ? zhwSvg : zhSvg) : dark ? enwSvg : enSvg"
+      alt=""
+    />
+    <span>
+      {{ $t(`surface.Language`) }}
+    </span>
+  </div>
+  <div class="userCenter-item dp--center">
+    <img :src="dark ? helpwSvg : helpSvg" alt="" />
+    <span>
+      {{ $t(`surface.Help`) }}
+    </span>
+  </div>
+  <div class="userCenter-item dp--center">
+    <img :src="dark ? communitywSvg : communitySvg" alt="" />
+    <span>
+      {{ $t(`surface.Community`) }}
+    </span>
+  </div>
+  <div
+    class="userCenter-item dp--center"
+    @click="store.commit('auth/setLogout')"
+  >
+    <img :src="dark ? quitwSvg : quitSvg" alt="" />
+    <span>
+      {{ $t(`surface.Quit`) }}
+    </span>
+  </div>
+  <el-dialog v-model="userVisible" title="个人资料" :width="300">
+    <div class="user-edit dp-center-center">
+      <div class="avatar">
+        <el-avatar :src="avatar" :size="150" />
+        <input
+          type="file"
+          accept="image/*"
+          @change="chooseImg"
+          class="upload-img"
+        />˝
+      </div>
+
+      <div class="text dp-space-center">
+        userName :
+        <el-input
+          class="input"
+          v-model="userName"
+          placeholder="enter userName"
+        />
+      </div>
+      <div class="text dp-space-center">
+        email :
+        <el-input class="input" v-model="email" placeholder="enter email" />
+      </div>
+    </div>
+
+    <template #footer>
+      <span class="dialog-footer dp-center-center">
+        <el-button type="primary" @click="changeConfig()">Save</el-button>
+      </span>
+    </template>
+  </el-dialog>
+</template>
+<style scoped lang="scss">
+.userCenter-user {
+  margin-bottom: 40px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  span {
+    margin-right: 0px;
+  }
+  .center {
+    width: 100%;
+    height: 20px;
+    font-size: 20px;
+    margin: 10px 0px;
+    line-height: 20px;
+    text-align: center;
+  }
+  .bottom {
+    width: 100%;
+    height: 20px;
+    font-size: 14px;
+    color: #999999;
+    line-height: 20px;
+    text-align: center;
+  }
+}
+.userCenter-item {
+  width: 100%;
+  height: 35px;
+  margin-bottom: 15px;
+  img {
+    width: 25px;
+    height: 25px;
+    margin-right: 15px;
+  }
+  span {
+    font-size: 18px;
+    font-weight: 400;
+  }
+}
+.user-edit {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  .avatar {
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+    .upload-img {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      z-index: 5;
+      overflow: hidden;
+      opacity: 0;
+      cursor: pointer;
+    }
+  }
+  .text {
+    width: 100%;
+    margin: 10px 0px;
+    .input {
+      width: calc(100% - 100px);
+    }
+  }
+}
+</style>
+<style></style>

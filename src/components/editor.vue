@@ -1,0 +1,362 @@
+<script setup lang="ts">
+import {
+  EditorContent,
+  JSONContent,
+  useEditor,
+  BubbleMenu,
+} from "@tiptap/vue-3";
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import Image from "@tiptap/extension-image";
+import Placeholder from "@tiptap/extension-placeholder";
+import TaskList from "@tiptap/extension-task-list";
+import TaskItem from "@tiptap/extension-task-item";
+import i18n from "@/language/i18n";
+import { Card } from "@/interface/Message";
+import { ElMessage } from "element-plus";
+import { useStore } from "@/store";
+import EditorNav from "./editorNav.vue";
+import api from "@/services/api";
+import { ResultProps } from "@/interface/Common";
+
+import fullScreenSvg from "../assets/svg/fullScreen.svg";
+import moreSvg from "../assets/svg/more.svg";
+import boldSvg from "../assets/editor/bold.svg";
+import italicSvg from "../assets/editor/italic.svg";
+import strikeSvg from "../assets/editor/strike.svg";
+import underlineSvg from "../assets/editor/underline.svg";
+import boldwSvg from "../assets/editor/boldw.svg";
+import italicwSvg from "../assets/editor/italicw.svg";
+import strikewSvg from "../assets/editor/strikew.svg";
+import underlinewSvg from "../assets/editor/underlinew.svg";
+const router = useRouter();
+const props = defineProps<{
+  initData?: Card | null;
+  isEdit: boolean;
+  position: string;
+}>();
+
+const store = useStore();
+const dark = computed(() => store.state.common.dark);
+const editor = useEditor({
+  content: {
+    type: "doc",
+    content: [
+      {
+        type: "heading",
+        attrs: { level: 3 },
+      },
+    ],
+  },
+  extensions: [
+    StarterKit,
+    Placeholder.configure({
+      placeholder: ({ node }) => {
+        const placeholderStr = i18n.global.t("form.placeholder");
+        const placeholderTitle = i18n.global.t("tip.title");
+        console.log(node.type.name);
+        if (node.type.name === "heading") {
+          return placeholderTitle;
+        } else if (node.type.name === "paragraph") {
+          return placeholderStr;
+        } else {
+          return placeholderStr;
+        }
+      },
+    }),
+    Image,
+    Underline,
+    TaskList,
+    TaskItem.configure({
+      nested: true,
+    }),
+    // BubbleMenu.configure({
+    //   element: document.querySelector(".menu"),
+    // }),
+  ],
+  autofocus: true,
+  editable: true,
+});
+
+watch(
+  () => props,
+  (props) => {
+    if (props.initData?.detail) {
+      editor.value?.commands.setContent(props.initData.detail);
+    }
+    console.log(props);
+    if (!props.isEdit) {
+      editor.value?.setEditable(false);
+    }
+  },
+  { deep: true }
+);
+
+async function handlePost(key: string, callback?: any) {
+  if (!editor.value) return;
+  const json: JSONContent = editor.value.getJSON();
+  console.log(json);
+  let title: any = "新消息";
+  if (json.content) {
+    if (
+      json.content[0] &&
+      json.content[0].content &&
+      json.content[0].content[0]
+    ) {
+      title = json.content[0].content[0].text;
+    }
+    let arr = json.content;
+    let cover = "";
+    for (let i = 0; i < arr.length; i++) {
+      let item = arr[i];
+      if (item.type === "image") {
+        cover = item.attrs?.src;
+        break;
+      }
+    }
+    const summary = editor.value
+      .getText()
+      .replace(title, "")
+      .replace(/\r\n/g, "")
+      .replace(/\n/g, "")
+      .substring(0, 200);
+
+    // if (props.initData) {
+    //   // 有初始数据，更新数据
+    //   store.dispatch("card/editCard", {
+    //     cardKey: props.initData._key,
+    //     title,
+    //     content: json,
+    //     summary,
+    //   });
+    // } else {
+    // 创建数据
+    // store.dispatch("card/addCard", { title, content: json, summary });
+    const postRes = (await api.request.post("card", {
+      receiverKey: key,
+      title: title,
+      detail: json.content,
+      summary: summary,
+      cover: cover,
+    })) as ResultProps;
+    if (postRes.msg === "OK") {
+      ElMessage.success("submit success");
+      callback(postRes);
+      store.commit("message/setEditContent", null);
+    }
+    editor.value.commands.clearContent();
+    editor.value.commands.focus();
+    // }
+  }
+}
+const toInfo = () => {
+  router.push("/info/create");
+  store.commit("message/setEditContent", editor.value?.getJSON().content);
+};
+defineExpose({
+  handlePost,
+});
+</script>
+
+<template>
+  <bubble-menu
+    :editor="editor"
+    :tippy-options="{ duration: 100 }"
+    v-if="editor"
+    class="menu dp--center"
+  >
+    <div
+      class="button dp--center"
+      :class="{ 'is-active': editor.isActive('bold') }"
+      @click="editor?.chain().focus().toggleBold().run()"
+    >
+      <img :src="dark ? boldwSvg : boldSvg" alt="" />
+    </div>
+    <div
+      class="button dp--center"
+      :class="{ 'is-active': editor.isActive('bold') }"
+      @click="editor?.chain().focus().toggleItalic().run()"
+    >
+      <img :src="dark ? italicwSvg : italicSvg" alt="" />
+    </div>
+    <div
+      class="button dp--center"
+      :class="{ 'is-active': editor.isActive('bold') }"
+      @click="editor?.chain().focus().toggleStrike().run()"
+    >
+      <img :src="dark ? strikewSvg : strikeSvg" alt="" />
+    </div>
+    <div
+      class="button dp--center"
+      :class="{ 'is-active': editor.isActive('bold') }"
+      @click="editor?.chain().focus().toggleUnderline().run()"
+    >
+      <img :src="dark ? underlinewSvg : underlineSvg" alt="" />
+    </div>
+  </bubble-menu>
+
+  <editor-content :editor="editor" />
+  <div
+    v-if="editor && isEdit "
+    class="editor-nav dp--center"
+    :style="
+      props.position === 'top'
+        ? { top: 0, width: '100%' }
+        : { bottom: 0, width: 'calc(100% - 50px)' }
+    "
+  >
+    <editor-nav :editor="editor" />
+  </div>
+  <div class="nav dp--center" v-if="position === 'bottom'">
+    <img
+      :src="fullScreenSvg"
+      style="width: 16px; height: 16px; margin-right: 8px"
+      alt=""
+      @click="toInfo()"
+    />
+    <img :src="moreSvg" alt="" style="width: 16px; height: 3px" />
+  </div>
+</template>
+
+<style lang="scss">
+/* Basic editor styles */
+.ProseMirror {
+  > * + * {
+    margin-top: 0.75em;
+  }
+
+  ul,
+  ol {
+    padding: 0 1rem;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    line-height: 1.1;
+  }
+
+  code {
+    background-color: rgba(#616161, 0.1);
+    color: #616161;
+  }
+
+  pre {
+    background: #0d0d0d;
+    color: #fff;
+    font-family: "JetBrainsMono", monospace;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+
+    code {
+      color: inherit;
+      padding: 0;
+      background: none;
+      font-size: 0.8rem;
+    }
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  blockquote {
+    padding-left: 1rem;
+    border-left: 2px solid rgba(#0d0d0d, 0.1);
+  }
+
+  hr {
+    border: none;
+    border-top: 2px solid rgba(#0d0d0d, 0.1);
+    margin: 2rem 0;
+  }
+}
+
+/* Placeholder (at the top) */
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+
+  p {
+    margin: 0;
+  }
+
+  li {
+    display: flex;
+
+    > label {
+      flex: 0 0 auto;
+      margin-right: 0.5rem;
+      user-select: none;
+    }
+
+    > div {
+      flex: 1 1 auto;
+    }
+  }
+}
+
+/* 自加 */
+:focus-visible {
+  outline: none;
+}
+.ProseMirror-selectednode {
+  outline: 3px solid #68cef8;
+}
+// 标题Placeholder
+.ProseMirror h1.is-empty:first-child::before,
+.ProseMirror h2.is-empty:first-child::before,
+.ProseMirror h3.is-empty:first-child::before,
+.ProseMirror h4.is-empty:first-child::before,
+.ProseMirror h5.is-empty:first-child::before,
+.ProseMirror h6.is-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.ProseMirror p.is-empty::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.editor-nav {
+  height: 30px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: absolute;
+  left: 0px;
+  &::-webkit-scrollbar {
+    height: 0px;
+  }
+}
+.menu {
+  img {
+    width: 15px;
+    height: 15px;
+    margin: 0px 8px;
+    cursor: pointer;
+  }
+}
+.nav {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  z-index: 2;
+}
+</style>
