@@ -4,7 +4,7 @@ export const lightColors = [
   // { name: "--el-color-white", value: "#ffffff" },
   { name: " --el-collapse-header-bg-color", value: "#f5f8f5" },
  
-  { name: "--el-text-color-primary", value: "#303133" },
+  { name: "--el-text-color-primary", value: "#333" },
   { name: "--el-text-color-regular", value: "#606266" },
   { name: "--el-color-primary-light-9", value: "#ecf5ff" },
   { name: "--el-border-color-base", value: "#dcdfe6" },
@@ -12,7 +12,7 @@ export const lightColors = [
   { name: "--el-border-color-extra-light", value: "#f2f6fc" },
   { name: "--el-border-color-lighter", value: "#ebeef5" },
   { name: "--talk-font-color", value: "#333" },
-  { name: "--talk-bg-color", value: "#f5f8f5" },
+  { name: "--talk-bg-color", value: "#f6f6f6" },
   { name: "--talk-hover-color", value: "#f0f0f0" },
   // { name: "--notes-color-border", value: "#e1e1e1" },
 ];
@@ -21,7 +21,7 @@ export const darkColors = [
   { name: "--el-background-color-base", value: "#373A48" },
   // { name: "--el-color-white", value: "#141414" },
   { name: " --el-collapse-header-bg-color", value: "#373A48" },
-  { name: "--el-text-color-primary", value: "#ffffff" },
+  { name: "--el-text-color-primary", value: "#333" },
   { name: "--el-text-color-regular", value: "#d0d0d0" },
   { name: "--el-color-primary-light-9", value: "#1f1f1f" },
   { name: "--el-border-color-base", value: "#434343" },
@@ -38,7 +38,7 @@ export const darkColors = [
 export const color = () => {
   // 主题颜色变量组
   const themeList = ref([
-    { name: "极光绿(默认)", value: "#87b940" },
+    { name: "极光绿(默认)", value: "#03c160" },
     { name: "拂晓蓝", value: "#409eff" },
     { name: "薄暮红", value: "#e74c3c" },
     { name: "火山橘", value: "#e67e22" },

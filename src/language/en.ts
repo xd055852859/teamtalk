@@ -52,6 +52,8 @@ export default {
     tips: "Tips",
     cancel: "Cancel",
     confirm: "Confirm",
+    private: "Private",
+    favorite: "Favorite",
   },
   tip: {
     title: "Please enter a title",

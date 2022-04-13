@@ -10,7 +10,7 @@ const setTheme = (value: string) => {
   // document.documentElement.style.setProperty(`--el-color-primary`, value);
   const primary_color = useCssVar("--el-color-primary", el);
   primary_color.value = value;
-  localStorage.setItem("THEME", value);
+  // localStorage.setItem("THEME", value);
 };
 
 export default setTheme;

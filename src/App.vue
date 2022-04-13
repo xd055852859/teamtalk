@@ -39,6 +39,9 @@ const init = async () => {
       userName: userInfoRes.data.userName,
       email: userInfoRes.data.email,
       config: userInfoRes.data.config,
+      favoriteMessageCount: userInfoRes.data.favoriteMessageCount,
+      privateMessageCount: userInfoRes.data.privateMessageCount,
+      sentMessageCount: userInfoRes.data.sentMessageCount,
     });
     if (userInfoRes?.data?.config) {
       proxy.$i18n.locale = userInfoRes.data.config.locale;

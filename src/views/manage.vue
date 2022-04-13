@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DArrowLeft, ArrowDown } from "@element-plus/icons-vue";
+import { DArrowLeft } from "@element-plus/icons-vue";
 import { useStore } from "@/store";
 
 import chooseSvg from "../assets/svg/choose.svg";

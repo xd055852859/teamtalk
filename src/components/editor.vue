@@ -19,8 +19,7 @@ import EditorNav from "./editorNav.vue";
 import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
 
-import fullScreenSvg from "../assets/svg/fullScreen.svg";
-import moreSvg from "../assets/svg/more.svg";
+
 import boldSvg from "../assets/editor/bold.svg";
 import italicSvg from "../assets/editor/italic.svg";
 import strikeSvg from "../assets/editor/strike.svg";
@@ -155,6 +154,7 @@ const toInfo = () => {
 };
 defineExpose({
   handlePost,
+  toInfo
 });
 </script>
 
@@ -206,15 +206,6 @@ defineExpose({
     "
   >
     <editor-nav :editor="editor" />
-  </div>
-  <div class="nav dp--center" v-if="position === 'bottom'">
-    <img
-      :src="fullScreenSvg"
-      style="width: 16px; height: 16px; margin-right: 8px"
-      alt=""
-      @click="toInfo()"
-    />
-    <img :src="moreSvg" alt="" style="width: 16px; height: 3px" />
   </div>
 </template>
 

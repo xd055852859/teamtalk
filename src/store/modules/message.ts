@@ -77,7 +77,7 @@ const actions: ActionTree<MessageState, RootState> = {
   async getMessageList({ commit }, page: number) {
     let obj: any = {
       page: page,
-      limit: 10,
+      limit: 20,
     };
     if (state.receiver) {
       if (state.receiver.receiverType === "group") {

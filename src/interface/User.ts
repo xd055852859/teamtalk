@@ -9,6 +9,9 @@ export interface User {
     dark: boolean;
     theme: string;
   };
+  favoriteMessageCount?: number;
+  privateMessageCount?: number;
+  sentMessageCount?: number;
 }
 export interface Group {
   _key: string;

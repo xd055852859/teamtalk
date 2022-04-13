@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ElMessage } from "element-plus";
-import { ArrowDown } from "@element-plus/icons-vue";
+import {
+  ArrowDown,
+  Filter as ShowFilter,
+  DArrowRight,
+} from "@element-plus/icons-vue";
 
 import { useStore } from "@/store";
 
@@ -9,6 +13,7 @@ import sentSvg from "../assets/svg/sent.svg";
 import receivedSvg from "../assets/svg/received.svg";
 import unReadSvg from "../assets/svg/unRead.svg";
 import logoSvg from "../assets/svg/logoHeader.svg";
+import logowSvg from "../assets/svg/logoHeaderw.svg";
 import UserCenter from "./userCenter.vue";
 import { Group } from "@/interface/User";
 
@@ -18,6 +23,7 @@ const groupList = computed(() => store.state.auth.groupList);
 const receiver = computed(() => store.state.message.receiver);
 const receiverType = computed(() => store.state.message.receiverType);
 const receiverNumber = computed(() => store.state.message.receiverNumber);
+const dark = computed(() => store.state.common.dark);
 
 const chooseVisible = ref<boolean>(false);
 const themeVisible = ref<boolean>(false);
@@ -51,64 +57,42 @@ const backAll = () => {
 <template>
   <div class="talk-header dp-space-center p-5">
     <div class="header-left dp-center-center">
-      <img :src="logoSvg" alt="" class="logo" @click="themeVisible = true" />
-      <div class="dp--center" @click="chooseVisible = true">
-        <!-- <span class="common-color">{{ $t(`surface.Messages`) }} : </span> -->
-
-        <el-icon>
-          <arrow-down />
-        </el-icon>
-      </div>
-      <!-- <el-dropdown>
-        <div class="dp--center">
-          {{$t(`surface.Messages`)}}:
-          <el-icon>
-            <arrow-down />
-          </el-icon>
-        </div>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item>All</el-dropdown-item>
-            <el-dropdown-item>我发出的</el-dropdown-item>
-            <el-dropdown-item>我接受的</el-dropdown-item>
-            <el-divider />
-            <el-dropdown-item class="dp--center">
-              <el-avatar
-                :size="30"
-                src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-              />
-              研发部
-            </el-dropdown-item>
-            <el-dropdown-item class="dp--center">
-              <el-avatar
-                :size="30"
-                src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-              />
-              王小平
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown> -->
+      <img
+        :src="dark ? logowSvg : logoSvg"
+        alt=""
+        class="logo"
+        @click="themeVisible = true"
+      />
+      <span
+        class="unread dp-center-center"
+        v-if="receiverType !== 'all'"
+        @click="backAll"
+        >{{ receiverNumber > 99 ? "99+" : receiverNumber }}</span
+      >
     </div>
     <div class="header-right dp--center">
-        <span class="m-left-10 m-right-10">{{
-          receiver ? receiver?.title : receiverType
-        }}</span>
-      <el-badge
+      <el-avatar :size="40" :src="receiver?.avatar" v-if="receiver" />
+      <span class="m-left-10 m-right-10">{{
+        receiver ? receiver?.title : receiverType
+      }}</span>
+      <el-icon :size="20" class="filter" @click="chooseVisible = true"
+        ><show-filter
+      /></el-icon>
+      <!-- <el-badge
         :value="receiverNumber"
         v-if="receiverType !== 'all'"
         :hidden="!receiverNumber"
       >
         <img :src="unReadSvg" alt="" @click="backAll" />
-      </el-badge>
+      </el-badge> -->
     </div>
   </div>
   <el-drawer
     v-model="chooseVisible"
-    direction="btt"
+    direction="rtl"
     :with-header="false"
-    :size="chooseHeight"
-    custom-class="radius-drawer"
+    :size="300"
+    custom-class="p0-drawer"
   >
     <div class="message-box">
       <div class="header">
@@ -120,11 +104,29 @@ const backAll = () => {
           <div class="name">{{ $t(`form.all`) }}</div>
         </div>
       </div>
+      <div class="container dp-space-center" @click="changeReceiver('private')">
+        <div class="left dp--center">
+          <img :src="sentSvg" alt="" class="img" />
+          <div class="name">{{ $t(`form.private`) }}</div>
+        </div>
+        <div class="right dp--center">{{ user?.privateMessageCount }}</div>
+      </div>
+      <div
+        class="container dp-space-center"
+        @click="changeReceiver('favorite')"
+      >
+        <div class="left dp--center">
+          <img :src="sentSvg" alt="" class="img" />
+          <div class="name">{{ $t(`form.favorite`) }}</div>
+        </div>
+        <div class="right dp--center">{{ user?.favoriteMessageCount }}</div>
+      </div>
       <div class="container dp-space-center" @click="changeReceiver('sent')">
         <div class="left dp--center">
           <img :src="sentSvg" alt="" class="img" />
           <div class="name">{{ $t(`form.sent`) }}</div>
         </div>
+        <div class="right dp--center">{{ user?.sentMessageCount }}</div>
       </div>
       <div class="container dp-space-center" @click="changeReceiver('receive')">
         <div class="left dp--center">
@@ -163,8 +165,25 @@ const backAll = () => {
   height: 55px;
   .header-left {
     img {
-      width: 30px;
       height: 30px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    .unread {
+      width: 25px;
+      height: 25px;
+      background: var(--el-color-danger);
+      color: #fff;
+      box-sizing: border-box;
+      font-size: 14px;
+      border-radius: 50%;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+  }
+  .header-right {
+    .filter {
+      color: var(--el-text-color-primary);
       cursor: pointer;
     }
   }
@@ -176,7 +195,7 @@ const backAll = () => {
   text-align: center;
 }
 .box {
-  height: calc(100vh - 350px);
+  height: calc(100vh - 395px);
   overflow-y: auto;
 }
 </style>

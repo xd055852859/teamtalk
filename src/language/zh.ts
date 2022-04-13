@@ -52,6 +52,8 @@ export default {
     tips: "提示",
     cancel: "取消",
     confirm: "确认",
+    private: "私有",
+    favorite: "收藏",
   },
   tip: {
     title: "请输入标题",

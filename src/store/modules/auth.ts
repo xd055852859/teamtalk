@@ -43,11 +43,11 @@ const mutations: MutationTree<AuthState> = {
     console.log(user);
     if (user.config) {
       common.state.dark = user.config.dark;
-      common.state.theme = user.config.theme;
+      // common.state.theme = user.config.theme;
       common.state.locale = user.config.locale;
       localStorage.setItem("LANGUAGE", user.config.locale);
       setDark(user.config.dark);
-      setTheme(user.config.theme);
+      // setTheme(user.config.theme);
     }
   },
   setGroupList(state, groupList: Group[]) {

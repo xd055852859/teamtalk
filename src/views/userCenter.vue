@@ -28,6 +28,7 @@ import enwSvg from "../assets/svg/enw.svg";
 import { ResultProps } from "@/interface/Common";
 import { uploadImage } from "@/services/util";
 import { User } from "@/interface/User";
+import i18n from "@/language/i18n";
 
 const store = useStore();
 const { proxy } = useCurrentInstance();
@@ -42,21 +43,40 @@ const avatar = ref<string>("");
 const userName = ref<string>("");
 const email = ref<string>("");
 const themeIndex = ref<number>(0);
-
+const setVisible = ref<boolean>(false);
+const localeValue = ref<string>("");
+const darkValue = ref<string>("");
 onMounted(() => {
   if (user.value) {
     avatar.value = user.value?.userAvatar ? user.value.userAvatar : "";
     userName.value = user.value?.userName ? user.value.userName : "";
     email.value = user.value?.email ? user.value.email : "";
+    localeValue.value = locale.value === "zh" ? "中文" : "English";
+    darkValue.value = dark.value
+      ? locale.value === "zh"
+        ? "暗黑模式"
+        : "Dark Mode"
+      : locale.value === "zh"
+      ? "明亮模式"
+      : "Light Mode";
   }
 });
 const changeLanguage = (value: string) => {
+  value = value === "中文" ? "zh" : "en";
+  darkValue.value = dark.value
+    ? value === "zh"
+      ? "暗黑模式"
+      : "Dark Mode"
+    : value === "zh"
+    ? "明亮模式"
+    : "Light Mode";
   proxy.$i18n.locale = value;
   changeConfig("locale", value);
   store.commit("common/setLocale", value);
   localStorage.setItem("LANGUAGE", value);
 };
-const changeDark = (value: boolean) => {
+const changeDark = (value: string | boolean) => {
+  value = value === i18n.global.t("surface.DarkMode");
   setDark(value);
   changeConfig("dark", value);
   store.commit("common/setDark", value);
@@ -105,7 +125,6 @@ const chooseImg = (e) => {
     avatar.value = url;
   });
 };
-const saveUser = () => {};
 </script>
 <template>
   <div class="userCenter-user" @click="userVisible = true">
@@ -113,13 +132,13 @@ const saveUser = () => {};
     <div class="center">{{ user?.userName }}</div>
     <div class="bottom">{{ user?.email }}</div>
   </div>
-  <div class="userCenter-item dp--center">
+  <div class="userCenter-item dp--center" @click="setVisible = true">
     <img :src="dark ? setwSvg : setSvg" alt="" />
     <span>
       {{ $t(`surface.Settings`) }}
     </span>
   </div>
-  <div class="userCenter-item dp--center" @click="changeDark(!dark)">
+  <!-- <div class="userCenter-item dp--center" @click="changeDark(!dark)">
     <img :src="dark ? darkwSvg : lightSvg" alt="" />
     <span>
       {{ dark ? $t(`surface.DarkMode`) : $t(`surface.LightMode`) }}
@@ -136,7 +155,7 @@ const saveUser = () => {};
     <span>
       {{ $t(`surface.Language`) }}
     </span>
-  </div>
+  </div> -->
   <div class="userCenter-item dp--center">
     <img :src="dark ? helpwSvg : helpSvg" alt="" />
     <span>
@@ -158,7 +177,7 @@ const saveUser = () => {};
       {{ $t(`surface.Quit`) }}
     </span>
   </div>
-  <el-dialog v-model="userVisible" title="个人资料" :width="300">
+  <el-dialog v-model="userVisible" title="个人资料" :width="320">
     <div class="user-edit dp-center-center">
       <div class="avatar">
         <el-avatar :src="avatar" :size="150" />
@@ -189,6 +208,38 @@ const saveUser = () => {};
         <el-button type="primary" @click="changeConfig()">Save</el-button>
       </span>
     </template>
+  </el-dialog>
+  <el-dialog v-model="setVisible" :title="$t(`surface.Settings`)" :width="320">
+    <div class="user-edit dp-center-center">
+      <div class="text dp-space-center">
+        Language :
+        <el-select
+          v-model="localeValue"
+          :placeholder="'choose language'"
+          size="large"
+          @change="changeLanguage"
+        >
+          <el-option value="中文">中文</el-option>
+          <el-option value="English">English</el-option>
+        </el-select>
+      </div>
+      <div class="text dp-space-center">
+        DarkMode :
+        <el-select
+          v-model="darkValue"
+          :placeholder="'choose mode'"
+          size="large"
+          @change="changeDark"
+        >
+          <el-option :value="$t(`surface.DarkMode`)">{{
+            $t(`surface.DarkMode`)
+          }}</el-option>
+          <el-option :value="$t(`surface.LightMode`)"
+            >{{ $t(`surface.LightMode`) }}
+          </el-option>
+        </el-select>
+      </div>
+    </div>
   </el-dialog>
 </template>
 <style scoped lang="scss">

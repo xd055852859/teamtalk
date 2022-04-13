@@ -4,9 +4,11 @@ import { ElMessage } from "element-plus";
 import { getSearchParamValue } from "../services/util";
 import request from "@/services/api";
 import logoSvg from "../assets/svg/logo.svg";
+import logowSvg from "../assets/svg/logow.svg";
 import { useStore } from "@/store";
 const store = useStore();
 const router = useRouter();
+const dark = computed(() => store.state.common.dark);
 // import store from "@/store";
 onMounted(() => {
   console.log(location.search);
@@ -48,8 +50,9 @@ const login = () => {
 </script>
 <template>
   <div class="welcome">
-    <img :src="logoSvg" alt="" class="logo" />
-    <div class="title">Talk without distraction</div>
+    <div class="logo-img dp-center-center">
+      <img :src="dark ? logowSvg : logoSvg" alt="" class="logo" />
+    </div>
     <div class="button" @click="login">{{ $t(`surface.Login`) }}</div>
   </div>
 </template>
@@ -62,11 +65,16 @@ const login = () => {
   align-content: center;
   flex-wrap: wrap;
   background: var(--talk-bg-color);
-  .logo {
-    max-width: 400px;
-    width: 55vw;
-    margin-bottom: 10px;
+  .logo-img {
+    width: 100%;
+    margin-bottom:20vh;
+    .logo {
+      max-width: 400px;
+      width: 55vw;
+      margin-bottom: 10px;
+    }
   }
+
   .title {
     width: 100%;
     height: 40px;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowDown } from "@element-plus/icons-vue";
+import { ArrowDown, CaretBottom } from "@element-plus/icons-vue";
 import Contact from "./contact.vue";
 import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
@@ -7,11 +7,9 @@ import { ElMessage } from "element-plus";
 import { useStore } from "@/store";
 import Editor from "@/components/editor.vue";
 
-import addSvg from "../assets/svg/add.svg";
-import linkSvg from "../assets/svg/link.svg";
-import imgSvg from "../assets/svg/img.svg";
-import shapeSvg from "../assets/svg/shape.svg";
 import MessageItem from "@/components/messageItem.vue";
+import fullScreenSvg from "../assets/svg/fullScreen.svg";
+import moreSvg from "../assets/svg/more.svg";
 
 const store = useStore();
 const router = useRouter();
@@ -42,10 +40,32 @@ const postContent = async () => {
     return;
   }
 };
-
-const closeInput = (done: () => void) => {
-  content.value = "";
-  done();
+const postMessage = async () => {
+  if (!content.value) {
+    ElMessage.error("choose a receiver");
+    return;
+  }
+  const postRes = (await api.request.post("card", {
+    receiverKey: talker.value?._key,
+    title: "新消息",
+    detail: [
+      {
+        type: "heading",
+        attrs: { level: 3 },
+        content: [{ type: "text", text: "新消息" }],
+      },
+      { type: "paragraph", content: [{ type: "text", text: content.value }] },
+    ],
+    summary: content.value.substring(0, 200),
+    cover: "",
+  })) as ResultProps;
+  if (postRes.msg === "OK") {
+    ElMessage.success("submit success");
+    store.commit("message/updateMessageList", postRes.data);
+  }
+};
+const showDrawer = () => {
+  inputVisible.value = true;
 };
 const scrollLoading = (e: any) => {
   //文档内容实际高度（包括超出视窗的溢出部分）
@@ -64,30 +84,55 @@ const scrollLoading = (e: any) => {
     store.dispatch("message/getMessageList", newPage);
   }
 };
+const toInfo = () => {
+  //@ts-ignore
+  editorRef.value.toInfo();
+};
 </script>
 <template>
-  <div class="talk-top p-5" @scroll="scrollLoading">
+  <div class="talk-top p-5 dp-center-center">
+    <!-- <div class="input dp-space-center"> -->
+    <el-input
+      v-model="content"
+      :placeholder="`${$t(`surface['Talk with']`)} : ${
+        talker ? talker.title : 'all'
+      }`"
+      size="large"
+      @change="postMessage"
+    >
+      <template #append>
+        <el-icon @click="showDrawer" :size="23"><caret-bottom /></el-icon>
+      </template>
+    </el-input>
+    <!-- <el-input
+        v-model="content"
+        :placeholder="`${$t(`surface['Talk with']`)} : ${
+          talker ? talker.title : 'all'
+        }`"
+        @change="postMessage"
+      />
+      <div class="right dp-center-center">
+       
+      </div> -->
+  </div>
+  <!-- </div> -->
+  <div class="talk-bottom p-5" @scroll="scrollLoading">
     <div class="box" v-for="(item, index) in messageList" :key="'chat' + index">
       <message-item :item="item" />
     </div>
   </div>
-  <div class="talk-bottom p-5 dp-center-center">
-    <div class="input" @click="inputVisible = true">
-      {{ $t(`surface['Talk with']`) }} : {{ talker ? talker.title : "all" }}
-    </div>
-  </div>
+
   <el-drawer
     v-model="inputVisible"
     direction="btt"
     :with-header="false"
     :size="430"
     custom-class="radius-drawer"
-    :before-close="closeInput"
     destroy-on-close
   >
-    <div class="talk-box">
-      <div class="top p-5">
-        <div class="title dp--center" @click="groupVisible = true">
+    <div class="talk-box p-5">
+      <div class="top dp-space-center">
+        <div class="left dp--center" @click="groupVisible = true">
           <span class="common-color">{{ $t(`surface['Talk with']`) }} : </span>
           <span class="m-left-10 m-right-10">{{
             talker ? talker.title : "all"
@@ -96,22 +141,31 @@ const scrollLoading = (e: any) => {
             <arrow-down />
           </el-icon>
         </div>
-        <el-divider />
-        <div class="center">
-          <div class="editor">
-            <editor
-              :init-data="null"
-              ref="editorRef"
-              :isEdit="true"
-              position="bottom"
-            />
-          </div>
+        <div class="right dp--center">
+          <img
+            :src="fullScreenSvg"
+            style="width: 16px; height: 16px; margin-right: 20px"
+            alt=""
+            @click="toInfo()"
+          />
+          <img :src="moreSvg" alt="" style="width: 16px; height: 3px" />
+        </div>
+      </div>
+      <el-divider />
+      <div class="center">
+        <div class="editor">
+          <editor
+            :init-data="null"
+            ref="editorRef"
+            :isEdit="true"
+            position="bottom"
+          />
+        </div>
 
-          <div class="bottom dp-space-center">
-            <el-button type="primary" round @click="postContent">{{
-              $t(`surface.Post`)
-            }}</el-button>
-          </div>
+        <div class="bottom dp-space-center">
+          <el-button type="primary" round @click="postContent">{{
+            $t(`surface.Post`)
+          }}</el-button>
         </div>
       </div>
     </div>
@@ -128,20 +182,16 @@ const scrollLoading = (e: any) => {
   </el-drawer>
 </template>
 <style scoped lang="scss">
-.talk-top {
+.talk-bottom {
   width: 100%;
-  height: calc(100vh - 55px);
+  height: calc(100vh - 135px);
   overflow-x: hidden;
   overflow-y: auto;
   padding-bottom: 80px;
 }
-.talk-bottom {
+.talk-top {
   width: 100%;
   height: 80px;
-  position: fixed;
-  left: 0px;
-  bottom: 0px;
-  z-index: 2;
   background: var(--talk-bg-color);
   .input {
     width: 100%;
@@ -155,6 +205,9 @@ const scrollLoading = (e: any) => {
     font-weight: 400;
     text-align: left;
     color: #999999;
+    .right {
+      width: 50px;
+    }
   }
 }
 .talk-box {
@@ -162,37 +215,39 @@ const scrollLoading = (e: any) => {
   box-sizing: border-box;
   .top {
     width: 100%;
-    height: 350px;
-    margin-bottom: 10px;
-    .title {
-      height: 40px;
+    height: 40px;
+    .left {
+      height: 100%;
     }
-    .center {
+    .right {
+      height: 100%;
+    }
+  }
+  .center {
+    width: 100%;
+    height: 340px;
+    position: relative;
+    z-index: 1;
+    margin-top: 10px;
+    overflow: hidden;
+    .editor {
       width: 100%;
       height: 340px;
+      overflow: auto;
       position: relative;
       z-index: 1;
-      margin-top: 10px;
-      overflow: hidden;
-      .editor {
-        width: 100%;
-        height: 340px;
-        overflow: auto;
-        position: relative;
-        z-index: 1;
-      }
-      .bottom {
-        height: 30px;
-        position: absolute;
-        right: 10px;
-        bottom: 0px;
-        z-index: 10;
-        .button {
-          img {
-            width: 20px;
-            height: 20px;
-            margin-right: 15px;
-          }
+    }
+    .bottom {
+      height: 30px;
+      position: absolute;
+      right: 10px;
+      bottom: 0px;
+      z-index: 10;
+      .button {
+        img {
+          width: 20px;
+          height: 20px;
+          margin-right: 15px;
         }
       }
     }
