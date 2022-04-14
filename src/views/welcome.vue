@@ -3,8 +3,8 @@ import { ElMessage } from "element-plus";
 // import router from "../router";
 import { getSearchParamValue } from "../services/util";
 import request from "@/services/api";
-import logoSvg from "../assets/svg/logo.svg";
-import logowSvg from "../assets/svg/logow.svg";
+import logoSvg from "../assets/img/logo.png";
+import logowSvg from "../assets/img/logow.png";
 import { useStore } from "@/store";
 const store = useStore();
 const router = useRouter();
@@ -53,7 +53,9 @@ const login = () => {
     <div class="logo-img dp-center-center">
       <img :src="dark ? logowSvg : logoSvg" alt="" class="logo" />
     </div>
-    <div class="button" @click="login">{{ $t(`surface.Login`) }}</div>
+    <el-button type="primary" @click="login" round class="button">{{
+      $t(`surface.Login`)
+    }}</el-button>
   </div>
 </template>
 <style scoped lang="scss">
@@ -67,10 +69,10 @@ const login = () => {
   background: var(--talk-bg-color);
   .logo-img {
     width: 100%;
-    margin-bottom:20vh;
+    margin-bottom: 20vh;
     .logo {
       max-width: 400px;
-      width: 55vw;
+      width: 70vw;
       margin-bottom: 10px;
     }
   }
@@ -86,11 +88,12 @@ const login = () => {
     line-height: 40px;
   }
   .button {
-    background-color: var(--el-color-primary);
-    color: #fff;
-    font-size: 20px;
-    padding: 8px 35px;
-    border-radius: 20px;
+    width: 20vw;
+    max-width: 120px;
+    min-width: 70px;
+    height: 10vw;
+    max-height: 50px;
+    min-height: 40px;
   }
 }
 </style>

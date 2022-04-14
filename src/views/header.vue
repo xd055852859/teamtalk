@@ -9,11 +9,12 @@ import {
 import { useStore } from "@/store";
 
 import allSvg from "../assets/svg/all.svg";
-import sentSvg from "../assets/svg/sent.svg";
+import privateSvg from "../assets/svg/private.svg";
+import favoriteSvg from "../assets/svg/favorite.svg";
+import sendSvg from "../assets/svg/send.svg";
 import receivedSvg from "../assets/svg/received.svg";
 import unReadSvg from "../assets/svg/unRead.svg";
-import logoSvg from "../assets/svg/logoHeader.svg";
-import logowSvg from "../assets/svg/logoHeaderw.svg";
+import logoPng from "../assets/img/logoHeader.png";
 import UserCenter from "./userCenter.vue";
 import { Group } from "@/interface/User";
 
@@ -57,21 +58,20 @@ const backAll = () => {
 <template>
   <div class="talk-header dp-space-center p-5">
     <div class="header-left dp-center-center">
-      <img
-        :src="dark ? logowSvg : logoSvg"
-        alt=""
-        class="logo"
-        @click="themeVisible = true"
-      />
+      <img :src="logoPng" alt="" class="logo" @click="themeVisible = true" />
       <span
         class="unread dp-center-center"
-        v-if="receiverType !== 'all'"
+        v-if="receiverType !== 'all' && receiverNumber > 0"
         @click="backAll"
         >{{ receiverNumber > 99 ? "99+" : receiverNumber }}</span
       >
     </div>
     <div class="header-right dp--center">
-      <el-avatar :size="40" :src="receiver?.avatar" v-if="receiver" />
+      <el-avatar
+        :size="40"
+        :src="receiver?.avatar"
+        v-if="receiver && receiver.receiverType === 'user'"
+      />
       <span class="m-left-10 m-right-10">{{
         receiver ? receiver?.title : receiverType
       }}</span>
@@ -106,7 +106,7 @@ const backAll = () => {
       </div>
       <div class="container dp-space-center" @click="changeReceiver('private')">
         <div class="left dp--center">
-          <img :src="sentSvg" alt="" class="img" />
+          <img :src="privateSvg" alt="" class="img" />
           <div class="name">{{ $t(`form.private`) }}</div>
         </div>
         <div class="right dp--center">{{ user?.privateMessageCount }}</div>
@@ -116,15 +116,15 @@ const backAll = () => {
         @click="changeReceiver('favorite')"
       >
         <div class="left dp--center">
-          <img :src="sentSvg" alt="" class="img" />
+          <img :src="favoriteSvg" alt="" class="img" />
           <div class="name">{{ $t(`form.favorite`) }}</div>
         </div>
         <div class="right dp--center">{{ user?.favoriteMessageCount }}</div>
       </div>
       <div class="container dp-space-center" @click="changeReceiver('sent')">
         <div class="left dp--center">
-          <img :src="sentSvg" alt="" class="img" />
-          <div class="name">{{ $t(`form.sent`) }}</div>
+          <img :src="sendSvg" alt="" class="img" />
+          <div class="name">{{ $t(`form.send`) }}</div>
         </div>
         <div class="right dp--center">{{ user?.sentMessageCount }}</div>
       </div>
@@ -162,10 +162,12 @@ const backAll = () => {
 <style scoped lang="scss">
 .talk-header {
   width: 100%;
-  height: 55px;
+  height: 50px;
   .header-left {
     img {
-      height: 30px;
+      height: 10vw;
+      max-height: 30px;
+      min-height: 20px;
       cursor: pointer;
       margin-right: 10px;
     }
@@ -177,7 +179,7 @@ const backAll = () => {
       box-sizing: border-box;
       font-size: 14px;
       border-radius: 50%;
-      margin-left: 10px;
+      margin-left: 5px;
       cursor: pointer;
     }
   }
@@ -195,7 +197,7 @@ const backAll = () => {
   text-align: center;
 }
 .box {
-  height: calc(100vh - 395px);
+  height: calc(100vh - 345px);
   overflow-y: auto;
 }
 </style>

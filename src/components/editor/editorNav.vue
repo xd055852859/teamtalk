@@ -1,34 +1,34 @@
 <script setup lang="ts">
 import { Editor } from "@tiptap/vue-3";
 import { uploadImage } from "@/services/util";
-
+import EditorItem from "./editorItem.vue";
 import { useStore } from "@/store";
+
 // import leftSvg from "../assets/editor/left.svg";
 // import rightSvg from "../assets/editor/right.svg";
-import addSvg from "../assets/editor/add.svg";
-import imgSvg from "../assets/editor/img.svg";
-import delSvg from "../assets/editor/del.svg";
-import redoSvg from "../assets/editor/redo.svg";
-import undoSvg from "../assets/editor/undo.svg";
+import addSvg from "@/assets/editor/add.svg";
+import imgSvg from "@/assets/editor/img.svg";
+import delSvg from "@/assets/editor/del.svg";
+import redoSvg from "@/assets/editor/redo.svg";
+import undoSvg from "@/assets/editor/undo.svg";
 
-import addwSvg from "../assets/editor/addw.svg";
-import imgwSvg from "../assets/editor/imgw.svg";
-import delwSvg from "../assets/editor/delw.svg";
-import redowSvg from "../assets/editor/redow.svg";
-import undowSvg from "../assets/editor/undow.svg";
-import EditorItem from "./editorItem.vue";
+import addwSvg from "@/assets/editor/addw.svg";
+import imgwSvg from "@/assets/editor/imgw.svg";
+import delwSvg from "@/assets/editor/delw.svg";
+import redowSvg from "@/assets/editor/redow.svg";
+import undowSvg from "@/assets/editor/undow.svg";
 
 const store = useStore();
-const props = defineProps<{ editor: Editor }>();
 const dark = computed(() => store.state.common.dark);
 const uploadToken = computed(() => store.state.auth.uploadToken);
+const editorInfo = computed(() => store.state.message.editorInfo);
 
 const drawer = ref<boolean>(false);
 const chooseImg = (e) => {
   console.log(e.target.files[0]);
   let mimeType = ["image/png", "image/jpeg"];
   uploadImage(e.target.files[0], uploadToken.value, mimeType, (url: string) => {
-    props.editor.commands.setImage({ src: url });
+    editorInfo.value?.commands.setImage({ src: url });
   });
 };
 </script>
@@ -59,19 +59,25 @@ const chooseImg = (e) => {
     <img
       :src="dark ? redowSvg : redoSvg"
       alt=""
-      @click="props.editor.chain().focus().undo().run()"
+      @click="editorInfo?.chain().focus().undo().run()"
     />
     <img
       :src="dark ? undowSvg : undoSvg"
       alt=""
-      @click="props.editor.chain().focus().redo().run()"
+      @click="editorInfo?.chain().focus().redo().run()"
     />
   </div>
-  <el-drawer v-model="drawer" title="basicblocks" direction="btt" size="100%">
+  <el-drawer
+    v-model="drawer"
+    title="basicblocks"
+    direction="btt"
+    size="100%"
+    :append-to-body="true"
+  >
     <editor-item
-      :editor="editor"
       @close="drawer = false"
       :itemObj="{ height: 'calc(100% - 50px)', width: '100vw' }"
+      :item-height="40"
     />
   </el-drawer>
 </template>

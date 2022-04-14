@@ -29,7 +29,7 @@ watch(memberName, (newOld: string) => {
 <template>
   <div class="contact p-5">
     <div class="header">
-      {{ $t(`surface['Talk with']`) }}
+      To : 
     </div>
     <div class="search">
       <el-input

@@ -37,10 +37,13 @@ export default {
 
     copy: "Copy invite code",
     disband: "Disband",
+    to:"To",
+    in:"In",
+    from:"From"
   },
   form: {
     all: "All",
-    sent: "I sent",
+    send: "I send",
     received: "I received",
     unread: "Unread",
     keyword: "Search By Keyword",

@@ -5,47 +5,6 @@ const router = useRouter();
 </script>
 <template>
   <div
-    class="footer dp--center"
-    :style="
-      props.item.type === 'self'
-        ? {
-            'flex-direction': 'row-reverse',
-          }
-        : {}
-    "
-  >
-    <div class="left dp--center">
-      <el-avatar :size="40" :src="props.item.creatorInfo.userAvatar" />
-    </div>
-    <div class="right dp--center">
-      <div
-        class="title"
-        :style="
-          props.item.type === 'self'
-            ? {
-                'text-align': 'right',
-              }
-            : {}
-        "
-      >
-        {{ props.item.creatorInfo.userName }}
-      </div>
-      <div
-        class="title common-color"
-        :style="
-          props.item.type === 'self'
-            ? {
-                'text-align': 'right',
-              }
-            : {}
-        "
-        v-if="props.item.receiverTitle"
-      >
-        {{ props.item.receiverTitle }}
-      </div>
-    </div>
-  </div>
-  <div
     class="item"
     :style="props.item.type === 'self' ? {} : { border: '0px' }"
     @click="router.push('/info/' + item._key)"
@@ -67,7 +26,7 @@ const router = useRouter();
         {{ props.item.summary }}
       </div>
     </div>
-    <span
+    <!-- <span
       class="triangle top"
       :style="props.item.type === 'self' ? { right: '46px' } : { left: '25px' }"
     ></span>
@@ -75,43 +34,81 @@ const router = useRouter();
       class="triangle1 top1"
       :style="{ right: '45px' }"
       v-if="props.item.type === 'self'"
-    ></span>
+    ></span> -->
+    <div
+      class="footer dp--center"
+      :style="
+        props.item.type === 'self'
+          ? {
+              'flex-direction': 'row-reverse',
+            }
+          : {}
+      "
+    >
+      <el-avatar :size="30" :src="props.item.creatorInfo.userAvatar" />
+      <div
+        class="footer-title"
+        :style="
+          props.item.type === 'self'
+            ? {
+                'text-align': 'right',
+              }
+            : {}
+        "
+      >
+        {{ props.item.creatorInfo.userName }}
+      </div>
+      <div
+        class="footer-subtitle common-color"
+        :style="
+          props.item.type === 'self'
+            ? {
+                'text-align': 'right',
+              }
+            : {}
+        "
+        v-if="props.item.receiverTitle"
+      >
+        # {{ props.item.receiverTitle }}
+      </div>
+    </div>
   </div>
 </template>
 <style scoped lang="scss">
 .item {
   width: 100%;
-  max-height: 185px;
+  // max-height: 185px;
   // box-shadow: 0px 2px 9px 0px rgba(178, 178, 178, 0.5);
   position: relative;
   z-index: 1;
   margin: 10px 0px;
-  padding: 15px;
+  padding: 15px 15px 5px 15px;
   box-sizing: border-box;
-  background-color: #fff;
-  border: 1px solid var(--el-color-primary);
+  background-color: var(--talk-item-color);
+  // border: 1px solid var(--el-color-primary);
   // filter: drop-shadow(0px 2px 9px rgba(178, 178, 178, 0.5));
-  border-radius: 16px;
+  border-radius: 8px;
+  color: var(--el-text-color-primary);
   .triangle,
   .triangle1 {
     width: 0;
     height: 0;
     position: absolute;
     z-index: 1;
-    border-left-width: 12px;
-    border-right-width: 12px;
-    border-top-width: 16px;
-    border-bottom-width: 16px;
+    border-left-width: 9px;
+    border-right-width: 9px;
+    border-top-width: 13px;
+    border-bottom-width: 13px;
     border-style: solid;
     border-color: transparent;
-    border-bottom-color: #03c160;
+    border-bottom-color: #16ab78;
   }
   .triangle {
     z-index: 2;
-    border-left-width: 11px;
-    border-right-width: 11px;
-    border-top-width: 15px;
-    border-bottom-width: 15px;
+    border-left-width: 8px;
+    border-right-width: 8px;
+    border-top-width: 12px;
+    border-bottom-width: 12px;
     border-bottom-color: #fff;
   }
   .title {
@@ -140,25 +137,23 @@ const router = useRouter();
     }
   }
   .top {
-    top: -30px;
+    top: -24px;
   }
   .top1 {
-    top: -32px;
+    top: -26px;
   }
-}
-.footer {
-  width: 100%;
-  height: 65px;
-  margin-top: 20px;
-  font-size: 14px;
-  .left {
-  }
-  .right {
-    padding-right: 10px;
-    flex-wrap: wrap;
-    .title {
-      width: 100%;
-      margin-right: 10px;
+  .footer {
+    width: 100%;
+    height: 35px;
+    margin-top: 10px;
+    font-size: 14px;
+    .footer-title {
+      margin-right: 5px;
+    }
+    .footer-subtitle {
+      margin-right: 5px;
+      font-size: 12px;
+      color: #9c9c9c;
     }
   }
 }

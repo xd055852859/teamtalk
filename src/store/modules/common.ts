@@ -7,7 +7,7 @@ const state: CommonState = {
     ? (localStorage.getItem("LANGUAGE") as "zh" | "en")
     : "zh",
   dark: localStorage.getItem("DARK") ? true : false,
-  theme:  "#03c160",
+  theme:  "#16ab78",
   // localStorage.getItem("THEME") ||
   loading: false,
 };

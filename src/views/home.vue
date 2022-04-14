@@ -29,7 +29,7 @@ import { ArrowDown } from "@element-plus/icons-vue";
     line-height: 40px;
     font-size: 18px;
     font-weight: 400;
-    color: #03c160;
+    color: #16ab78;
   }
 }
 .nav-container {

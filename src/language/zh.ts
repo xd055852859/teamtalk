@@ -37,10 +37,13 @@ export default {
 
     copy: "复制",
     disband: "解散小组",
+    to: "发送给",
+    in: "来自于",
+    from: "来自于",
   },
   form: {
     all: "所有",
-    sent: "我发出的",
+    send: "我发出的",
     received: "我接受的",
     unread: "未读",
     keyword: "请输入关键字",

@@ -4,6 +4,7 @@ import {
   JSONContent,
   useEditor,
   BubbleMenu,
+  FloatingMenu,
 } from "@tiptap/vue-3";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
@@ -19,20 +20,22 @@ import EditorNav from "./editorNav.vue";
 import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
 
-
-import boldSvg from "../assets/editor/bold.svg";
-import italicSvg from "../assets/editor/italic.svg";
-import strikeSvg from "../assets/editor/strike.svg";
-import underlineSvg from "../assets/editor/underline.svg";
-import boldwSvg from "../assets/editor/boldw.svg";
-import italicwSvg from "../assets/editor/italicw.svg";
-import strikewSvg from "../assets/editor/strikew.svg";
-import underlinewSvg from "../assets/editor/underlinew.svg";
+import Slash from "./slash/slashs";
+import slashSuggestion from "./slash/suggestion";
+// import suggestion1 from "./suggestion1";
+import boldSvg from "@/assets/editor/bold.svg";
+import italicSvg from "@/assets/editor/italic.svg";
+import strikeSvg from "@/assets/editor/strike.svg";
+import underlineSvg from "@/assets/editor/underline.svg";
+import boldwSvg from "@/assets/editor/boldw.svg";
+import italicwSvg from "@/assets/editor/italicw.svg";
+import strikewSvg from "@/assets/editor/strikew.svg";
+import underlinewSvg from "@/assets/editor/underlinew.svg";
+import EditorItem from "./editorItem.vue";
 const router = useRouter();
 const props = defineProps<{
   initData?: Card | null;
   isEdit: boolean;
-  position: string;
 }>();
 
 const store = useStore();
@@ -69,6 +72,15 @@ const editor = useEditor({
     TaskItem.configure({
       nested: true,
     }),
+    Slash.configure({
+      suggestion: slashSuggestion,
+    }),
+    // Dot.configure({
+    //   suggestion: dotSuggestion,
+    // }),
+    // Dot.configure({
+    //   suggestion: slashSuggestion,
+    // }),
     // BubbleMenu.configure({
     //   element: document.querySelector(".menu"),
     // }),
@@ -76,7 +88,7 @@ const editor = useEditor({
   autofocus: true,
   editable: true,
 });
-
+store.commit("message/setEditor", editor);
 watch(
   () => props,
   (props) => {
@@ -154,7 +166,7 @@ const toInfo = () => {
 };
 defineExpose({
   handlePost,
-  toInfo
+  toInfo,
 });
 </script>
 
@@ -194,19 +206,22 @@ defineExpose({
       <img :src="dark ? underlinewSvg : underlineSvg" alt="" />
     </div>
   </bubble-menu>
-
-  <editor-content :editor="editor" />
-  <div
-    v-if="editor && isEdit "
-    class="editor-nav dp--center"
-    :style="
-      props.position === 'top'
-        ? { top: 0, width: '100%' }
-        : { bottom: 0, width: 'calc(100% - 50px)' }
-    "
+  <!-- <floating-menu
+    :editor="editor"
+    :tippy-options="{ duration: 100 }"
+    v-if="editor"
+    class="menu dp--center"
   >
+    <editor-item
+      :editor="editor"
+      :item-obj="{ width: '200px',overflow: 'auto' }"
+      :itemHeight="30"
+    />
+  </floating-menu> -->
+  <editor-content :editor="editor" />
+  <!-- <div v-if="position === 'bottom' && editor" class="editor-nav dp--center">
     <editor-nav :editor="editor" />
-  </div>
+  </div> -->
 </template>
 
 <style lang="scss">
@@ -332,6 +347,7 @@ ul[data-type="taskList"] {
   overflow-y: hidden;
   position: absolute;
   left: 0px;
+  bottom: 0px;
   &::-webkit-scrollbar {
     height: 0px;
   }

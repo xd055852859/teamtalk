@@ -5,8 +5,8 @@ import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
 import { ElMessage } from "element-plus";
 import { useStore } from "@/store";
-import Editor from "@/components/editor.vue";
-
+import Editor from "@/components/editor/editor.vue";
+import EditorNav from "@/components/editor/editorNav.vue";
 import MessageItem from "@/components/messageItem.vue";
 import fullScreenSvg from "../assets/svg/fullScreen.svg";
 import moreSvg from "../assets/svg/more.svg";
@@ -16,6 +16,7 @@ const router = useRouter();
 const talker = computed(() => store.state.message.talker);
 const messageList = computed(() => store.state.message.messageList);
 const pageNumber = computed(() => store.state.message.pageNumber);
+const editorInfo = computed(() => store.state.message.editorInfo);
 const page = computed(() => store.state.message.page);
 
 const editorRef = ref(null);
@@ -32,7 +33,7 @@ const postContent = async () => {
   if (talker.value && editorRef.value) {
     //@ts-ignore
     editorRef.value.handlePost(talker.value._key, (res) => {
-      store.commit("message/updateMessageList", res.data);
+      // store.commit("message/updateMessageList", res.data);
       inputVisible.value = false;
     });
   } else {
@@ -90,20 +91,58 @@ const toInfo = () => {
 };
 </script>
 <template>
-  <div class="talk-top p-5 dp-center-center">
+  <div class="talk-top p-5">
+    <div class="top dp-space-center">
+      <div class="left dp--center" @click="groupVisible = true">
+        <span>{{ $t(`surface.to`) }} : </span>
+        <el-avatar
+          :size="25"
+          :src="talker.avatar"
+          v-if="talker"
+          :style="{ marginLeft: '5px' }"
+        />
+        <span class="m-right-10">{{ talker ? talker.title : "all" }}</span>
+        <el-icon>
+          <arrow-down />
+        </el-icon>
+      </div>
+      <div class="right dp--center">
+        <img
+          :src="fullScreenSvg"
+          style="width: 16px; height: 16px"
+          alt=""
+          @click="toInfo()"
+        />
+        <!-- <img :src="moreSvg" alt="" style="width: 16px; height: 3px" /> -->
+      </div>
+    </div>
+    <!-- <el-divider /> -->
+    <div class="center">
+      <div class="editor">
+        <editor :init-data="null" ref="editorRef" :isEdit="true" />
+      </div>
+      <div class="bottom dp-space-center">
+        <editor-nav :editor="editorInfo" v-if="editorInfo" />
+        <el-button type="primary" round @click="postContent">{{
+          $t(`surface.Post`)
+        }}</el-button>
+      </div>
+    </div>
     <!-- <div class="input dp-space-center"> -->
-    <el-input
+    <!-- <el-input
       v-model="content"
       :placeholder="`${$t(`surface['Talk with']`)} : ${
         talker ? talker.title : 'all'
       }`"
       size="large"
-      @change="postMessage"
     >
-      <template #append>
+      <template #prepend>
         <el-icon @click="showDrawer" :size="23"><caret-bottom /></el-icon>
       </template>
-    </el-input>
+      <template #append>
+        <el-button @click="postMessage">{{ $t(`surface.Post`) }}</el-button>
+      </template>
+    </el-input> -->
     <!-- <el-input
         v-model="content"
         :placeholder="`${$t(`surface['Talk with']`)} : ${
@@ -130,45 +169,6 @@ const toInfo = () => {
     custom-class="radius-drawer"
     destroy-on-close
   >
-    <div class="talk-box p-5">
-      <div class="top dp-space-center">
-        <div class="left dp--center" @click="groupVisible = true">
-          <span class="common-color">{{ $t(`surface['Talk with']`) }} : </span>
-          <span class="m-left-10 m-right-10">{{
-            talker ? talker.title : "all"
-          }}</span>
-          <el-icon>
-            <arrow-down />
-          </el-icon>
-        </div>
-        <div class="right dp--center">
-          <img
-            :src="fullScreenSvg"
-            style="width: 16px; height: 16px; margin-right: 20px"
-            alt=""
-            @click="toInfo()"
-          />
-          <img :src="moreSvg" alt="" style="width: 16px; height: 3px" />
-        </div>
-      </div>
-      <el-divider />
-      <div class="center">
-        <div class="editor">
-          <editor
-            :init-data="null"
-            ref="editorRef"
-            :isEdit="true"
-            position="bottom"
-          />
-        </div>
-
-        <div class="bottom dp-space-center">
-          <el-button type="primary" round @click="postContent">{{
-            $t(`surface.Post`)
-          }}</el-button>
-        </div>
-      </div>
-    </div>
   </el-drawer>
   <el-drawer
     v-model="groupVisible"
@@ -184,38 +184,20 @@ const toInfo = () => {
 <style scoped lang="scss">
 .talk-bottom {
   width: 100%;
-  height: calc(100vh - 135px);
+  height: calc(100vh - 320px);
   overflow-x: hidden;
   overflow-y: auto;
-  padding-bottom: 80px;
 }
 .talk-top {
   width: 100%;
-  height: 80px;
-  background: var(--talk-bg-color);
-  .input {
-    width: 100%;
-    height: 40px;
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
-    line-height: 40px;
-    padding: 0px 10px;
-    box-sizing: border-box;
-    font-weight: 400;
-    text-align: left;
-    color: #999999;
-    .right {
-      width: 50px;
-    }
-  }
-}
-.talk-box {
-  padding-top: 15px;
+  height: 270px;
+  background: var(--talk-item-color);
+  padding-top: 10px;
+  padding-bottom: 10px;
   box-sizing: border-box;
   .top {
     width: 100%;
-    height: 40px;
+    height: 30px;
     .left {
       height: 100%;
     }
@@ -225,24 +207,21 @@ const toInfo = () => {
   }
   .center {
     width: 100%;
-    height: 340px;
+    height: 220px;
     position: relative;
     z-index: 1;
-    margin-top: 10px;
     overflow: hidden;
+    // border: 1px solid #c8c8c8;
+    // border-radius: 8px;
     .editor {
       width: 100%;
-      height: 340px;
+      height: 190px;
       overflow: auto;
       position: relative;
       z-index: 1;
     }
     .bottom {
       height: 30px;
-      position: absolute;
-      right: 10px;
-      bottom: 0px;
-      z-index: 10;
       .button {
         img {
           width: 20px;

@@ -6,6 +6,7 @@ import { Group } from "@/interface/User";
 import api from "@/services/api";
 import auth from "./auth";
 import { ResultProps } from "@/interface/Common";
+import { Editor } from "@tiptap/vue-3";
 
 const state: MessageState = {
   receiver: null,
@@ -16,6 +17,7 @@ const state: MessageState = {
   page: 1,
   messageList: [],
   editContent: null,
+  editorInfo: null,
 };
 
 const mutations: MutationTree<MessageState> = {
@@ -70,6 +72,9 @@ const mutations: MutationTree<MessageState> = {
   },
   setEditContent(state, editContent: any) {
     state.editContent = editContent;
+  },
+  setEditor(state, editorInfo: Editor) {
+    state.editorInfo = editorInfo;
   },
 };
 

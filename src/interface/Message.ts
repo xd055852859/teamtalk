@@ -16,4 +16,9 @@ export interface Card {
   _key?: string;
   detail: any;
   receiverInfo?: any;
+  replyList?: any;
+  creatorInfo?: {
+    userAvatar: string;
+    userName: string;
+  };
 }

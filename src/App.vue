@@ -90,8 +90,8 @@ watchEffect(() => {
   .left {
     // cursor: pointer;
     .img {
-      width: 40px;
-      height: 40px;
+      width: 30px;
+      height: 30px;
     }
     .name {
       margin-left: 15px;
