@@ -7,9 +7,14 @@ const router = useRouter();
   <div
     class="item"
     :style="props.item.type === 'self' ? {} : { border: '0px' }"
-    @click="router.push('/info/' + item._key)"
+    @click="router.push('/info/' + (item.refKey ? item.refKey : item._key))"
   >
-    <div class="title">{{ props.item.title }}</div>
+    <div
+      class="title"
+      :style="!props.item.summary ? { marginBottom: '0px' } : {}"
+    >
+      {{ props.item.title }}
+    </div>
     <div
       class="center dp-space-center"
       :style="
@@ -45,7 +50,7 @@ const router = useRouter();
           : {}
       "
     >
-      <el-avatar :size="30" :src="props.item.creatorInfo.userAvatar" />
+      <el-avatar :size="25" :src="props.item.creatorInfo.userAvatar" />
       <div
         class="footer-title"
         :style="
@@ -73,6 +78,9 @@ const router = useRouter();
       </div>
     </div>
   </div>
+  <div class="reply single-to-long" v-if="item.refKey">
+    @ {{ item.refTitle }}
+  </div>
 </template>
 <style scoped lang="scss">
 .item {
@@ -81,14 +89,16 @@ const router = useRouter();
   // box-shadow: 0px 2px 9px 0px rgba(178, 178, 178, 0.5);
   position: relative;
   z-index: 1;
-  margin: 10px 0px;
-  padding: 15px 15px 5px 15px;
+  margin-top: 18px;
+  padding: 15px 18px 0px 18px;
   box-sizing: border-box;
   background-color: var(--talk-item-color);
   // border: 1px solid var(--el-color-primary);
   // filter: drop-shadow(0px 2px 9px rgba(178, 178, 178, 0.5));
+  border: 1px solid #e1e1e1;
   border-radius: 8px;
   color: var(--el-text-color-primary);
+
   .triangle,
   .triangle1 {
     width: 0;
@@ -114,7 +124,7 @@ const router = useRouter();
   .title {
     width: 100%;
     height: 25px;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 500;
     margin-bottom: 15px;
   }
@@ -125,6 +135,8 @@ const router = useRouter();
       height: 100%;
       font-size: 16px;
       line-height: 25px;
+      font-size: 14px;
+      color: #9c9c9c;
     }
     .right {
       width: 110px;
@@ -144,7 +156,7 @@ const router = useRouter();
   }
   .footer {
     width: 100%;
-    height: 35px;
+    height: 45px;
     margin-top: 10px;
     font-size: 14px;
     .footer-title {
@@ -156,6 +168,15 @@ const router = useRouter();
       color: #9c9c9c;
     }
   }
+}
+.reply {
+  width: 100%;
+  height: 44px;
+  font-size: 14px;
+  color: var(--talk-font-color-1);
+  line-height: 38px;
+  padding: 0px 18px;
+  box-sizing: border-box;
 }
 </style>
 

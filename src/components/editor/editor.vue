@@ -40,13 +40,14 @@ const props = defineProps<{
 
 const store = useStore();
 const dark = computed(() => store.state.common.dark);
+
 const editor = useEditor({
   content: {
     type: "doc",
     content: [
       {
         type: "heading",
-        attrs: { level: 3 },
+        attrs: { level: 1 },
       },
     ],
   },
@@ -54,7 +55,7 @@ const editor = useEditor({
     StarterKit,
     Placeholder.configure({
       placeholder: ({ node }) => {
-        const placeholderStr = i18n.global.t("form.placeholder");
+        const placeholderStr = i18n.global.t("tip.text");
         const placeholderTitle = i18n.global.t("tip.title");
         console.log(node.type.name);
         if (node.type.name === "heading") {
@@ -96,9 +97,7 @@ watch(
       editor.value?.commands.setContent(props.initData.detail);
     }
     console.log(props);
-    if (!props.isEdit) {
-      editor.value?.setEditable(false);
-    }
+    editor.value?.setEditable(props.isEdit);
   },
   { deep: true }
 );
@@ -107,14 +106,16 @@ async function handlePost(key: string, callback?: any) {
   if (!editor.value) return;
   const json: JSONContent = editor.value.getJSON();
   console.log(json);
-  let title: any = "新消息";
-  if (json.content) {
-    if (
-      json.content[0] &&
-      json.content[0].content &&
-      json.content[0].content[0]
-    ) {
-      title = json.content[0].content[0].text;
+  if (
+    json.content &&
+    json.content[0] &&
+    json.content[0].content &&
+    json.content[0].content[0]
+  ) {
+    let title = json.content[0].content[0].text;
+    if (!title) {
+      ElMessage.error("Please Enter Title");
+      return;
     }
     let arr = json.content;
     let cover = "";
@@ -158,6 +159,9 @@ async function handlePost(key: string, callback?: any) {
     editor.value.commands.clearContent();
     editor.value.commands.focus();
     // }
+  } else {
+    ElMessage.error("Please Enter Title");
+    return;
   }
 }
 const toInfo = () => {

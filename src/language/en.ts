@@ -57,8 +57,12 @@ export default {
     confirm: "Confirm",
     private: "Private",
     favorite: "Favorite",
+    userName:"User Name",
+    email:"eMail",
   },
   tip: {
-    title: "Please enter a title",
+    title: "Enter title ...",
+    text: "Enter text,or type '/' to select",
+    info:"Personal Infomation"
   },
 };

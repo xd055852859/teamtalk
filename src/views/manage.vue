@@ -10,6 +10,7 @@ import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
 import { ElMessage } from "element-plus";
 import { Group, Member } from "@/interface/User";
+import Tbutton from "@/components/tbutton.vue";
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
@@ -34,7 +35,7 @@ const groupKeyArray = ref<string[]>([]);
 const groupHeight = ref<number>(0);
 const delVisible = ref<boolean>(false);
 const delItem = ref<{ item: Member; index: number } | null>(null);
-const roleArray = ["组长", "管理员", "组员"];
+const roleArray = ["组长", "管理员","编辑", "组员"];
 
 onMounted(() => {
   teamKey.value =
@@ -183,13 +184,9 @@ watch(
         placeholder="请输入小组名"
         style="width: calc(100% - 120px)"
       />
-      <el-button
-        type="primary"
-        style="height: 40px; padding: 0px 30px"
-        @click="saveGroup"
-      >
+      <tbutton style="height: 40px; padding: 0px 30px" @click="saveGroup">
         {{ teamKey ? $t(`surface.Update`) : $t(`surface.Save`) }}
-      </el-button>
+      </tbutton>
     </div>
     <div class="info">
       <div
@@ -203,7 +200,7 @@ watch(
         </div>
         <div class="right dp--center">
           <el-dropdown :disabled="groupRole !== 0 || item._key === user?._key">
-            <el-button type="text"> {{ roleArray[item.role] }}</el-button>
+            <tbutton type="text"> {{ roleArray[item.role] }}</tbutton>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item @click="changeRole(item, index, 1)"
@@ -267,25 +264,12 @@ watch(
       </div>
     </div>
     <div class="footer dp-space-center">
-      <el-button
-        type="primary"
-        style="height: 40px; padding: 0px 30px"
-        @click="exitVisible = true"
-        v-if="groupRole"
-        >{{ $t(`surface['Exit']`) }}</el-button
-      >
-      <el-button
-        type="primary"
-        style="height: 40px; padding: 0px 30px"
-        @click="disbandVisible = true"
-        v-if="!groupRole"
-        >{{ $t(`surface.disband`) }}</el-button
-      >
-      <el-button
-        type="primary"
-        style="height: 40px; padding: 0px 30px"
+      <span @click="exitVisible = true" v-if="groupRole" class="exit">{{
+        $t(`surface['Exit']`)
+      }}</span>
+      <tbutton
         @click="memberVisible = true"
-        >{{ $t(`surface['+ Member']`) }}</el-button
+        >{{ $t(`surface['+ Member']`) }}</tbutton
       >
     </div>
   </div>
@@ -323,17 +307,8 @@ watch(
     <span>{{ $t(`form.out`) }}</span>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="exitVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="exitGroup()">Sure</el-button>
-      </span>
-    </template>
-  </el-dialog>
-  <el-dialog v-model="disbandVisible" title="Tips" width="350px">
-    <span>{{ $t(`form.disband`) }}</span>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="disbandVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="disbandGroup()">Sure</el-button>
+        <tbutton @click="exitVisible = false">Cancel</tbutton>
+        <tbutton @click="exitGroup()">Sure</tbutton>
       </span>
     </template>
   </el-dialog>
@@ -342,11 +317,10 @@ watch(
     <span>{{ $t(`form.delete`) }}</span>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="delVisible = false">Cancel</el-button>
-        <el-button
-          type="primary"
+        <tbutton @click="delVisible = false">Cancel</tbutton>
+        <tbutton
           @click="delItem ? delMember(delItem.item, delItem.index) : null"
-          >Sure</el-button
+          >Sure</tbutton
         >
       </span>
     </template>
@@ -386,6 +360,9 @@ watch(
   }
   .footer {
     // justify-content: flex-end;
+    .exit {
+      cursor: pointer;
+    }
   }
 }
 .add-member {

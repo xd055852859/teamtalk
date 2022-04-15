@@ -11,6 +11,8 @@ export interface Message {
   summary: string;
   type?: string;
   title: string;
+  refKey?: string;
+  refTitle?: string;
 }
 export interface Card {
   _key?: string;
@@ -20,5 +22,6 @@ export interface Card {
   creatorInfo?: {
     userAvatar: string;
     userName: string;
+    _key: string;
   };
 }

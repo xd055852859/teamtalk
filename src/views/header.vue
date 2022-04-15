@@ -1,26 +1,15 @@
 <script setup lang="ts">
 import { ElMessage } from "element-plus";
-import {
-  ArrowDown,
-  Filter as ShowFilter,
-  DArrowRight,
-} from "@element-plus/icons-vue";
+import { Filter as ShowFilter } from "@element-plus/icons-vue";
 
 import { useStore } from "@/store";
 
-import allSvg from "../assets/svg/all.svg";
-import privateSvg from "../assets/svg/private.svg";
-import favoriteSvg from "../assets/svg/favorite.svg";
-import sendSvg from "../assets/svg/send.svg";
-import receivedSvg from "../assets/svg/received.svg";
-import unReadSvg from "../assets/svg/unRead.svg";
-import logoPng from "../assets/img/logoHeader.png";
+import logoSvg from "../assets/svg/logoHeader.svg";
+import logowSvg from "../assets/svg/logoHeaderw.svg";
 import UserCenter from "./userCenter.vue";
-import { Group } from "@/interface/User";
+import HeaderFilter from "./filter.vue";
 
 const store = useStore();
-const user = computed(() => store.state.auth.user);
-const groupList = computed(() => store.state.auth.groupList);
 const receiver = computed(() => store.state.message.receiver);
 const receiverType = computed(() => store.state.message.receiverType);
 const receiverNumber = computed(() => store.state.message.receiverNumber);
@@ -40,14 +29,6 @@ onMounted(() => {
   });
 });
 
-const changeReceiver = (type: string, item?: Group) => {
-  store.commit("message/setReceiver", item ? item : null);
-  store.commit("message/setReceiverType", type);
-  store.commit("message/setTalker", item ? item : null);
-  chooseVisible.value = false;
-  store.dispatch("message/getMessageList", 1);
-};
-
 const backAll = () => {
   store.commit("message/setReceiver", null);
   store.commit("message/setReceiverType", "all");
@@ -56,9 +37,14 @@ const backAll = () => {
 };
 </script>
 <template>
-  <div class="talk-header dp-space-center p-5">
+  <div class="talk-header dp-space-center">
     <div class="header-left dp-center-center">
-      <img :src="logoPng" alt="" class="logo" @click="themeVisible = true" />
+      <img
+        :src="dark ? logowSvg : logoSvg"
+        alt=""
+        class="logo"
+        @click="themeVisible = true"
+      />
       <span
         class="unread dp-center-center"
         v-if="receiverType !== 'all' && receiverNumber > 0"
@@ -66,7 +52,7 @@ const backAll = () => {
         >{{ receiverNumber > 99 ? "99+" : receiverNumber }}</span
       >
     </div>
-    <div class="header-right dp--center">
+    <div class="header-right dp--center" @click="chooseVisible = true">
       <el-avatar
         :size="40"
         :src="receiver?.avatar"
@@ -75,9 +61,7 @@ const backAll = () => {
       <span class="m-left-10 m-right-10">{{
         receiver ? receiver?.title : receiverType
       }}</span>
-      <el-icon :size="20" class="filter" @click="chooseVisible = true"
-        ><show-filter
-      /></el-icon>
+      <el-icon :size="20" class="filter"><show-filter /></el-icon>
       <!-- <el-badge
         :value="receiverNumber"
         v-if="receiverType !== 'all'"
@@ -94,61 +78,7 @@ const backAll = () => {
     :size="300"
     custom-class="p0-drawer"
   >
-    <div class="message-box">
-      <div class="header">
-        {{ $t(`surface['Message box']`) }}
-      </div>
-      <div class="container dp-space-center" @click="changeReceiver('all')">
-        <div class="left dp--center">
-          <img :src="allSvg" alt="" class="img" />
-          <div class="name">{{ $t(`form.all`) }}</div>
-        </div>
-      </div>
-      <div class="container dp-space-center" @click="changeReceiver('private')">
-        <div class="left dp--center">
-          <img :src="privateSvg" alt="" class="img" />
-          <div class="name">{{ $t(`form.private`) }}</div>
-        </div>
-        <div class="right dp--center">{{ user?.privateMessageCount }}</div>
-      </div>
-      <div
-        class="container dp-space-center"
-        @click="changeReceiver('favorite')"
-      >
-        <div class="left dp--center">
-          <img :src="favoriteSvg" alt="" class="img" />
-          <div class="name">{{ $t(`form.favorite`) }}</div>
-        </div>
-        <div class="right dp--center">{{ user?.favoriteMessageCount }}</div>
-      </div>
-      <div class="container dp-space-center" @click="changeReceiver('sent')">
-        <div class="left dp--center">
-          <img :src="sendSvg" alt="" class="img" />
-          <div class="name">{{ $t(`form.send`) }}</div>
-        </div>
-        <div class="right dp--center">{{ user?.sentMessageCount }}</div>
-      </div>
-      <div class="container dp-space-center" @click="changeReceiver('receive')">
-        <div class="left dp--center">
-          <img :src="receivedSvg" alt="" class="img" />
-          <div class="name">{{ $t(`form.received`) }}</div>
-        </div>
-      </div>
-      <el-divider />
-      <div class="box">
-        <div
-          class="container dp-space-center"
-          v-for="(item, index) in groupList"
-          :key="'manage' + index"
-          @click="changeReceiver('receiver', item)"
-        >
-          <div class="left dp--center">
-            <el-avatar :size="40" :src="item.avatar" />
-            <div class="name">{{ item.title }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <header-filter @close="chooseVisible = false" />
   </el-drawer>
   <el-drawer
     v-model="themeVisible"
@@ -163,6 +93,8 @@ const backAll = () => {
 .talk-header {
   width: 100%;
   height: 50px;
+  padding: 0px 10px;
+  box-sizing: border-box;
   .header-left {
     img {
       height: 10vw;
@@ -184,21 +116,11 @@ const backAll = () => {
     }
   }
   .header-right {
+    cursor: pointer;
     .filter {
       color: var(--el-text-color-primary);
-      cursor: pointer;
     }
   }
-}
-.header {
-  width: 100%;
-  height: 65px;
-  line-height: 65px;
-  text-align: center;
-}
-.box {
-  height: calc(100vh - 345px);
-  overflow-y: auto;
 }
 </style>
 <style></style>

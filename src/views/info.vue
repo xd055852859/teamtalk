@@ -6,30 +6,28 @@ import { Card } from "@/interface/Message";
 import { ResultProps } from "@/interface/Common";
 import Editor from "../components/editor/editor.vue";
 import { ElMessage } from "element-plus";
+import Tbutton from "@/components/tbutton.vue";
+
+import groupSvg from "@/assets/svg/group.svg";
 // const emits = defineEmits(["close"]);
 const router = useRouter();
 const route = useRoute();
 const talker = computed(() => store.state.message.talker);
-const editContent = computed(() => store.state.message.editContent);
+const user = computed(() => store.state.auth.user);
+const groupRole = computed(() => store.state.auth.groupRole);
+const groupList = computed(() => store.state.auth.groupList);
 const memberList = computed(() => store.state.auth.memberList);
 
+const inputRef = ref(null);
 const infoKey = ref<string>("");
 const info = ref<Card | null>(null);
 const store = useStore();
 const editorRef = ref(null);
 const replyInput = ref<string>("");
-
+const replyList = ref<any>([]);
 onMounted(() => {
-  infoKey.value =
-    route.params.id !== "create" ? (route.params.id as string) : "";
-  if (!infoKey.value && talker.value?.receiverType === "group") {
-    store.dispatch("auth/getMemberList", talker.value?._key);
-  }
-  if (infoKey.value) {
-    getInfo();
-  } else if (editContent.value) {
-    info.value = { detail: editContent.value };
-  }
+  infoKey.value = route.params.id as string;
+  getInfo();
 });
 const getInfo = async () => {
   let infoRes = (await api.request.get("card/detail", {
@@ -40,46 +38,53 @@ const getInfo = async () => {
     if (info.value?.receiverInfo.receiverType === "group") {
       store.dispatch("auth/getMemberList", info.value.receiverInfo._key);
     }
+    if (infoRes.data.replyList) {
+      replyList.value = infoRes.data.replyList;
+    }
   }
 };
-const postContent = async () => {
-  if (infoKey.value) {
-  } else {
-    if (talker.value && editorRef.value) {
-      //@ts-ignore
-      editorRef.value.handlePost(talker.value._key, (res) => {
-        store.commit("message/updateMessageList", res.data);
-      });
-    } else {
-      ElMessage.error("choose a receiver");
-      return;
-    }
+const replyCard = async () => {
+  const postRes = (await api.request.post("card", {
+    refKey: infoKey.value,
+    title: replyInput.value,
+    detail: "",
+    summary: "",
+    cover: "",
+  })) as ResultProps;
+  if (postRes.msg === "OK") {
+    ElMessage.success("reply success");
+    replyList.value.push({
+      creatorInfo: postRes.data.creatorInfo,
+      title: postRes.data.title,
+      _key: postRes.data._key,
+    });
   }
 };
 </script>
 <template>
-  <div class="info p-5">
+  <div class="info">
     <div class="header dp-space-center">
       <div class="left dp--center">
-        {{
-          infoKey
-            ? info?.receiverInfo && info.receiverInfo.receiverType === "user"
+        <span class="title">
+          {{
+            info?.receiverInfo && info.receiverInfo.receiverType === "user"
               ? `From : `
               : `In : `
-            : `To: `
-        }}
+          }}
+        </span>
         <el-avatar
-          :size="40"
-          :src="infoKey ? info?.receiverInfo?.logo : talker?.avatar"
-          style="margin-left: 10px"
-          v-if="
-            (infoKey &&
-              info?.receiverInfo &&
-              info.receiverInfo.receiverType === 'user') ||
-            (!infoKey && talker && talker.receiverType === 'user')
+          :size="35"
+          :src="
+            info?.receiverInfo && info.receiverInfo.receiverType === 'group'
+              ? groupSvg
+              : info?.creatorInfo?.userAvatar
           "
         />
-        {{ infoKey ? info?.receiverInfo?.title : talker?.title }}
+        {{
+          info?.receiverInfo && info.receiverInfo.receiverType === "group"
+            ? info?.receiverInfo?.title
+            : info?.creatorInfo?.userName
+        }}
       </div>
       <div>
         <el-icon
@@ -102,31 +107,39 @@ const postContent = async () => {
     </div>
 
     <div class="box">
-      <div class="center">
+      <div class="center p-5">
         <editor
           :init-data="info"
-          :isEdit="infoKey ? false : true"
+          :isEdit="
+            user._key === info?.creatorInfo?.userAvatar ||
+            (groupRole < 3 && info?.receiverInfo?.receiverType === 'group') ||
+            info?.receiverInfo?.receiverType === 'user'
+          "
           position="top"
         />
-        <el-button
-          type="primary"
-          v-if="
-            !infoKey ||
-            (infoKey && info?.replyList && info.replyList.length > 0)
-          "
-          class="update-button"
-          >{{ infoKey ? $t(`surface.Update`) : $t(`surface.Post`) }}</el-button
-        >
       </div>
-
-      <el-divider />
+      <div
+        class="message p-5"
+        v-for="(item, index) in replyList"
+        :key="'reply' + index"
+      >
+        <div class="header dp--center">
+          <el-avatar :size="25" :src="item.creatorInfo.userAvatar" />
+          {{ item.creatorInfo.userName }}
+        </div>
+        <div class="title">{{ item.title }}</div>
+      </div>
+    </div>
+    <div class="footer p-5">
+      <!-- <el-divider /> -->
       <el-input
         v-model="replyInput"
         size="large"
         :placeholder="`Please @ ${info?.creatorInfo?.userName} view`"
+        ref="inputRef"
       />
-      <div class="footer dp--center">
-        <el-button type="primary" round>{{ $t(`surface.Reply`) }}</el-button>
+      <div class="button dp--center" @click="replyCard">
+        <tbutton>{{ $t(`surface.Reply`) }}</tbutton>
       </div>
     </div>
   </div>
@@ -139,44 +152,56 @@ const postContent = async () => {
   .header {
     width: 100%;
     height: 55px;
+    padding: 0px 10px;
+    box-sizing: border-box;
     .left {
+      font-size: 16px;
+      .title {
+        color: var(--talk-font-color-1);
+        margin-right: 10px;
+      }
     }
   }
   .box {
     width: 100%;
-    height: calc(100vh - 80px);
+    max-height: calc(100% - 85px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    z-index: 1;
+    padding-bottom: 100px;
+    box-sizing: border-box;
     .center {
-      min-height: 80px;
-      position: relative;
-      z-index: 1;
-      .update-button {
-        position: absolute;
-        right: 10px;
-        bottom: 10px;
-        z-index: 2;
-      }
+      // min-height: 250px;
+      margin-bottom: 40px;
     }
     .message {
       width: 100%;
       height: 100px;
-      margin-top: 15px;
+      background-color: var(--talk-item-color);
+      .header {
+        padding: 0px;
+        box-sizing: border-box;
+      }
       .title {
         width: 100%;
         height: 25px;
-      }
-      .img-container {
-        width: 100%;
-        height: 60px;
-        overflow-x: auto;
-        &::-webkit-scrollbar {
-          height: 0px;
-        }
-        .img {
-          flex-shrink: 0;
-        }
+        font-size: 14px;
+        color: var(--talk-font-color-1);
       }
     }
-    .footer {
+  }
+  .footer {
+    width: 100%;
+    height: 130px;
+    position: fixed;
+    z-index: 2;
+    left: 0px;
+    bottom: 0px;
+    background-color: var(--talk-item-color);
+    padding-top: 20px;
+    box-sizing: border-box;
+    .button {
       width: 100%;
       height: 40px;
       justify-content: flex-end;

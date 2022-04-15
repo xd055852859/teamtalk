@@ -61,14 +61,14 @@ watch(memberName, (newOld: string) => {
         </div>
       </div>
     </div>
-    <div class="button dp-space-center">
-      <el-button type="primary" round @click="router.push('/invite')">{{
+    <!-- <div class="button dp-space-center">
+      <tbutton  round @click="router.push('/invite')">{{
         $t(`surface.Invite`)
-      }}</el-button>
-      <el-button type="primary" round @click="router.push('/manage/create')">{{
+      }}</tbutton>
+      <tbutton  round @click="router.push('/manage/create')">{{
         $t(`surface['+ Group']`)
-      }}</el-button>
-    </div>
+      }}</tbutton>
+    </div> -->
   </div>
 </template>
 <style scoped lang="scss">
@@ -77,9 +77,8 @@ watch(memberName, (newOld: string) => {
   height: 100%;
   .header {
     width: 100%;
-    height: 65px;
-    line-height: 65px;
-    text-align: center;
+    height: 45px;
+    line-height: 45px;
   }
   .search {
     width: 100%;
@@ -87,7 +86,7 @@ watch(memberName, (newOld: string) => {
   }
   .info {
     width: 100%;
-    height: calc(100% - 170px);
+    height: calc(100% - 150px);
     overflow-y: auto;
   }
   .button {

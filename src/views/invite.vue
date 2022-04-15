@@ -10,6 +10,7 @@ import api from "@/services/api";
 import chooseSvg from "../assets/svg/choose.svg";
 import unchooseSvg from "../assets/svg/unchoose.svg";
 import { store } from "@/store";
+import Tbutton from "@/components/tbutton.vue";
 
 const { toClipboard } = useClipboard();
 const user = computed(() => store.state.auth.user);
@@ -82,14 +83,14 @@ watch(user, (newVal) => {
               style="width: calc(100% - 105px)"
               @change="searchMember"
             />
-            <el-button
-              type="primary"
+            <tbutton
+              
               style="height: 40px; padding: 0px 30px"
               @click="saveMember"
               :disabled="memberKey ? false : true"
             >
               {{ $t(`surface.Save`) }}
-            </el-button>
+            </tbutton>
           </div>
           <div class="info">
             <div
@@ -124,14 +125,13 @@ watch(user, (newVal) => {
             {{ url }}
           </div>
           <div class="button">
-            <el-button
-              type="success"
-              round
+            <tbutton
+              
               @click="
                 toClipboard(url);
                 ElMessage.success('Copy Success');
               "
-              >{{ $t(`surface.copy`) }}</el-button
+              >{{ $t(`surface.copy`) }}</tbutton
             >
           </div>
         </div>
@@ -147,12 +147,12 @@ watch(user, (newVal) => {
     <span>{{ $t(`form.invite`) }}</span>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">{{
+        <tbutton @click="dialogVisible = false">{{
           $t(`form.cancel`)
-        }}</el-button>
-        <el-button type="primary" @click="saveMember">{{
+        }}</tbutton>
+        <tbutton  @click="saveMember">{{
           $t(`form.confirm`)
-        }}</el-button>
+        }}</tbutton>
       </span>
     </template>
   </el-dialog> -->

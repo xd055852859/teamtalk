@@ -12,13 +12,15 @@ import { ElMessage } from "element-plus";
 import groupSvg from "@/assets/svg/group.svg";
 import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
+import { userInfo } from "os";
 
 const state: AuthState = {
   token: localStorage.getItem("token") || "",
   user: null,
   groupList: [],
-  //0:群主 1:管理员 2:群成员
-  groupRole: 3,
+  groupItem: null,
+  //0:组长 1:管理员 2:编辑 3:组员
+  groupRole: 4,
   memberList: [],
   uploadToken: null,
   groupTitle: "",
@@ -53,6 +55,9 @@ const mutations: MutationTree<AuthState> = {
   setGroupList(state, groupList: Group[]) {
     state.groupList = groupList;
     console.log(state.groupList);
+  },
+  setGroupItem(state, groupItem: Group) {
+    state.groupItem = groupItem;
   },
   setGroupTitle(state, groupTitle: string) {
     state.groupTitle = groupTitle;
@@ -129,11 +134,7 @@ const actions: ActionTree<AuthState, RootState> = {
     if (memberRes.msg === "OK") {
       commit("setGroupTitle", memberRes.data.title);
       let arr = [...memberRes.data.memberList];
-      arr.forEach((item) => {
-        if (item._key === state.user?._key) {
-          commit("setGroupRole", item.role);
-        }
-      });
+      commit("setGroupRole", memberRes.data.role);
       commit("setMemberList", arr);
     }
   },

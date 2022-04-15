@@ -78,7 +78,7 @@ const insertNode = (type) => {
 <template>
   <div
     class="block-item"
-    :style="{ ...props.itemObj, height: itemHeight * 11 + 30 + 'px' }"
+    :style="{ ...props.itemObj, height: itemHeight  * 11 + 'px' }"
   >
     <div
       @click="insertNode('text')"
@@ -155,13 +155,12 @@ const insertNode = (type) => {
 .block-item {
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: var(--talk-bg-color);
+  // background-color: var(--talk-bg-color);
   div {
     width: 100%;
     height: 50px;
     padding: 0px 20px;
     box-sizing: border-box;
-    line-height: 50px;
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -170,7 +169,7 @@ const insertNode = (type) => {
       height: 20px;
       margin-right: 15px;
     }
-    :hover {
+    &:hover {
       background-color: #c9c9c9;
     }
   }

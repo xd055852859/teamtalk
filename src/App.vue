@@ -8,12 +8,15 @@ import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
 
 import groupSvg from "@/assets/svg/group.svg";
+import { Group } from "./interface/User";
 const { proxy } = useCurrentInstance();
 
 const store = useStore();
 const router = useRouter();
 
 const user = computed(() => store.state.auth.user);
+const groupList = computed(() => store.state.auth.groupList);
+
 const dark = computed(() => store.state.common.dark);
 const theme = computed(() => store.state.common.theme);
 const token = computed(() => store.state.auth.token);
@@ -65,6 +68,13 @@ watchEffect(() => {
     router.push("/");
   }
 });
+watchEffect(() => {
+  groupList.value.map((item:Group) => {
+    if (item.toUserKey === user.value?._key) {
+      store.commit("auth/setGroupItem", item);
+    }
+  });
+});
 </script>
 
 <template>
@@ -78,11 +88,11 @@ watchEffect(() => {
 }
 
 *::-webkit-scrollbar-thumb {
-  background: var(--el-color-primary);
+  background: var(--el-color-success);
   border-radius: 100px;
 }
 .common-color {
-  color: var(--el-color-primary);
+  color: var(--el-color-success);
 }
 .container {
   padding: 10px;
@@ -95,7 +105,7 @@ watchEffect(() => {
     }
     .name {
       margin-left: 15px;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 400;
     }
   }

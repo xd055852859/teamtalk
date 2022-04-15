@@ -29,6 +29,7 @@ import { ResultProps } from "@/interface/Common";
 import { uploadImage } from "@/services/util";
 import { User } from "@/interface/User";
 import i18n from "@/language/i18n";
+import Tbutton from "@/components/tbutton.vue";
 
 const store = useStore();
 const { proxy } = useCurrentInstance();
@@ -177,7 +178,7 @@ const chooseImg = (e) => {
       {{ $t(`surface.Quit`) }}
     </span>
   </div>
-  <el-dialog v-model="userVisible" title="个人资料" :width="320">
+  <el-dialog v-model="userVisible" :title="$t(`tip.info`)" :width="320">
     <div class="user-edit dp-center-center">
       <div class="avatar">
         <el-avatar :src="avatar" :size="150" />
@@ -190,7 +191,7 @@ const chooseImg = (e) => {
       </div>
 
       <div class="text dp-space-center">
-        userName :
+        {{ $t(`form.userName`) }} :
         <el-input
           class="input"
           v-model="userName"
@@ -198,14 +199,14 @@ const chooseImg = (e) => {
         />
       </div>
       <div class="text dp-space-center">
-        email :
+        {{ $t(`form.email`) }} :
         <el-input class="input" v-model="email" placeholder="enter email" />
       </div>
     </div>
 
     <template #footer>
       <span class="dialog-footer dp-center-center">
-        <el-button type="primary" @click="changeConfig()">Save</el-button>
+        <tbutton @click="changeConfig()">Save</tbutton>
       </span>
     </template>
   </el-dialog>
@@ -272,6 +273,7 @@ const chooseImg = (e) => {
   width: 100%;
   height: 35px;
   margin-bottom: 15px;
+  cursor: pointer;
   img {
     width: 25px;
     height: 25px;

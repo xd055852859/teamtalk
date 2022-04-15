@@ -34,7 +34,13 @@ const chooseImg = (e) => {
 </script>
 <template>
   <div class="button dp--center">
-    <img :src="dark ? addwSvg : addSvg" alt="" @click="drawer = true" />
+    <el-dropdown>
+      <img :src="dark ? addwSvg : addSvg" alt="" @click="drawer = true" />
+      <template #dropdown>
+        <editor-item :itemObj="{ width: '180px' }" :item-height="35" />
+      </template>
+    </el-dropdown>
+
     <!-- <img :src="leftSvg" alt=""  @click="props.editor.chain().focus()."/>
     <img :src="rightSvg" alt=""  @click="props.editor.chain().focus().joinForward().run()" /> -->
     <el-divider direction="vertical" />
@@ -67,19 +73,15 @@ const chooseImg = (e) => {
       @click="editorInfo?.chain().focus().redo().run()"
     />
   </div>
-  <el-drawer
+  <!-- <el-drawer
     v-model="drawer"
     title="basicblocks"
     direction="btt"
     size="100%"
     :append-to-body="true"
   >
-    <editor-item
-      @close="drawer = false"
-      :itemObj="{ height: 'calc(100% - 50px)', width: '100vw' }"
-      :item-height="40"
-    />
-  </el-drawer>
+    
+  </el-drawer> -->
 </template>
 <style scoped lang="scss">
 .button {

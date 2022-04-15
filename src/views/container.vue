@@ -8,8 +8,9 @@ import { useStore } from "@/store";
 import Editor from "@/components/editor/editor.vue";
 import EditorNav from "@/components/editor/editorNav.vue";
 import MessageItem from "@/components/messageItem.vue";
-import fullScreenSvg from "../assets/svg/fullScreen.svg";
+// import fullScreenSvg from "../assets/svg/fullScreen.svg";
 import moreSvg from "../assets/svg/more.svg";
+import Tbutton from "@/components/tbutton.vue";
 
 const store = useStore();
 const router = useRouter();
@@ -23,9 +24,8 @@ const editorRef = ref(null);
 const inputVisible = ref<boolean>(false);
 const groupVisible = ref<boolean>(false);
 const groupHeight = ref<number>(0);
-const content = ref<string>("");
+
 onMounted(() => {
-  groupHeight.value = document.documentElement.offsetHeight - 55;
   store.dispatch("message/getMessageList", 1);
 });
 
@@ -41,33 +41,7 @@ const postContent = async () => {
     return;
   }
 };
-const postMessage = async () => {
-  if (!content.value) {
-    ElMessage.error("choose a receiver");
-    return;
-  }
-  const postRes = (await api.request.post("card", {
-    receiverKey: talker.value?._key,
-    title: "新消息",
-    detail: [
-      {
-        type: "heading",
-        attrs: { level: 3 },
-        content: [{ type: "text", text: "新消息" }],
-      },
-      { type: "paragraph", content: [{ type: "text", text: content.value }] },
-    ],
-    summary: content.value.substring(0, 200),
-    cover: "",
-  })) as ResultProps;
-  if (postRes.msg === "OK") {
-    ElMessage.success("submit success");
-    store.commit("message/updateMessageList", postRes.data);
-  }
-};
-const showDrawer = () => {
-  inputVisible.value = true;
-};
+
 const scrollLoading = (e: any) => {
   //文档内容实际高度（包括超出视窗的溢出部分）
   let scrollHeight = e.target.scrollHeight;
@@ -85,80 +59,56 @@ const scrollLoading = (e: any) => {
     store.dispatch("message/getMessageList", newPage);
   }
 };
-const toInfo = () => {
-  //@ts-ignore
-  editorRef.value.toInfo();
-};
+// const toInfo = () => {
+//   //@ts-ignore
+//   editorRef.value.toInfo();
+// };
+// TODO
+// filter: unset;
+// transition: filter .2s;
 </script>
 <template>
-  <div class="talk-top p-5">
-    <div class="top dp-space-center">
-      <div class="left dp--center" @click="groupVisible = true">
-        <span>{{ $t(`surface.to`) }} : </span>
-        <el-avatar
-          :size="25"
-          :src="talker.avatar"
-          v-if="talker"
-          :style="{ marginLeft: '5px' }"
-        />
-        <span class="m-right-10">{{ talker ? talker.title : "all" }}</span>
-        <el-icon>
-          <arrow-down />
-        </el-icon>
+  <div class="talk-container p-5" @scroll="scrollLoading">
+    <div class="talk-edit">
+      <div class="top dp-space-center">
+        <div class="left dp--center" @click="groupVisible = true">
+          <span>{{ $t(`surface.to`) }} : </span>
+          <el-avatar
+            :size="25"
+            :src="talker.avatar"
+            v-if="talker"
+            :style="{ marginLeft: '5px' }"
+          />
+          <span class="m-right-10">{{ talker?.title }}</span>
+          <el-icon>
+            <arrow-down />
+          </el-icon>
+        </div>
+        <div class="right dp--center">
+          <!-- <img
+            :src="fullScreenSvg"
+            style="width: 16px; height: 16px"
+            alt=""
+            @click="toInfo()"
+          /> -->
+          <!-- <img :src="moreSvg" alt="" style="width: 16px; height: 3px" /> -->
+        </div>
       </div>
-      <div class="right dp--center">
-        <img
-          :src="fullScreenSvg"
-          style="width: 16px; height: 16px"
-          alt=""
-          @click="toInfo()"
-        />
-        <!-- <img :src="moreSvg" alt="" style="width: 16px; height: 3px" /> -->
+      <!-- <el-divider /> -->
+      <div class="center">
+        <div class="editor">
+          <editor :init-data="null" ref="editorRef" :isEdit="true" />
+        </div>
+        <div class="bottom dp-space-center">
+          <editor-nav :editor="editorInfo" v-if="editorInfo" />
+          <tbutton @click="postContent">{{ $t(`surface.Post`) }}</tbutton>
+        </div>
       </div>
     </div>
-    <!-- <el-divider /> -->
-    <div class="center">
-      <div class="editor">
-        <editor :init-data="null" ref="editorRef" :isEdit="true" />
-      </div>
-      <div class="bottom dp-space-center">
-        <editor-nav :editor="editorInfo" v-if="editorInfo" />
-        <el-button type="primary" round @click="postContent">{{
-          $t(`surface.Post`)
-        }}</el-button>
-      </div>
-    </div>
-    <!-- <div class="input dp-space-center"> -->
-    <!-- <el-input
-      v-model="content"
-      :placeholder="`${$t(`surface['Talk with']`)} : ${
-        talker ? talker.title : 'all'
-      }`"
-      size="large"
-    >
-      <template #prepend>
-        <el-icon @click="showDrawer" :size="23"><caret-bottom /></el-icon>
-      </template>
-      <template #append>
-        <el-button @click="postMessage">{{ $t(`surface.Post`) }}</el-button>
-      </template>
-    </el-input> -->
-    <!-- <el-input
-        v-model="content"
-        :placeholder="`${$t(`surface['Talk with']`)} : ${
-          talker ? talker.title : 'all'
-        }`"
-        @change="postMessage"
-      />
-      <div class="right dp-center-center">
-       
-      </div> -->
-  </div>
-  <!-- </div> -->
-  <div class="talk-bottom p-5" @scroll="scrollLoading">
-    <div class="box" v-for="(item, index) in messageList" :key="'chat' + index">
+    <!-- </div> -->
+    <template v-for="(item, index) in messageList" :key="'chat' + index">
       <message-item :item="item" />
-    </div>
+    </template>
   </div>
 
   <el-drawer
@@ -172,61 +122,65 @@ const toInfo = () => {
   </el-drawer>
   <el-drawer
     v-model="groupVisible"
-    direction="btt"
+    direction="ltr"
     :with-header="false"
-    :size="groupHeight"
+    :size="350"
     modal-class="modal-transparent"
-    custom-class="radius-drawer"
+    custom-class="p0-drawer"
   >
     <contact @close="groupVisible = false" />
   </el-drawer>
 </template>
 <style scoped lang="scss">
-.talk-bottom {
+.talk-container {
   width: 100%;
-  height: calc(100vh - 320px);
+  height: calc(100vh - 55px);
   overflow-x: hidden;
   overflow-y: auto;
-}
-.talk-top {
-  width: 100%;
-  height: 270px;
-  background: var(--talk-item-color);
-  padding-top: 10px;
-  padding-bottom: 10px;
-  box-sizing: border-box;
-  .top {
+  background: var(--talk-bg-color);
+  .talk-edit {
     width: 100%;
-    height: 30px;
-    .left {
-      height: 100%;
-    }
-    .right {
-      height: 100%;
-    }
-  }
-  .center {
-    width: 100%;
-    height: 220px;
-    position: relative;
-    z-index: 1;
-    overflow: hidden;
-    // border: 1px solid #c8c8c8;
-    // border-radius: 8px;
-    .editor {
+    min-height: 200px;
+    background-color: var(--talk-item-color);
+    border: 2px solid rgba(30, 30, 30, 1);
+    border-radius: 8px;
+    padding: 10px 22px;
+    box-sizing: border-box;
+    .top {
       width: 100%;
-      height: 190px;
-      overflow: auto;
+      height: 30px;
+      .left {
+        height: 100%;
+      }
+      .right {
+        height: 100%;
+      }
+    }
+    .center {
+      width: 100%;
+      min-height: 220px;
       position: relative;
       z-index: 1;
-    }
-    .bottom {
-      height: 30px;
-      .button {
-        img {
-          width: 20px;
-          height: 20px;
-          margin-right: 15px;
+      overflow: hidden;
+      // border: 1px solid #c8c8c8;
+      // border-radius: 8px;
+      .editor {
+        width: 100%;
+        min-height: 185px;
+        overflow: auto;
+        position: relative;
+        z-index: 1;
+        padding: 0px 5px;
+        box-sizing: border-box;
+      }
+      .bottom {
+        height: 30px;
+        .button {
+          img {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+          }
         }
       }
     }

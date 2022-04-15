@@ -57,8 +57,12 @@ export default {
     confirm: "确认",
     private: "私有",
     favorite: "收藏",
+    userName: "用户名",
+    email: "邮箱",
   },
   tip: {
-    title: "请输入标题",
+    title: "输入标题",
+    text: "输入文字，或者输入'/'选择",
+    info: "个人信息",
   },
 };

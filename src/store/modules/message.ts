@@ -84,7 +84,7 @@ const actions: ActionTree<MessageState, RootState> = {
       page: page,
       limit: 20,
     };
-    if (state.receiver) {
+    if (state.receiver && state.receiver.receiverType !== "private") {
       if (state.receiver.receiverType === "group") {
         obj.receiverKey = state.receiver._key;
       } else {

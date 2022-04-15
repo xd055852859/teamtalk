@@ -3,9 +3,10 @@ import { ElMessage } from "element-plus";
 // import router from "../router";
 import { getSearchParamValue } from "../services/util";
 import request from "@/services/api";
-import logoSvg from "../assets/img/logo.png";
-import logowSvg from "../assets/img/logow.png";
+import logoSvg from "../assets/svg/logo.svg";
+import logowSvg from "../assets/svg/logow.svg";
 import { useStore } from "@/store";
+import Tbutton from "@/components/tbutton.vue";
 const store = useStore();
 const router = useRouter();
 const dark = computed(() => store.state.common.dark);
@@ -37,8 +38,10 @@ const handle = (e: any) => {
 };
 const login = () => {
   let redirect = `${window.location.protocol}//${window.location.host}/`;
-  let href: string = `https://account.qingtime.cn?apphigh=50&redirect=${redirect}&logo=https://cdn-icare.qingtime.cn/1605251458500_workingVip`;
+  // let href: string = `https://account.qingtime.cn?apphigh=50&redirect=${redirect}&logo=https://cdn-icare.qingtime.cn/1605251458500_workingVip`;
+  let href: string = `https://account.qingtime.cn?apphigh=50&redirect=${redirect}&logo=https://cdn-ttalk.qingtime.cn/1650011827416_workingVip.png`;
   console.log(href);
+  console.log("https://workfly.qingtime.cn/1650010668239_workingVip.png");
   window.open(
     href,
     "new",
@@ -53,9 +56,7 @@ const login = () => {
     <div class="logo-img dp-center-center">
       <img :src="dark ? logowSvg : logoSvg" alt="" class="logo" />
     </div>
-    <el-button type="primary" @click="login" round class="button">{{
-      $t(`surface.Login`)
-    }}</el-button>
+    <tbutton @click="login" class="button">{{ $t(`surface.Login`) }}</tbutton>
   </div>
 </template>
 <style scoped lang="scss">
