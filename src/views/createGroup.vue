@@ -75,7 +75,7 @@ watch(
         class="container dp-space-center"
         v-for="(item, index) in memberArray"
         :key="'manage' + index"
-        @click="chooseMember(item._key)"
+        @click="chooseMember(item.toUserKey as string)"
       >
         <div class="left dp--center">
           <el-avatar :size="40" :src="item.avatar" />
@@ -84,7 +84,7 @@ watch(
         <div class="right">
           <img
             :src="
-              teamKeyArray.indexOf(item._key) !== -1 ? chooseSvg : unchooseSvg
+              teamKeyArray.indexOf(item.toUserKey as string) !== -1 ? chooseSvg : unchooseSvg
             "
             alt=""
             style="width: 30px; height: 30px; margin-right: 10px"
