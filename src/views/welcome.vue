@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ElMessage } from "element-plus";
 // import router from "../router";
-import { getSearchParamValue } from "../services/util";
-import request from "@/services/api";
+
 import logoSvg from "../assets/svg/logo.svg";
 import logowSvg from "../assets/svg/logow.svg";
 import { useStore } from "@/store";
@@ -12,36 +11,16 @@ const router = useRouter();
 const dark = computed(() => store.state.common.dark);
 // import store from "@/store";
 onMounted(() => {
-  console.log(location.search);
   if (localStorage.getItem("token")) {
-    console.log(router);
     router.push("/home");
   }
-  window.addEventListener("message", handle, false);
 });
-onUnmounted(() => {
-  window.removeEventListener("message", handle, false);
-});
-const handle = (e: any) => {
-  if (
-    e.origin === "https://account.qingtime.cn" &&
-    e.data.eventName === "redirect"
-  ) {
-    const token = getSearchParamValue(
-      e.data.data.split("?")[1],
-      "token"
-    ) as string;
-    request.setToken(token);
-    store.commit("auth/setToken", token);
-    router.push("/home");
-  }
-};
+
+
 const login = () => {
-  let redirect = `${window.location.protocol}//${window.location.host}/`;
+  let redirect = `${window.location.protocol}//${window.location.host}/home`;
   // let href: string = `https://account.qingtime.cn?apphigh=50&redirect=${redirect}&logo=https://cdn-icare.qingtime.cn/1605251458500_workingVip`;
   let href: string = `https://account.qingtime.cn?apphigh=50&redirect=${redirect}&logo=https://cdn-ttalk.qingtime.cn/1650011827416_workingVip.png`;
-  console.log(href);
-  console.log("https://workfly.qingtime.cn/1650010668239_workingVip.png");
   window.open(
     href,
     "new",
@@ -89,12 +68,8 @@ const login = () => {
     line-height: 40px;
   }
   .button {
-    width: 20vw;
-    max-width: 120px;
-    min-width: 70px;
-    height: 10vw;
-    max-height: 50px;
-    min-height: 40px;
+    width: 90px;
+    height: 30px;
   }
 }
 </style>

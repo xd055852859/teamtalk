@@ -60,6 +60,10 @@ export default {
     userName: "用户名",
     email: "邮箱",
   },
+  message: {
+    teamName: "请输入小组名",
+    selectTeam: "选择小组成员 :",
+  },
   tip: {
     title: "输入标题",
     text: "输入文字，或者输入'/'选择",

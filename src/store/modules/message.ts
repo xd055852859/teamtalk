@@ -11,6 +11,7 @@ import { Editor } from "@tiptap/vue-3";
 const state: MessageState = {
   receiver: null,
   talker: null,
+  talkKey:"",
   receiverType: "all",
   receiverNumber: 0,
   pageNumber: 1,
@@ -26,6 +27,9 @@ const mutations: MutationTree<MessageState> = {
   },
   setTalker(state, talker: Group) {
     state.talker = talker;
+  },
+  setTalkKey(state, talkKey: string) {
+    state.talkKey = talkKey;
   },
   setReceiverType(state, receiverType: string) {
     state.receiverType = receiverType;

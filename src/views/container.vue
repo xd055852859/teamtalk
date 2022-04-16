@@ -33,7 +33,9 @@ const postContent = async () => {
   if (talker.value && editorRef.value) {
     //@ts-ignore
     editorRef.value.handlePost(talker.value._key, (res) => {
-      // store.commit("message/updateMessageList", res.data);
+      if (res.data.receiverType === "user") {
+        store.commit("message/updateMessageList", res.data);
+      }
       inputVisible.value = false;
     });
   } else {

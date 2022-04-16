@@ -6,8 +6,12 @@ import setDark from "@/hooks/dark";
 import setTheme from "@/hooks/theme";
 import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
-
+import { getSearchParamValue } from "@/services/util";
+import request from "@/services/api";
 import groupSvg from "@/assets/svg/group.svg";
+import strongestMusic from "@/assets/audio/strongest.mp3";
+import strongMusic from "@/assets/audio/strong.mp3";
+
 import { Group } from "./interface/User";
 const { proxy } = useCurrentInstance();
 
@@ -17,6 +21,7 @@ const router = useRouter();
 const user = computed(() => store.state.auth.user);
 const groupList = computed(() => store.state.auth.groupList);
 
+const musicRef = ref(null);
 const dark = computed(() => store.state.common.dark);
 const theme = computed(() => store.state.common.theme);
 const token = computed(() => store.state.auth.token);
@@ -31,7 +36,40 @@ onMounted(() => {
   }
   setDark(dark.value);
   setTheme(theme.value);
+  window.addEventListener("message", handle, false);
+  const search = window.location.search
+    ? window.location.search.split("?")[1]
+    : window.location.hash.split("?")[1];
+  const token = getSearchParamValue(search, "token") as string;
+  const talkKey = getSearchParamValue(search, "talkKey") as string;
+  if (token) {
+    request.setToken(token);
+    store.commit("auth/setToken", token);
+    if (talkKey) {
+      store.commit("message/setTalkKey", token);
+      router.push("/createCard");
+    } else {
+      router.push("/home");
+    }
+  }
 });
+onUnmounted(() => {
+  window.removeEventListener("message", handle, false);
+});
+const handle = (e: any) => {
+  if (
+    e.origin === "https://account.qingtime.cn" &&
+    e.data.eventName === "redirect"
+  ) {
+    const token = getSearchParamValue(
+      e.data.data.split("?")[1],
+      "token"
+    ) as string;
+    request.setToken(token);
+    store.commit("auth/setToken", token);
+    router.push("/home");
+  }
+};
 //初始化
 const init = async () => {
   const userInfoRes = (await api.request.get("user")) as ResultProps;
@@ -60,6 +98,27 @@ watchEffect(() => {
     socket.on("connect", (res) => {
       socket.emit("login", token.value);
       socket.on("card", function (msg) {
+        // 1:1卡片
+        if (msg.creatorInfo._key !== user.value?._key) {
+          if (
+            msg.receiverType === "user" ||
+            msg?.refCardInfo?.creatorInfo._key === user.value?._key
+          ) {
+            //@ts-ignore
+            musicRef.value.src = strongestMusic;
+            //@ts-ignore
+            musicRef.value.play();
+          } else if (msg.receiverType === "group") {
+            //@ts-ignore
+            musicRef.value.src = strongMusic;
+            //@ts-ignore
+            musicRef.value.play();
+          }
+        }
+        //
+        //  msg.refCardTitle&&
+        //别人在群里创建的卡片
+
         console.log("card", msg);
         store.commit("message/updateMessageList", msg);
       });
@@ -69,7 +128,7 @@ watchEffect(() => {
   }
 });
 watchEffect(() => {
-  groupList.value.map((item:Group) => {
+  groupList.value.map((item: Group) => {
     if (item.toUserKey === user.value?._key) {
       store.commit("auth/setGroupItem", item);
     }
@@ -79,6 +138,13 @@ watchEffect(() => {
 
 <template>
   <router-view></router-view>
+  <audio
+    ref="musicRef"
+    src=""
+    :style="{ position: 'fixed', zIndex: -5, opacity: 0 }"
+  >
+    您的浏览器不支持 audio 标签。
+  </audio>
 </template>
 
 <style lang="scss">

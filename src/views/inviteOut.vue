@@ -1,0 +1,90 @@
+<script setup lang="ts">
+import { ElMessage } from "element-plus";
+
+import useClipboard from "vue-clipboard3";
+import QrcodeVue from "qrcode.vue";
+import { store } from "@/store";
+import Tbutton from "@/components/tbutton.vue";
+import Theader from "@/components/theader.vue";
+const { toClipboard } = useClipboard();
+const router = useRouter();
+const user = computed(() => store.state.auth.user);
+
+const url = ref<string>("");
+watch(user, (newVal) => {
+  if (newVal) {
+    url.value = `${window.location.protocol}//${window.location.host}/?inviteKey=${newVal._key}`;
+  }
+});
+</script>
+<template>
+  <div class="invite-out p-5">
+    <theader @clickBack="router.push('/invite')">
+      <template v-slot:title> Invite Partner </template>
+    </theader>
+    <div class="invite-item dp-center-center">
+      <div class="title">{{ $t(`surface.Way2`) }}</div>
+      <div class="title">
+        你的好友
+        <span class="common-color">{{ user?.userName }}</span>
+        邀请您加入TeamTalk
+      </div>
+      <div class="title">
+        {{ url }}
+      </div>
+      <tbutton
+        @click="
+          toClipboard(url);
+          ElMessage.success('Copy Success');
+        "
+        style="height: 30px"
+        >{{ $t(`surface.copy`) }}</tbutton
+      >
+    </div>
+    <el-divider />
+    <div class="invite-item dp-center-center" v-if="url">
+      <div class="title">{{ $t(`surface.Way3`) }}</div>
+      <div
+        class="invite-item dp-center-center"
+        style="width: 100%; height: 200px"
+      >
+        <qrcode-vue :value="url" :size="150" level="H" />
+      </div>
+      <tbutton
+        @click="
+          toClipboard(url);
+          ElMessage.success('Copy Success');
+        "
+        style="height: 30px"
+        >{{ $t(`surface.Download`) }}</tbutton
+      >
+    </div>
+  </div>
+</template>
+<style scoped lang="scss">
+.invite-out {
+  width: 100vw;
+  height: 100vh;
+  background: var(--talk-bg-color);
+  .header {
+    width: 100%;
+    height: 55px;
+  }
+  .invite-item {
+    width: 100%;
+    height: calc(50vh - 80px);
+    flex-wrap: wrap;
+    align-content: center;
+    .title {
+      width: 100%;
+      height: 50px;
+      line-height: 50px;
+      font-size: 18px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+  }
+}
+
+</style>
+<style></style>

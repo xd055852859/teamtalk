@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Close, Star } from "@element-plus/icons-vue";
+import { Close, Star, StarFilled } from "@element-plus/icons-vue";
 import { useStore } from "@/store";
 import api from "@/services/api";
 import { Card } from "@/interface/Message";
@@ -12,17 +12,14 @@ import groupSvg from "@/assets/svg/group.svg";
 // const emits = defineEmits(["close"]);
 const router = useRouter();
 const route = useRoute();
-const talker = computed(() => store.state.message.talker);
 const user = computed(() => store.state.auth.user);
 const groupRole = computed(() => store.state.auth.groupRole);
-const groupList = computed(() => store.state.auth.groupList);
-const memberList = computed(() => store.state.auth.memberList);
 
 const inputRef = ref(null);
 const infoKey = ref<string>("");
 const info = ref<Card | null>(null);
+const favorite = ref<boolean>(false);
 const store = useStore();
-const editorRef = ref(null);
 const replyInput = ref<string>("");
 const replyList = ref<any>([]);
 onMounted(() => {
@@ -35,12 +32,22 @@ const getInfo = async () => {
   })) as ResultProps;
   if (infoRes.msg === "OK") {
     info.value = infoRes.data;
+    favorite.value = infoRes.data.favorite;
     if (info.value?.receiverInfo.receiverType === "group") {
       store.dispatch("auth/getMemberList", info.value.receiverInfo._key);
     }
     if (infoRes.data.replyList) {
       replyList.value = infoRes.data.replyList;
     }
+  }
+};
+const favoriteCard = async () => {
+  const postRes = (await api.request.patch("card/favorite", {
+    cardKey: infoKey.value,
+  })) as ResultProps;
+  if (postRes.msg === "OK") {
+    ElMessage.success("Favorite Success");
+    favorite.value = !favorite.value;
   }
 };
 const replyCard = async () => {
@@ -52,7 +59,7 @@ const replyCard = async () => {
     cover: "",
   })) as ResultProps;
   if (postRes.msg === "OK") {
-    ElMessage.success("reply success");
+    ElMessage.success("Reply Success");
     replyList.value.push({
       creatorInfo: postRes.data.creatorInfo,
       title: postRes.data.title,
@@ -90,9 +97,10 @@ const replyCard = async () => {
         <el-icon
           style="margin-right: 10px; cursor: pointer"
           size="20px"
-          @click=""
+          @click="favoriteCard"
         >
-          <star />
+          <star-filled v-if="favorite" />
+          <star v-else />
         </el-icon>
         <el-icon
           style="margin-right: 10px; cursor: pointer"
@@ -111,7 +119,7 @@ const replyCard = async () => {
         <editor
           :init-data="info"
           :isEdit="
-            user._key === info?.creatorInfo?.userAvatar ||
+            user?._key === info?.creatorInfo?.userAvatar ||
             (groupRole < 3 && info?.receiverInfo?.receiverType === 'group') ||
             info?.receiverInfo?.receiverType === 'user'
           "
@@ -131,7 +139,6 @@ const replyCard = async () => {
       </div>
     </div>
     <div class="footer p-5">
-      <!-- <el-divider /> -->
       <el-input
         v-model="replyInput"
         size="large"
@@ -174,6 +181,14 @@ const replyCard = async () => {
     .center {
       // min-height: 250px;
       margin-bottom: 40px;
+      position: relative;
+      z-index: 1;
+      .button {
+        position: absolute;
+        z-index: 5;
+        top: 0px;
+        right: 10px;
+      }
     }
     .message {
       width: 100%;

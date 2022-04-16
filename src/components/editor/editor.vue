@@ -57,7 +57,6 @@ const editor = useEditor({
       placeholder: ({ node }) => {
         const placeholderStr = i18n.global.t("tip.text");
         const placeholderTitle = i18n.global.t("tip.title");
-        console.log(node.type.name);
         if (node.type.name === "heading") {
           return placeholderTitle;
         } else if (node.type.name === "paragraph") {
@@ -102,7 +101,7 @@ watch(
   { deep: true }
 );
 
-async function handlePost(key: string, callback?: any) {
+async function handlePost(key: string, callback?: any, clear?: boolean) {
   if (!editor.value) return;
   const json: JSONContent = editor.value.getJSON();
   console.log(json);
@@ -156,8 +155,10 @@ async function handlePost(key: string, callback?: any) {
       callback(postRes);
       store.commit("message/setEditContent", null);
     }
-    editor.value.commands.clearContent();
-    editor.value.commands.focus();
+    if (!clear) {
+      editor.value.commands.clearContent();
+      editor.value.commands.focus();
+    }
     // }
   } else {
     ElMessage.error("Please Enter Title");
@@ -231,6 +232,10 @@ defineExpose({
 <style lang="scss">
 /* Basic editor styles */
 .ProseMirror {
+  outline: none;
+  &:focus {
+    outline: none;
+  }
   > * + * {
     margin-top: 0.75em;
   }

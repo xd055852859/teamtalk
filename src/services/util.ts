@@ -1,7 +1,6 @@
 import * as qiniu from "qiniu-js";
 
 export const getSearchParamValue = (search: string, paramName: string) => {
-  console.log(search);
   const QUERY_PARAMS: string = new URLSearchParams(search).get(
     paramName
   ) as string;

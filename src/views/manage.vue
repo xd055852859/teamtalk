@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { DArrowLeft } from "@element-plus/icons-vue";
+import { ArrowDown } from "@element-plus/icons-vue";
 import { useStore } from "@/store";
 
-import chooseSvg from "../assets/svg/choose.svg";
-import unchooseSvg from "../assets/svg/unchoose.svg";
-import addPersonSvg from "../assets/svg/addPerson.svg";
-import delSvg from "../assets/svg/del.svg";
+import chooseSvg from "@/assets/svg/choose.svg";
+import unchooseSvg from "@/assets/svg/unchoose.svg";
+import addPersonSvg from "@/assets/svg/addPerson.svg";
+import addMemberSvg from "@/assets/svg/addMember.svg";
+import delSvg from "@/assets/svg/del.svg";
 import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
 import { ElMessage } from "element-plus";
 import { Group, Member } from "@/interface/User";
 import Tbutton from "@/components/tbutton.vue";
+import i18n from "@/language/i18n";
+import Theader from "@/components/theader.vue";
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
@@ -24,36 +27,26 @@ const groupRole = computed(() => store.state.auth.groupRole);
 const teamName = ref<string>("");
 const teamKey = ref<string>("");
 const teamKeyArray = ref<string[]>([]);
-const teamArray = ref<Group[]>([]);
 const memberArray = ref<Group[]>([]);
 const exitVisible = ref<boolean>(false);
 const memberVisible = ref<boolean>(false);
-const disbandVisible = ref<boolean>(false);
 
 const memberKeyArray = ref<string[]>([]);
 const groupKeyArray = ref<string[]>([]);
-const groupHeight = ref<number>(0);
 const delVisible = ref<boolean>(false);
 const delItem = ref<{ item: Member; index: number } | null>(null);
-const roleArray = ["组长", "管理员","编辑", "组员"];
+const roleArray = ["owner", "admin", "editor", "member"];
 
 onMounted(() => {
-  teamKey.value =
-    route.params.id !== "create" ? (route.params.id as string) : "";
-  groupHeight.value = document.documentElement.offsetHeight - 105;
-  if (teamKey.value) {
-    store.dispatch("auth/getMemberList", teamKey.value);
-  }
+  teamKey.value = route.params.id as string;
+  store.dispatch("auth/getMemberList", teamKey.value);
 });
 const chooseMember = (item: Group) => {
-  console.log(item);
   let index = teamKeyArray.value.indexOf(item.toUserKey as string);
   if (index === -1) {
     teamKeyArray.value.push(item.toUserKey as string);
-    teamArray.value.push(item);
   } else {
     teamKeyArray.value.splice(index, 1);
-    teamArray.value.splice(index, 1);
   }
 };
 const delMember = async (item: Member, index: number) => {
@@ -68,31 +61,30 @@ const delMember = async (item: Member, index: number) => {
     delItem.value = null;
   }
 };
-const saveGroup = async () => {
+const saveGroup = async (type, done?: any) => {
   if (!teamName.value) {
-    ElMessage.error(`Please enter a word`);
+    ElMessage.error(i18n.global.t("message.teamName"));
     return;
   }
-  let groupRes: null | ResultProps = null;
   const config = {
     title: teamName.value,
-    memberKeyArr: teamKeyArray.value,
+    memberKeyArr: type === "name" ? [] : teamKeyArray.value,
   };
-  if (teamKey.value) {
-    groupRes = (await api.request.patch("receiver", {
-      receiverKey: teamKey.value,
-      ...config,
-    })) as ResultProps;
-  } else {
-    groupRes = (await api.request.post("receiver", {
-      receiverType: "group",
-      ...config,
-    })) as ResultProps;
+  if (type === "member" && teamKey.value.length === 0) {
+    return;
   }
+  const groupRes = (await api.request.patch("receiver", {
+    receiverKey: teamKey.value,
+    ...config,
+  })) as ResultProps;
   if (groupRes.msg === "OK") {
-    ElMessage.success(`${teamKey.value ? "Update" : "Create"} Group Success`);
-    router.push("/home");
-    store.dispatch("auth/getGroupList");
+    if (type === "name") {
+      ElMessage.success(`Update Group Success`);
+    }
+    // router.push("/home");
+    // store.dispatch("auth/getGroupList");
+    store.commit("auth/addMemberList", groupRes.data);
+    done();
   }
 };
 const changeRole = async (item: Member, index: number, role: number) => {
@@ -129,16 +121,6 @@ const exitGroup = async () => {
     router.push("/home");
   }
 };
-const disbandGroup = async () => {
-  const disbandRes = (await api.request.delete("receiver", {
-    receiverKey: teamKey.value,
-  })) as ResultProps;
-  if (disbandRes.msg === "OK") {
-    ElMessage.success("disband Group success");
-    store.dispatch("auth/getGroupList", "delete");
-    router.push("/home");
-  }
-};
 watchEffect(() => {
   memberArray.value = [];
   memberKeyArray.value = memberList.value.map((item: Member) => {
@@ -148,10 +130,8 @@ watchEffect(() => {
     item.toUserKey ? groupKeyArray.value.push(item.toUserKey) : null;
     if (
       item.receiverType === "user" &&
-      teamKeyArray.value.indexOf(item.toUserKey as string) === -1 &&
       memberKeyArray.value.indexOf(item.toUserKey as string) === -1
     ) {
-      console.log(item);
       memberArray.value.push(item);
     }
   });
@@ -170,23 +150,43 @@ watch(
 </script>
 <template>
   <div class="manage p-5">
-    <div class="header dp--center">
-      <el-icon
-        style="margin-right: 10px; cursor: pointer"
-        size="20px"
-        @click="router.push('/home')"
-        ><d-arrow-left /></el-icon
-      >{{ $t(`surface.Manage`) }}
-    </div>
+    <theader
+      @clickBack="
+        router.push('/home');
+        store.dispatch('auth/getGroupList');
+      "
+    >
+      <template v-slot:title>
+        <el-input
+          v-model="teamName"
+          placeholder="请输入小组名"
+          v-if="groupRole == 0"
+        />
+        <span v-else>{{ teamName }}</span>
+      </template>
+      <template v-slot:right>
+        <tbutton
+          style="height: 40px; padding: 0px 30px"
+          @click="saveGroup('name')"
+        >
+          {{ $t(`surface.Update`) }}
+        </tbutton>
+      </template>
+    </theader>
     <div class="title dp-space-center">
-      <el-input
-        v-model="teamName"
-        placeholder="请输入小组名"
-        style="width: calc(100% - 120px)"
-      />
-      <tbutton style="height: 40px; padding: 0px 30px" @click="saveGroup">
-        {{ teamKey ? $t(`surface.Update`) : $t(`surface.Save`) }}
-      </tbutton>
+      {{ $t(`message.selectTeam`) }}
+      <div
+        class="dp--center"
+        @click="memberVisible = true"
+        style="cursor: pointer"
+      >
+        Add
+        <img
+          :src="addMemberSvg"
+          alt=""
+          style="margin-left: 15px; width: 35px; height: 35px"
+        />
+      </div>
     </div>
     <div class="info">
       <div
@@ -199,67 +199,56 @@ watch(
           <div class="name">{{ item.userName }}</div>
         </div>
         <div class="right dp--center">
-          <el-dropdown :disabled="groupRole !== 0 || item._key === user?._key">
-            <tbutton type="text"> {{ roleArray[item.role] }}</tbutton>
+          <el-dropdown :disabled="groupRole > 1 || item._key === user?._key">
+            <div class="dp--center">
+              <span style="margin-right: 10px">{{ roleArray[item.role] }}</span
+              ><el-icon v-if="groupRole < 2 && item._key !== user?._key"
+                ><arrow-down
+              /></el-icon>
+            </div>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item @click="changeRole(item, index, 1)"
-                  >管理员
+                <el-dropdown-item v-if="groupRole === 0"
+                  >owner
                 </el-dropdown-item>
-                <el-dropdown-item @click="changeRole(item, index, 2)"
-                  >组员
+                <el-dropdown-item @click="changeRole(item, index, 1)"
+                  >admin
+                </el-dropdown-item>
+                <el-dropdown-item @click="changeRole(item, index, 3)"
+                  >editor
+                </el-dropdown-item>
+                <el-dropdown-item @click="changeRole(item, index, 4)"
+                  >member
+                </el-dropdown-item>
+                <el-divider />
+                <el-dropdown-item
+                  @click="
+                    delItem = {
+                      item: item,
+                      index: index,
+                    };
+                    delVisible = true;
+                  "
+                  >delete
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
           <div style="width: 20px; height: 20px; margin-left: 10px">
-            <img
-              :src="addPersonSvg"
-              alt=""
-              class="del-button"
-              style="width: 100%; height: 100%"
-              @click="saveMember(item._key)"
-              v-if="
-                groupKeyArray.indexOf(item._key) === -1 &&
-                item._key !== user?._key
-              "
-            />
+            <el-tooltip content="+ mate" placement="top">
+              <img
+                :src="addPersonSvg"
+                alt=""
+                class="del-button"
+                style="width: 100%; height: 100%"
+                @click="saveMember(item._key)"
+                v-if="
+                  groupKeyArray.indexOf(item._key) === -1 &&
+                  item._key !== user?._key
+                "
+              />
+            </el-tooltip>
           </div>
-          <div style="width: 20px; height: 20px; margin-left: 10px">
-            <img
-              :src="delSvg"
-              alt=""
-              class="del-button"
-              style="width: 100%; height: 100%"
-              @click="
-                delItem = {
-                  item: item,
-                  index: index,
-                };
-                delVisible = true;
-              "
-              v-if="groupRole === 0 && item._key !== user?._key"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="container dp-space-center manage-item"
-        v-for="(item, index) in teamArray"
-        :key="'manage' + index"
-      >
-        <div class="left dp--center">
-          <el-avatar :size="40" :src="item.avatar" />
-          <div class="name">{{ item.title }}</div>
-        </div>
-        <div class="right">
-          <img
-            :src="delSvg"
-            alt=""
-            style="width: 20px; height: 20px"
-            class="del-button"
-            @click="chooseMember(item)"
-          />
         </div>
       </div>
     </div>
@@ -267,18 +256,21 @@ watch(
       <span @click="exitVisible = true" v-if="groupRole" class="exit">{{
         $t(`surface['Exit']`)
       }}</span>
-      <tbutton
-        @click="memberVisible = true"
-        >{{ $t(`surface['+ Member']`) }}</tbutton
-      >
+      <div>Block <el-switch /></div>
+      <div>Message Sound <el-switch /></div>
     </div>
   </div>
   <el-drawer
     v-model="memberVisible"
-    direction="btt"
+    direction="rtl"
     :title="$t(`surface['+ Member']`)"
-    :size="groupHeight"
-    custom-class="radius-drawer"
+    :size="300"
+    custom-class="p0-drawer"
+    :before-close="
+      (done) => {
+        saveGroup('member', done);
+      }
+    "
   >
     <div class="add-member">
       <div
@@ -306,8 +298,8 @@ watch(
   <el-dialog v-model="exitVisible" title="Tips" width="350px">
     <span>{{ $t(`form.out`) }}</span>
     <template #footer>
-      <span class="dialog-footer">
-        <tbutton @click="exitVisible = false">Cancel</tbutton>
+      <span class="dialog-footer dp-space-center">
+        <tbutton @click="exitVisible = false" :disabled="true">Cancel</tbutton>
         <tbutton @click="exitGroup()">Sure</tbutton>
       </span>
     </template>
@@ -316,8 +308,8 @@ watch(
   <el-dialog v-model="delVisible" title="Tips" width="350px">
     <span>{{ $t(`form.delete`) }}</span>
     <template #footer>
-      <span class="dialog-footer">
-        <tbutton @click="delVisible = false">Cancel</tbutton>
+      <span class="dialog-footer dp-space-center">
+        <tbutton @click="delVisible = false" :disabled="true">Cancel</tbutton>
         <tbutton
           @click="delItem ? delMember(delItem.item, delItem.index) : null"
           >Sure</tbutton
@@ -331,19 +323,20 @@ watch(
   width: 100vw;
   height: 100vh;
   background: var(--talk-bg-color);
-  .header {
+  .title {
     width: 100%;
-    height: 55px;
-    text-align: center;
+    height: 45px;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 45px;
+    margin: 15px 0px;
   }
-  .title,
   .footer {
     width: 100%;
     height: 40px;
   }
   .info {
-    height: calc(100% - 175px);
-    margin: 10px 0px;
+    height: calc(100% - 180px);
     overflow: auto;
     .manage-item {
       .del-button {
@@ -359,6 +352,7 @@ watch(
     }
   }
   .footer {
+    width: 100%;
     // justify-content: flex-end;
     .exit {
       cursor: pointer;
@@ -366,7 +360,7 @@ watch(
   }
 }
 .add-member {
-  padding: 0px 10px;
+  padding: 15px 10px;
   box-sizing: border-box;
 }
 </style>

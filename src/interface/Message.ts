@@ -17,6 +17,7 @@ export interface Message {
 export interface Card {
   _key?: string;
   detail: any;
+  favorite:boolean;
   receiverInfo?: any;
   replyList?: any;
   creatorInfo?: {

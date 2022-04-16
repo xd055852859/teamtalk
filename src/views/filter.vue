@@ -28,7 +28,7 @@ const dark = computed(() => store.state.common.dark);
 const changeReceiver = (
   type: string,
   item?: Group | null,
-  privateItem?: Group
+  privateItem?: Group | null
 ) => {
   store.commit("message/setReceiver", item ? item : null);
   store.commit("message/setReceiverType", type);
@@ -98,7 +98,7 @@ const changeReceiver = (
       <tbutton @click="router.push('/invite')">{{
         $t(`surface.Invite`)
       }}</tbutton>
-      <tbutton @click="router.push('/manage/create')">{{
+      <tbutton @click="router.push('/createGroup')">{{
         $t(`surface['+ Group']`)
       }}</tbutton>
     </div>
@@ -113,7 +113,7 @@ const changeReceiver = (
   }
   .box {
     width: 100%;
-    height: calc(100vh - 370px);
+    height: calc(100vh - 380px);
     overflow-y: auto;
   }
   .button {

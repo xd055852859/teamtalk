@@ -24,7 +24,6 @@ axios.interceptors.response.use(
 const request = {
   get(path: string, params?: object, otherUrl?: boolean) {
     return new Promise(async function (resolve, reject) {
-      console.log(API_URL + path);
       try {
         const response = await axios({
           method: "get",

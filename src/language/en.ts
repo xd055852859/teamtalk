@@ -60,6 +60,10 @@ export default {
     userName:"User Name",
     email:"eMail",
   },
+  message:{
+    teamName:"Please Enter Team Name",
+    selectTeam:"Select team member :"
+  },
   tip: {
     title: "Enter title ...",
     text: "Enter text,or type '/' to select",

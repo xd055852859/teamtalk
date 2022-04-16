@@ -42,7 +42,6 @@ const mutations: MutationTree<AuthState> = {
 
   setUserInfo(state, user: User) {
     state.user = user;
-    console.log(user);
     if (user.config) {
       common.state.dark = user.config.dark;
       // common.state.theme = user.config.theme;
@@ -54,7 +53,6 @@ const mutations: MutationTree<AuthState> = {
   },
   setGroupList(state, groupList: Group[]) {
     state.groupList = groupList;
-    console.log(state.groupList);
   },
   setGroupItem(state, groupItem: Group) {
     state.groupItem = groupItem;
@@ -78,6 +76,9 @@ const mutations: MutationTree<AuthState> = {
       }
       return item;
     });
+  },
+  addMemberList(state, memberList: Member[]) {
+    state.memberList=[...state.memberList,...memberList];
   },
   updateGroupList(state, groupItem: Group) {
     state.groupList = state.groupList.map((item) => {

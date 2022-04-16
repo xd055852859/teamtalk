@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ElMessage } from "element-plus";
+const props = defineProps<{ disabled?: boolean }>();
 </script>
 <template>
-  <div class="common-button dp-center-center">
+  <div class="common-button dp-center-center" :style="props.disabled?{backgroundColor: '#d1dbe5'}:{}">
     <slot></slot>
   </div>
 </template>
