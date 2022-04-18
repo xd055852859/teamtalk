@@ -14,7 +14,7 @@ export default {
     Info: "Info",
     Exit: "Exit",
     Invite: "Invite",
-    "+ Group": "+ Group",
+    "+ Team": "+ Team",
     "+ Member": "+ Member",
     "Invite cooperator": "Invite cooperator",
     more: "more",
@@ -27,6 +27,7 @@ export default {
     Download: "Download",
     Reply: "Reply",
     Update: "Update",
+    Partner: "Partner",
     Settings: "Settings",
     Language: "English",
     DarkMode: "Dark Mode",
@@ -34,12 +35,13 @@ export default {
     Help: "Help",
     Community: "Community",
     Quit: "Quit",
-
+  
     copy: "Copy invite code",
     disband: "Disband",
     to:"To",
     in:"In",
-    from:"From"
+    from:"From",
+    sendMessage:"Send Message"
   },
   form: {
     all: "All",
@@ -62,6 +64,7 @@ export default {
   },
   message:{
     teamName:"Please Enter Team Name",
+    partnerName:"Please Enter Partner Name",
     selectTeam:"Select team member :"
   },
   tip: {

@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ElMessage } from "element-plus";
 import { MoreFilled, Search } from "@element-plus/icons-vue";
 import { useStore } from "@/store";
 import { Group } from "@/interface/User";
+
+import addMemberSvg from "@/assets/svg/addMember.svg";
+import Theader from "@/components/theader.vue";
 const router = useRouter();
 const store = useStore();
 const emits = defineEmits(["close", "chooseReceiver"]);
@@ -10,32 +12,42 @@ const groupList = computed(() => store.state.auth.groupList);
 const searchList = ref<Group[]>([]);
 const memberName = ref<string>("");
 
-onMounted(() => {
-  searchName("");
-});
-const searchName = (name: string) => {
-  if (name) {
+const searchName = () => {
+  if (memberName.value) {
     searchList.value = groupList.value.filter((item) => {
-      return item.title.indexOf(name) !== -1;
+      return item.title.indexOf(memberName.value) !== -1;
     });
   } else {
     searchList.value = [...groupList.value];
   }
 };
-watch(memberName, (newOld: string) => {
-  searchName(newOld);
+watchEffect(() => {
+  searchName();
 });
 </script>
 <template>
   <div class="contact p-5">
-    <div class="header">
-      To : 
-    </div>
-    <div class="search">
+    <theader
+      @clickBack="
+        router.push('/home');
+        store.dispatch('auth/getGroupList');
+      "
+    >
+      <template v-slot:title>{{ $t(`surface['Talk with']`) }}</template>
+    </theader>
+    <div class="search dp--center">
       <el-input
         v-model="memberName"
         :placeholder="$t(`form.keyword`)"
         :prefix-icon="Search"
+        @input="searchName"
+        style="width: calc(100% - 50px)"
+      />
+      <img
+        :src="addMemberSvg"
+        alt=""
+        style="margin-left: 15px; width: 35px; height: 35px; cursor: pointer"
+        @click="router.push('/invite')"
       />
     </div>
     <div class="info">
@@ -44,8 +56,8 @@ watch(memberName, (newOld: string) => {
         v-for="(item, index) in searchList"
         :key="'contact' + index"
         @click="
-          emits('close');
           store.commit('message/setTalker', item);
+          router.push('/home')
         "
       >
         <div class="left dp--center">
@@ -75,6 +87,7 @@ watch(memberName, (newOld: string) => {
 .contact {
   width: 100%;
   height: 100%;
+  background: var(--talk-bg-color);
   .header {
     width: 100%;
     height: 45px;
@@ -86,8 +99,9 @@ watch(memberName, (newOld: string) => {
   }
   .info {
     width: 100%;
-    height: calc(100% - 150px);
+    height: calc(100% - 120px);
     overflow-y: auto;
+    margin-top: 10px;
   }
   .button {
     width: 100%;

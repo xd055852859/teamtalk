@@ -99,7 +99,7 @@ const changeReceiver = (
         $t(`surface.Invite`)
       }}</tbutton>
       <tbutton @click="router.push('/createGroup')">{{
-        $t(`surface['+ Group']`)
+        $t(`surface['+ Team']`)
       }}</tbutton>
     </div>
   </div>

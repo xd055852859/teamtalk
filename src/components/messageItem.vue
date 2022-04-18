@@ -7,7 +7,11 @@ const router = useRouter();
   <div
     class="item"
     :style="props.item.type === 'self' ? {} : { border: '0px' }"
-    @click="router.push('/info/' + (item.refKey ? item.refKey : item._key))"
+    @click="
+      router.push(
+        '/info/' + (item?.refCardInfo?._key ? item.refCardInfo._key : item._key)
+      )
+    "
   >
     <div
       class="title"
@@ -78,8 +82,8 @@ const router = useRouter();
       </div>
     </div>
   </div>
-  <div class="reply single-to-long" v-if="item.refKey">
-    @ {{ item.refTitle }}
+  <div class="reply single-to-long" v-if="item?.refCardInfo">
+    @ {{ item.refCardInfo.title }}
   </div>
 </template>
 <style scoped lang="scss">

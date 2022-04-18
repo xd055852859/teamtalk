@@ -1,37 +1,28 @@
 <script setup lang="ts">
 import { ElMessage } from "element-plus";
-import Contact from "./contact.vue";
-
-import setDark from "../hooks/dark";
-import setTheme from "../hooks/theme";
+import i18n from "@/language/i18n";
+import Tbutton from "@/components/tbutton.vue";
+import setDark from "@/hooks/dark";
+import { ResultProps } from "@/interface/Common";
+import { uploadImage } from "@/services/util";
 import { useStore } from "@/store";
 import useCurrentInstance from "@/hooks/useCurrentInstance";
 import api from "@/services/api";
 
-import setSvg from "../assets/svg/Settings.svg";
-import darkSvg from "../assets/svg/Dark Mode.svg";
-import lightSvg from "../assets/svg/brightness.svg";
-import helpSvg from "../assets/svg/Help.svg";
-import communitySvg from "../assets/svg/Community.svg";
-import quitSvg from "../assets/svg/Quit.svg";
-import zhSvg from "../assets/svg/zh.svg";
-import enSvg from "../assets/svg/en.svg";
+import setSvg from "@/assets/svg/Settings.svg";
+import helpSvg from "@/assets/svg/Help.svg";
+import communitySvg from "@/assets/svg/Community.svg";
+import quitSvg from "@/assets/svg/Quit.svg";
+import partnerSvg from "@/assets/svg/partner.svg";
+import setwSvg from "@/assets/svg/Settingsw.svg";
+import helpwSvg from "@/assets/svg/Helpw.svg";
+import communitywSvg from "@/assets/svg/Communityw.svg";
+import quitwSvg from "@/assets/svg/Quitw.svg";
 
-import setwSvg from "../assets/svg/Settingsw.svg";
-import darkwSvg from "../assets/svg/Dark Modew.svg";
-import lightwSvg from "../assets/svg/brightnessw.svg";
-import helpwSvg from "../assets/svg/Helpw.svg";
-import communitywSvg from "../assets/svg/Communityw.svg";
-import quitwSvg from "../assets/svg/Quitw.svg";
-import zhwSvg from "../assets/svg/zhw.svg";
-import enwSvg from "../assets/svg/enw.svg";
-import { ResultProps } from "@/interface/Common";
-import { uploadImage } from "@/services/util";
-import { User } from "@/interface/User";
-import i18n from "@/language/i18n";
-import Tbutton from "@/components/tbutton.vue";
+
 
 const store = useStore();
+const router = useRouter();
 const { proxy } = useCurrentInstance();
 const user = computed(() => store.state.auth.user);
 const locale = computed(() => store.state.common.locale);
@@ -132,6 +123,12 @@ const chooseImg = (e) => {
     <el-avatar :src="user?.userAvatar" :size="100" />
     <div class="center">{{ user?.userName }}</div>
     <div class="bottom">{{ user?.email }}</div>
+  </div>
+  <div class="userCenter-item dp--center" @click="router.push('/partner')">
+    <img :src="dark ? partnerSvg : partnerSvg" alt="" />
+    <span>
+      {{ $t(`surface.Partner`) }}
+    </span>
   </div>
   <div class="userCenter-item dp--center" @click="setVisible = true">
     <img :src="dark ? setwSvg : setSvg" alt="" />

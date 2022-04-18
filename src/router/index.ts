@@ -14,6 +14,18 @@ const routes: Array<RouteRecordRaw> = [
     children: [],
   },
   {
+    path: "/partner",
+    name: "partner",
+    component: () => import("@/views/partner.vue"),
+    children: [],
+  },
+  {
+    path: "/member/:id",
+    name: "member",
+    component: () => import("@/views/member.vue"),
+    children: [],
+  },
+  {
     path: "/createGroup",
     name: "createGroup",
     component: () => import("@/views/createGroup.vue"),
@@ -23,6 +35,12 @@ const routes: Array<RouteRecordRaw> = [
     path: "/createCard",
     name: "createCard",
     component: () => import("@/views/createCard.vue"),
+    children: [],
+  },
+  {
+    path: "/contact",
+    name: "contact",
+    component: () => import("@/views/contact.vue"),
     children: [],
   },
   {

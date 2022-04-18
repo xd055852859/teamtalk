@@ -14,8 +14,10 @@ const router = useRouter();
 const route = useRoute();
 const user = computed(() => store.state.auth.user);
 const groupRole = computed(() => store.state.auth.groupRole);
+const talker = computed(() => store.state.message.talker);
 
 const inputRef = ref(null);
+const editorRef = ref(null);
 const infoKey = ref<string>("");
 const info = ref<Card | null>(null);
 const favorite = ref<boolean>(false);
@@ -41,6 +43,16 @@ const getInfo = async () => {
     }
   }
 };
+// const postContent = async () => {
+//   console.log(editorRef.value);
+//   if (talker.value && editorRef.value) {
+//     //@ts-ignore
+//     editorRef.value.handlePost(talker.value._key);
+//   } else {
+//     ElMessage.error("choose a receiver");
+//     return;
+//   }
+// };
 const favoriteCard = async () => {
   const postRes = (await api.request.patch("card/favorite", {
     cardKey: infoKey.value,
@@ -124,7 +136,11 @@ const replyCard = async () => {
             info?.receiverInfo?.receiverType === 'user'
           "
           position="top"
+          ref="editorRef"
         />
+         <!-- <tbutton class="button" @click="postContent" v-if="talkKey">{{
+      $t(`surface.Post`)
+    }}</tbutton> -->
       </div>
       <div
         class="message p-5"

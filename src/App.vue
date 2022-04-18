@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // This starter template is using Vue 3 <script setup> SFCs
 import { useStore } from "@/store";
+import io from "socket.io-client";
 import useCurrentInstance from "@/hooks/useCurrentInstance";
 import setDark from "@/hooks/dark";
 import setTheme from "@/hooks/theme";
@@ -25,33 +26,41 @@ const musicRef = ref(null);
 const dark = computed(() => store.state.common.dark);
 const theme = computed(() => store.state.common.theme);
 const token = computed(() => store.state.auth.token);
-const socket: any = inject("socket");
+
+let talkKey = "";
+let infoKey = "";
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-onMounted(() => {
+onBeforeMount(() => {
   let url = window.location.href;
   //自动切换为https
   if (url.indexOf("http://localhost") === -1 && url.indexOf("https") < 0) {
     url = url.replace("http:", "https:");
     window.location.replace(url);
   }
-  setDark(dark.value);
-  setTheme(theme.value);
-  window.addEventListener("message", handle, false);
   const search = window.location.search
     ? window.location.search.split("?")[1]
     : window.location.hash.split("?")[1];
   const token = getSearchParamValue(search, "token") as string;
-  const talkKey = getSearchParamValue(search, "talkKey") as string;
+  talkKey = getSearchParamValue(search, "talkKey") as string;
+  infoKey = getSearchParamValue(search, "infoKey") as string;
   if (token) {
     request.setToken(token);
     store.commit("auth/setToken", token);
     if (talkKey) {
-      store.commit("message/setTalkKey", token);
+      store.commit("message/setTalkKey", talkKey);
       router.push("/createCard");
+    } else if (infoKey) {
+      store.commit("message/setInfoKey", infoKey);
+      router.push(`/info/${infoKey}`);
     } else {
       router.push("/home");
     }
   }
+});
+onMounted(() => {
+  setDark(dark.value);
+  setTheme(theme.value);
+  window.addEventListener("message", handle, false);
 });
 onUnmounted(() => {
   window.removeEventListener("message", handle, false);
@@ -95,34 +104,43 @@ watchEffect(() => {
     init();
     store.dispatch("auth/getGroupList");
     store.dispatch("auth/getUptoken");
-    socket.on("connect", (res) => {
-      socket.emit("login", token.value);
-      socket.on("card", function (msg) {
-        // 1:1卡片
-        if (msg.creatorInfo._key !== user.value?._key) {
-          if (
-            msg.receiverType === "user" ||
-            msg?.refCardInfo?.creatorInfo._key === user.value?._key
-          ) {
-            //@ts-ignore
-            musicRef.value.src = strongestMusic;
-            //@ts-ignore
-            musicRef.value.play();
-          } else if (msg.receiverType === "group") {
-            //@ts-ignore
-            musicRef.value.src = strongMusic;
-            //@ts-ignore
-            musicRef.value.play();
-          }
-        }
-        //
-        //  msg.refCardTitle&&
-        //别人在群里创建的卡片
 
-        console.log("card", msg);
-        store.commit("message/updateMessageList", msg);
+    const search = window.location.search
+      ? window.location.search.split("?")[1]
+      : window.location.hash.split("?")[1];
+    talkKey = getSearchParamValue(search, "talkKey") as string;
+    infoKey = getSearchParamValue(search, "infoKey") as string;
+    if (!talkKey && !infoKey) {
+      const socket = io("https://ttalkdata.qingtime.cn");
+      socket.on("connect", () => {
+        socket.emit("login", token.value);
+        socket.on("card", function (msg) {
+          // 1:1卡片
+          if (msg.creatorInfo._key !== user.value?._key) {
+            if (
+              msg.receiverType === "user" ||
+              msg?.refCardInfo?.creatorInfo._key === user.value?._key
+            ) {
+              //@ts-ignore
+              musicRef.value.src = strongestMusic;
+              //@ts-ignore
+              musicRef.value.play();
+            } else if (msg.receiverType === "group") {
+              //@ts-ignore
+              musicRef.value.src = strongMusic;
+              //@ts-ignore
+              musicRef.value.play();
+            }
+          }
+          //
+          //  msg.refCardTitle&&
+          //别人在群里创建的卡片
+
+          console.log("card", msg);
+          store.commit("message/updateMessageList", msg);
+        });
       });
-    });
+    }
   } else {
     router.push("/");
   }

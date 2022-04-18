@@ -14,7 +14,7 @@ export default {
     Info: "详情",
     Exit: "退出",
     Invite: "邀请",
-    "+ Group": "创建小组",
+    "+ Team": "创建小组",
     "+ Member": "添加组员",
     "Invite cooperator": "邀请协作者",
     more: "更多",
@@ -27,6 +27,7 @@ export default {
     Download: "下载",
     Reply: "回复",
     Update: "更新",
+    Partner: "好友",
     Settings: "设置",
     DarkMode: "暗黑模式",
     Language: "中文",
@@ -40,6 +41,7 @@ export default {
     to: "发送给",
     in: "来自于",
     from: "来自于",
+    sendMessage:"发送消息"
   },
   form: {
     all: "所有",
@@ -62,6 +64,7 @@ export default {
   },
   message: {
     teamName: "请输入小组名",
+    partnerName:"请输入好友名",
     selectTeam: "选择小组成员 :",
   },
   tip: {

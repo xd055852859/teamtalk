@@ -21,6 +21,7 @@ export interface Group {
   receiverType?: string;
   toUserKey?: string | null;
   checked?: boolean;
+  email?:boolean
 }
 export interface Member extends User {
   role: number;

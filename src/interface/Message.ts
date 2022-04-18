@@ -11,8 +11,7 @@ export interface Message {
   summary: string;
   type?: string;
   title: string;
-  refKey?: string;
-  refTitle?: string;
+  refCardInfo?: any;
 }
 export interface Card {
   _key?: string;

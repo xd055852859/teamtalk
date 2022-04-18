@@ -73,7 +73,7 @@ const scrollLoading = (e: any) => {
   <div class="talk-container p-5" @scroll="scrollLoading">
     <div class="talk-edit">
       <div class="top dp-space-center">
-        <div class="left dp--center" @click="groupVisible = true">
+        <div class="left dp--center" @click="router.push('/contact')">
           <span>{{ $t(`surface.to`) }} : </span>
           <el-avatar
             :size="25"
@@ -121,16 +121,6 @@ const scrollLoading = (e: any) => {
     custom-class="radius-drawer"
     destroy-on-close
   >
-  </el-drawer>
-  <el-drawer
-    v-model="groupVisible"
-    direction="ltr"
-    :with-header="false"
-    :size="350"
-    modal-class="modal-transparent"
-    custom-class="p0-drawer"
-  >
-    <contact @close="groupVisible = false" />
   </el-drawer>
 </template>
 <style scoped lang="scss">
