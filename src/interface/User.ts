@@ -21,8 +21,14 @@ export interface Group {
   receiverType?: string;
   toUserKey?: string | null;
   checked?: boolean;
-  email?:boolean
+  email?: boolean;
 }
 export interface Member extends User {
   role: number;
+}
+export interface Search {
+  _key: string;
+  avatar: string;
+  name: string;
+  allowJoin?: boolean;
 }

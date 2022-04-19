@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // This starter template is using Vue 3 <script setup> SFCs
 import { useStore } from "@/store";
-import io from "socket.io-client";
 import useCurrentInstance from "@/hooks/useCurrentInstance";
 import setDark from "@/hooks/dark";
 import setTheme from "@/hooks/theme";
@@ -15,7 +14,7 @@ import strongMusic from "@/assets/audio/strong.mp3";
 
 import { Group } from "./interface/User";
 const { proxy } = useCurrentInstance();
-
+const socket: any = inject("socket");
 const store = useStore();
 const router = useRouter();
 
@@ -105,42 +104,27 @@ watchEffect(() => {
     store.dispatch("auth/getGroupList");
     store.dispatch("auth/getUptoken");
 
-    const search = window.location.search
-      ? window.location.search.split("?")[1]
-      : window.location.hash.split("?")[1];
-    talkKey = getSearchParamValue(search, "talkKey") as string;
-    infoKey = getSearchParamValue(search, "infoKey") as string;
-    if (!talkKey && !infoKey) {
-      const socket = io("https://ttalkdata.qingtime.cn");
-      socket.on("connect", () => {
-        socket.emit("login", token.value);
-        socket.on("card", function (msg) {
-          // 1:1卡片
-          if (msg.creatorInfo._key !== user.value?._key) {
-            if (
-              msg.receiverType === "user" ||
-              msg?.refCardInfo?.creatorInfo._key === user.value?._key
-            ) {
-              //@ts-ignore
-              musicRef.value.src = strongestMusic;
-              //@ts-ignore
-              musicRef.value.play();
-            } else if (msg.receiverType === "group") {
-              //@ts-ignore
-              musicRef.value.src = strongMusic;
-              //@ts-ignore
-              musicRef.value.play();
-            }
+    socket.on("connect", () => {
+      socket.emit("login", token.value);
+      socket.on("card", function (msg) {
+        // 1:1卡片
+        if (msg.creatorInfo._key !== user.value?._key) {
+          if (msg.receiverType === "user") {
+            //@ts-ignore
+            musicRef.value.src = strongestMusic;
+            //@ts-ignore
+            musicRef.value.play();
+          } else if (msg.receiverType === "group") {
+            //@ts-ignore
+            musicRef.value.src = strongMusic;
+            //@ts-ignore
+            musicRef.value.play();
           }
-          //
-          //  msg.refCardTitle&&
-          //别人在群里创建的卡片
-
-          console.log("card", msg);
-          store.commit("message/updateMessageList", msg);
-        });
+        }
+        console.log("card", msg);
+        store.commit("message/updateMessageList", msg);
       });
-    }
+    });
   } else {
     router.push("/");
   }

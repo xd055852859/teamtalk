@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElMessage } from "element-plus";
-import { Filter as ShowFilter, Close } from "@element-plus/icons-vue";
+import { Filter as ShowFilter, Close, User } from "@element-plus/icons-vue";
 
 import { useStore } from "@/store";
 
@@ -8,10 +8,10 @@ import logoSvg from "../assets/svg/logoHeader.svg";
 import logowSvg from "../assets/svg/logoHeaderw.svg";
 import UserCenter from "./userCenter.vue";
 import HeaderFilter from "./filter.vue";
-import privateSvg from "../assets/svg/private.svg";
-import favoriteSvg from "../assets/svg/favorite.svg";
-import sendSvg from "../assets/svg/send.svg";
-import receivedSvg from "../assets/svg/received.svg";
+// import privateSvg from "../assets/svg/private.svg";
+// import favoriteSvg from "../assets/svg/favorite.svg";
+// import sendSvg from "../assets/svg/send.svg";
+// import receivedSvg from "../assets/svg/received.svg";
 
 const store = useStore();
 const receiver = computed(() => store.state.message.receiver);
@@ -21,13 +21,8 @@ const dark = computed(() => store.state.common.dark);
 
 const chooseVisible = ref<boolean>(false);
 const themeVisible = ref<boolean>(false);
-const chooseHeight = ref<number>(0);
-const headerImg = ref<string>("");
-const socket: any = inject("socket");
 
-onMounted(() => {
-  chooseHeight.value = document.documentElement.offsetHeight - 55;
-});
+const headerImg = ref<string>("");
 
 const backAll = () => {
   store.commit("message/setReceiver", null);
@@ -35,22 +30,22 @@ const backAll = () => {
   store.commit("message/setReceiverNumber", 0);
   store.dispatch("message/getMessageList", 1);
 };
-watchEffect(() => {
-  switch (receiverType.value) {
-    case "private":
-      headerImg.value = privateSvg;
-      break;
-    case "favorite":
-      headerImg.value = favoriteSvg;
-      break;
-    case "send":
-      headerImg.value = sendSvg;
-      break;
-    case "received":
-      headerImg.value = receivedSvg;
-      break;
-  }
-});
+// watchEffect(() => {
+//   switch (receiverType.value) {
+//     case "private":
+//       headerImg.value = privateSvg;
+//       break;
+//     case "favorite":
+//       headerImg.value = favoriteSvg;
+//       break;
+//     case "send":
+//       headerImg.value = sendSvg;
+//       break;
+//     case "received":
+//       headerImg.value = receivedSvg;
+//       break;
+//   }
+// });
 </script>
 <template>
   <div class="talk-header dp-space-center">
@@ -69,31 +64,32 @@ watchEffect(() => {
       >
     </div>
     <div class="header-right dp--center">
-      <div
-        class="m-right-10 filter-close dp-space-center"
-        :style="
-          !receiver && receiverType !== 'all' ? { background: '#e2e2e2' } : {}
-        "
-      >
-        <el-avatar :size="30" :src="receiver?.avatar" v-if="receiver" />
-        <img
-          :src="headerImg"
-          alt=""
-          v-else-if="receiverType !== 'all'"
-          style="width: 20px; height: 20px; margin-right: 8px"
-        />
-        {{ receiver ? receiver?.title : receiverType }}
-        <el-icon
-          :size="20"
-          class="filter"
-          @click="backAll"
-          v-if="receiverType !== 'all'"
-          style="margin-left: 5px"
-          ><close
-        /></el-icon>
-      </div>
+      <template v-if="receiverType !== 'all'">
+        <div
+          class="m-right-10 filter-close dp-space-center"
+          :style="!receiver ? { background: '#e2e2e2' } : {}"
+        >
+          <el-avatar :size="30" :src="receiver?.avatar" v-if="receiver" />
+          <!-- <img
+            :src="headerImg"
+            alt=""
+            style="width: 20px; height: 20px; margin-right: 8px"
+          /> -->
+          {{ receiver ? receiver?.title : receiverType }}
+          <el-icon
+            :size="20"
+            class="filter"
+            @click="backAll"
+            style="margin-left: 5px"
+            ><close
+          /></el-icon>
+        </div>
+      </template>
       <el-icon :size="20" class="filter" @click="chooseVisible = true"
         ><show-filter
+      /></el-icon>
+      <el-icon :size="20" class="filter" @click="$router.push('/partner')"
+        ><user
       /></el-icon>
       <!-- <el-badge
         :value="receiverNumber"

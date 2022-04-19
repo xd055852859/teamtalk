@@ -16,7 +16,7 @@ export interface Message {
 export interface Card {
   _key?: string;
   detail: any;
-  favorite:boolean;
+  favorite: boolean;
   receiverInfo?: any;
   replyList?: any;
   creatorInfo?: {
@@ -24,4 +24,13 @@ export interface Card {
     userName: string;
     _key: string;
   };
+}
+export interface Reply {
+  cardKey: string;
+  content:string;
+  createTime: number;
+  userAvatar: string;
+  userKey:string;
+  userName: string;
+  _key: string;
 }

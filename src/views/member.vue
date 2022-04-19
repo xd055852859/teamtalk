@@ -59,19 +59,14 @@ const deleteMember = async () => {
     store.commit("message/setReceiver", null);
     store.commit("message/setReceiverType", "all");
     store.dispatch("message/getMessageList", 1);
-    store.dispatch('auth/getGroupList');
+    store.dispatch("auth/getGroupList");
     router.push("/home");
   }
 };
 </script>
 <template>
   <div class="member dp-center-center p-5">
-    <Theader
-      @clickBack="
-        router.push('/home');
-        store.dispatch('auth/getGroupList');
-      "
-    >
+    <Theader @clickBack="$router.back()">
       <template v-slot:title>{{ $t(`surface.Members`) }}</template>
     </Theader>
     <div class="member-user">

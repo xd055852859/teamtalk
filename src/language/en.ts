@@ -4,8 +4,8 @@ export default {
     TeamTalk: "TeamTalk",
     Messages: "Messages",
     "Message box": "Message box",
-    Teammate: "Teammate",
-    Group: "Group",
+    Mate: "Mate",
+    Team: "Team",
     "Talk with": "Talk with",
     Post: "Post",
     Save: "Save",
@@ -35,13 +35,13 @@ export default {
     Help: "Help",
     Community: "Community",
     Quit: "Quit",
-  
+
     copy: "Copy invite code",
     disband: "Disband",
-    to:"To",
-    in:"In",
-    from:"From",
-    sendMessage:"Send Message"
+    to: "To",
+    in: "In",
+    from: "From",
+    sendMessage: "Send Message",
   },
   form: {
     all: "All",
@@ -59,17 +59,17 @@ export default {
     confirm: "Confirm",
     private: "Private",
     favorite: "Favorite",
-    userName:"User Name",
-    email:"eMail",
+    userName: "User Name",
+    email: "eMail",
   },
-  message:{
-    teamName:"Please Enter Team Name",
-    partnerName:"Please Enter Partner Name",
-    selectTeam:"Select team member :"
+  message: {
+    teamName: "Please Enter Team Name",
+    partnerName: "Please Enter Name By Search",
+    selectTeam: "Select team member :",
   },
   tip: {
     title: "Enter title ...",
     text: "Enter text,or type '/' to select",
-    info:"Personal Infomation"
+    info: "Personal Infomation",
   },
 };

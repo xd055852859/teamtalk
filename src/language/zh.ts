@@ -4,8 +4,8 @@ export default {
     TeamTalk: "说说",
     Messages: "消息",
     "Message box": "消息盒子",
-    Teammate: "队友",
-    Group: "小组",
+    Mate: "队友",
+    Team: "小组",
     "Talk with": "接收人",
     Post: "发送",
     Save: "保存",
@@ -64,7 +64,7 @@ export default {
   },
   message: {
     teamName: "请输入小组名",
-    partnerName:"请输入好友名",
+    partnerName:"请输入名称",
     selectTeam: "选择小组成员 :",
   },
   tip: {

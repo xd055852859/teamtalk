@@ -95,12 +95,7 @@ const changeReceiver = (
       </div>
     </div>
     <div class="button dp-space-center">
-      <tbutton @click="router.push('/invite')">{{
-        $t(`surface.Invite`)
-      }}</tbutton>
-      <tbutton @click="router.push('/createGroup')">{{
-        $t(`surface['+ Team']`)
-      }}</tbutton>
+     
     </div>
   </div>
 </template>

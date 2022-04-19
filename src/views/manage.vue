@@ -152,7 +152,7 @@ watch(
   <div class="manage p-5">
     <theader
       @clickBack="
-        router.push('/home');
+        $router.back();
         store.dispatch('auth/getGroupList');
       "
     >

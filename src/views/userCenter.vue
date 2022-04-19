@@ -13,7 +13,6 @@ import setSvg from "@/assets/svg/Settings.svg";
 import helpSvg from "@/assets/svg/Help.svg";
 import communitySvg from "@/assets/svg/Community.svg";
 import quitSvg from "@/assets/svg/Quit.svg";
-import partnerSvg from "@/assets/svg/partner.svg";
 import setwSvg from "@/assets/svg/Settingsw.svg";
 import helpwSvg from "@/assets/svg/Helpw.svg";
 import communitywSvg from "@/assets/svg/Communityw.svg";
@@ -22,7 +21,6 @@ import quitwSvg from "@/assets/svg/Quitw.svg";
 
 
 const store = useStore();
-const router = useRouter();
 const { proxy } = useCurrentInstance();
 const user = computed(() => store.state.auth.user);
 const locale = computed(() => store.state.common.locale);
@@ -123,12 +121,6 @@ const chooseImg = (e) => {
     <el-avatar :src="user?.userAvatar" :size="100" />
     <div class="center">{{ user?.userName }}</div>
     <div class="bottom">{{ user?.email }}</div>
-  </div>
-  <div class="userCenter-item dp--center" @click="router.push('/partner')">
-    <img :src="dark ? partnerSvg : partnerSvg" alt="" />
-    <span>
-      {{ $t(`surface.Partner`) }}
-    </span>
   </div>
   <div class="userCenter-item dp--center" @click="setVisible = true">
     <img :src="dark ? setwSvg : setSvg" alt="" />

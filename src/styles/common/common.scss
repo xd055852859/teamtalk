@@ -39,6 +39,7 @@ body,
 .m-right-10 {
   margin-right: 10px;
 }
+//多行省略
 .single-to-long {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -50,4 +51,8 @@ body,
   display: -webkit-box;
   -webkit-line-clamp: 3; /*行数*/
   -webkit-box-orient: vertical;
+}
+//手型
+.icon-point {
+  cursor: pointer;
 }

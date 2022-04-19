@@ -2,7 +2,7 @@
 import { Close, Star, StarFilled } from "@element-plus/icons-vue";
 import { useStore } from "@/store";
 import api from "@/services/api";
-import { Card } from "@/interface/Message";
+import { Card, Reply } from "@/interface/Message";
 import { ResultProps } from "@/interface/Common";
 import Editor from "../components/editor/editor.vue";
 import { ElMessage } from "element-plus";
@@ -23,7 +23,7 @@ const info = ref<Card | null>(null);
 const favorite = ref<boolean>(false);
 const store = useStore();
 const replyInput = ref<string>("");
-const replyList = ref<any>([]);
+const replyList = ref<Reply[]>([]);
 onMounted(() => {
   infoKey.value = route.params.id as string;
   getInfo();
@@ -63,20 +63,13 @@ const favoriteCard = async () => {
   }
 };
 const replyCard = async () => {
-  const postRes = (await api.request.post("card", {
-    refKey: infoKey.value,
-    title: replyInput.value,
-    detail: "",
-    summary: "",
-    cover: "",
+  const postRes = (await api.request.post("comment", {
+    cardKey: infoKey.value,
+    content: replyInput.value,
   })) as ResultProps;
   if (postRes.msg === "OK") {
     ElMessage.success("Reply Success");
-    replyList.value.push({
-      creatorInfo: postRes.data.creatorInfo,
-      title: postRes.data.title,
-      _key: postRes.data._key,
-    });
+    replyList.value.push({ ...postRes.data });
   }
 };
 </script>
@@ -138,7 +131,7 @@ const replyCard = async () => {
           position="top"
           ref="editorRef"
         />
-         <!-- <tbutton class="button" @click="postContent" v-if="talkKey">{{
+        <!-- <tbutton class="button" @click="postContent" v-if="talkKey">{{
       $t(`surface.Post`)
     }}</tbutton> -->
       </div>
@@ -148,10 +141,10 @@ const replyCard = async () => {
         :key="'reply' + index"
       >
         <div class="header dp--center">
-          <el-avatar :size="25" :src="item.creatorInfo.userAvatar" />
-          {{ item.creatorInfo.userName }}
+          <el-avatar :size="25" :src="item.userAvatar" />
+          {{ item.userName }}
         </div>
-        <div class="title">{{ item.title }}</div>
+        <div class="title">{{ item.content }}</div>
       </div>
     </div>
     <div class="footer p-5">
