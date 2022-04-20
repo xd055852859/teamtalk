@@ -7,7 +7,7 @@ import addMemberSvg from "@/assets/svg/addMember.svg";
 import Theader from "@/components/theader.vue";
 const router = useRouter();
 const store = useStore();
-const emits = defineEmits(["close", "chooseReceiver"]);
+const emits = defineEmits(["close"]);
 const groupList = computed(() => store.state.auth.groupList);
 const searchList = ref<Group[]>([]);
 const memberName = ref<string>("");
@@ -27,12 +27,7 @@ watchEffect(() => {
 </script>
 <template>
   <div class="contact p-5">
-    <theader
-      @clickBack="
-        router.push('/home');
-        store.dispatch('auth/getGroupList');
-      "
-    >
+    <theader @clickBack="" :noIcon="true">
       <template v-slot:title>{{ $t(`surface['Talk with']`) }}</template>
     </theader>
     <div class="search dp--center">
@@ -41,36 +36,36 @@ watchEffect(() => {
         :placeholder="$t(`form.keyword`)"
         :prefix-icon="Search"
         @input="searchName"
-        style="width: calc(100% - 50px)"
       />
-      <img
+      <!-- style="width: calc(100% - 50px)" -->
+      <!-- <img
         :src="addMemberSvg"
         alt=""
         style="margin-left: 15px; width: 35px; height: 35px; cursor: pointer"
         @click="router.push('/invite')"
-      />
+      /> -->
     </div>
     <div class="info">
       <div
-        class="container dp-space-center contact-item"
+        class="container dp-space-center contact-item icon-point"
         v-for="(item, index) in searchList"
         :key="'contact' + index"
         @click="
           store.commit('message/setTalker', item);
-          router.push('/home')
+          emits('close');
         "
       >
         <div class="left dp--center">
-          <el-avatar :size="40" :src="item.avatar" />
+          <el-avatar fit="cover" :size="40" :src="item.avatar" />
           <div class="name">{{ item.title }}</div>
         </div>
-        <div
+        <!-- <div
           class="right"
           v-if="item.receiverType === 'group'"
           @click="router.push(`/manage/${item._key}`)"
         >
           <el-icon :size="18"><more-filled /></el-icon>
-        </div>
+        </div> -->
       </div>
     </div>
     <!-- <div class="button dp-space-center">

@@ -78,7 +78,7 @@ const saveMember = async (key, index) => {
           @click="saveMember(item._key, index)"
         >
           <div class="left dp--center">
-            <el-avatar :size="40" :src="item.userAvatar" />
+            <el-avatar fit="cover" :size="40" :src="item.userAvatar" />
             <div class="name">{{ item.userName }}</div>
           </div>
           <div class="right">

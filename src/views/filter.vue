@@ -6,12 +6,13 @@ import privateSvg from "../assets/svg/private.svg";
 import favoriteSvg from "../assets/svg/favorite.svg";
 import sendSvg from "../assets/svg/send.svg";
 import receivedSvg from "../assets/svg/received.svg";
-// import allwSvg from "../assets/svg/allw.svg";
-// import privatewSvg from "../assets/svg/privatew.svg";
-// import favoritewSvg from "../assets/svg/favoritew.svg";
-// import sendwSvg from "../assets/svg/sendw.svg";
-// import receivedwSvg from "../assets/svg/receivedw.svg";
-
+import noticeSvg from "../assets/svg/notice.svg";
+import allwSvg from "../assets/svg/allw.svg";
+import privatewSvg from "../assets/svg/privatew.svg";
+import favoritewSvg from "../assets/svg/favoritew.svg";
+import sendwSvg from "../assets/svg/sendw.svg";
+import receivedwSvg from "../assets/svg/receivedw.svg";
+import noticewSvg from "../assets/svg/noticew.svg";
 import { Group } from "@/interface/User";
 import Tbutton from "@/components/tbutton.vue";
 const router = useRouter();
@@ -46,7 +47,7 @@ const changeReceiver = (
     </div>
     <div class="container dp-space-center" @click="changeReceiver('all')">
       <div class="left dp--center">
-        <img :src="allSvg" alt="" class="img" />
+        <img :src="dark?allwSvg:allSvg" alt="" class="img" />
         <div class="name">{{ $t(`form.all`) }}</div>
       </div>
     </div>
@@ -55,29 +56,35 @@ const changeReceiver = (
       @click="changeReceiver('private', null, groupItem)"
     >
       <div class="left dp--center">
-        <img :src="privateSvg" alt="" class="img" />
+        <img :src="dark?privatewSvg:privateSvg" alt="" class="img" />
         <div class="name">{{ $t(`form.private`) }}</div>
       </div>
       <div class="right dp--center">{{ user?.privateMessageCount }}</div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('favorite')">
       <div class="left dp--center">
-        <img :src="favoriteSvg" alt="" class="img" />
+        <img :src="dark?favoritewSvg:favoriteSvg" alt="" class="img" />
         <div class="name">{{ $t(`form.favorite`) }}</div>
       </div>
       <div class="right dp--center">{{ user?.favoriteMessageCount }}</div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('sent')">
       <div class="left dp--center">
-        <img :src="sendSvg" alt="" class="img" />
+        <img :src="dark?sendwSvg:sendSvg" alt="" class="img" />
         <div class="name">{{ $t(`form.send`) }}</div>
       </div>
       <div class="right dp--center">{{ user?.sentMessageCount }}</div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('receive')">
       <div class="left dp--center">
-        <img :src="receivedSvg" alt="" class="img" />
+        <img :src="dark?receivedwSvg:receivedSvg" alt="" class="img" />
         <div class="name">{{ $t(`form.received`) }}</div>
+      </div>
+    </div>
+     <div class="container dp-space-center" @click="changeReceiver('notice')">
+      <div class="left dp--center">
+        <img :src="dark?noticewSvg:noticeSvg" alt="" class="img" />
+        <div class="name">{{ $t(`form.notice`) }}</div>
       </div>
     </div>
     <el-divider />
@@ -89,7 +96,7 @@ const changeReceiver = (
         @click="changeReceiver('receiver', item)"
       >
         <div class="left dp--center">
-          <el-avatar :size="40" :src="item.avatar" />
+          <el-avatar fit="cover" :size="40" :src="item.avatar" />
           <div class="name">{{ item.title }}</div>
         </div>
       </div>

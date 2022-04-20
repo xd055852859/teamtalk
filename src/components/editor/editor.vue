@@ -87,6 +87,9 @@ const editor = useEditor({
   ],
   autofocus: true,
   editable: true,
+  onUpdate: () => {
+    console.log("改变");
+  },
 });
 store.commit("message/setEditor", editor);
 watch(

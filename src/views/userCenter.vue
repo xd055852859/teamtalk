@@ -118,7 +118,7 @@ const chooseImg = (e) => {
 </script>
 <template>
   <div class="userCenter-user" @click="userVisible = true">
-    <el-avatar :src="user?.userAvatar" :size="100" />
+    <el-avatar fit="cover" :src="user?.userAvatar" :size="100" />
     <div class="center">{{ user?.userName }}</div>
     <div class="bottom">{{ user?.email }}</div>
   </div>
@@ -170,7 +170,7 @@ const chooseImg = (e) => {
   <el-dialog v-model="userVisible" :title="$t(`tip.info`)" :width="320">
     <div class="user-edit dp-center-center">
       <div class="avatar">
-        <el-avatar :src="avatar" :size="150" />
+        <el-avatar fit="cover" :src="avatar" :size="150" />
         <input
           type="file"
           accept="image/*"

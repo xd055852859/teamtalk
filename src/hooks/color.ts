@@ -16,6 +16,7 @@ export const lightColors = [
   { name: "--talk-hover-color", value: "#f0f0f0" },
   { name: "--talk-button-hover-color", value: "#16ab78ba" },
   { name: "--talk-font-color-1", value: "#595851" },
+  { name: "--talk-font-color-2", value: "#9c9c9c" },
   // { name: "--notes-color-border", value: "#e1e1e1" },
 ];
 
@@ -36,7 +37,7 @@ export const darkColors = [
   { name: "--talk-hover-color", value: "#373A48" },
   { name: "--talk-button-hover-color", value: "#16ab78ba" },
   { name: "--talk-font-color-1", value: "#fff" },
-
+  { name: "--talk-font-color-2", value: "#fff" },
   // { name: "--notes-color-border", value: "#171923" },
 ];
 export const color = () => {

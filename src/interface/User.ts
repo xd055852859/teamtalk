@@ -26,9 +26,14 @@ export interface Group {
 export interface Member extends User {
   role: number;
 }
+export interface Mate extends User {
+  receiverKey?: string;
+}
 export interface Search {
-  _key: string;
+  _key?:string;
+  toUserKey?: string;
   avatar: string;
-  name: string;
+  title: string;
   allowJoin?: boolean;
+  hasApply?: boolean;
 }

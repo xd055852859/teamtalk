@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { Message } from "@/interface/Message";
+import { useStore } from "@/store";
+import commentSvg from "@/assets/svg/comment.svg";
+import commentwSvg from "@/assets/svg/commentw.svg";
+import { Group } from "@/interface/User";
+const store = useStore();
 const props = defineProps<{ item: Message }>();
-const router = useRouter();
+const dark = computed(() => store.state.common.dark);
+const groupList = computed(() => store.state.auth.groupList);
 </script>
 <template>
   <div
     class="item"
     :style="props.item.type === 'self' ? {} : { border: '0px' }"
-    @click="
-      router.push(
-        '/info/' + (item?.refCardInfo?._key ? item.refCardInfo._key : item._key)
-      )
-    "
+    @click="$router.push('/info/' + item._key)"
   >
     <div
       class="title"
@@ -45,7 +47,7 @@ const router = useRouter();
       v-if="props.item.type === 'self'"
     ></span> -->
     <div
-      class="footer dp--center"
+      class="footer dp-space-center"
       :style="
         props.item.type === 'self'
           ? {
@@ -54,36 +56,53 @@ const router = useRouter();
           : {}
       "
     >
-      <el-avatar :size="25" :src="props.item.creatorInfo.userAvatar" />
-      <div
-        class="footer-title"
-        :style="
-          props.item.type === 'self'
-            ? {
-                'text-align': 'right',
-              }
-            : {}
-        "
-      >
-        {{ props.item.creatorInfo.userName }}
+      <div class="left dp--center">
+        <el-avatar
+          fit="cover"
+          :size="25"
+          :src="props.item.creatorInfo.userAvatar"
+          @click.stop="$router.push(`/member/` + props.item.creatorInfo._key)"
+          class="icon-point"
+        />
+        <div
+          class="footer-subtitle common-color"
+          :style="
+            props.item.type === 'self'
+              ? {
+                  'text-align': 'right',
+                }
+              : {}
+          "
+          v-if="props.item.receiverTitle"
+        >
+          # {{ props.item.receiverTitle }} /
+        </div>
+        <div
+          class="footer-title"
+          :style="
+            props.item.type === 'self'
+              ? {
+                  'text-align': 'right',
+                }
+              : {}
+          "
+        >
+          <span
+            @click.stop="$router.push(`/member/` + props.item.creatorInfo._key)"
+            class="icon-point"
+            >{{ props.item.creatorInfo.userName }}</span
+          >
+        </div>
       </div>
       <div
-        class="footer-subtitle common-color"
-        :style="
-          props.item.type === 'self'
-            ? {
-                'text-align': 'right',
-              }
-            : {}
-        "
-        v-if="props.item.receiverTitle"
+        class="right dp--center"
+        v-if="props.item?.commentCount"
       >
-        # {{ props.item.receiverTitle }}
+        <img :src="dark ? commentwSvg : commentSvg" alt="" />{{
+          props.item?.commentCount
+        }}
       </div>
     </div>
-  </div>
-  <div class="reply single-to-long" v-if="item?.refCardInfo">
-    @ {{ item.refCardInfo.title }}
   </div>
 </template>
 <style scoped lang="scss">
@@ -127,7 +146,7 @@ const router = useRouter();
   }
   .title {
     width: 100%;
-    height: 25px;
+    min-height: 25px;
     font-size: 16px;
     font-weight: 500;
     margin-bottom: 15px;
@@ -163,24 +182,26 @@ const router = useRouter();
     height: 45px;
     margin-top: 10px;
     font-size: 14px;
-    .footer-title {
-      margin-right: 5px;
+    .left {
+      .footer-title {
+        margin-right: 5px;
+      }
+      .footer-subtitle {
+        margin-right: 5px;
+        font-size: 12px;
+        color: var(--talk-font-color-2);
+      }
     }
-    .footer-subtitle {
-      margin-right: 5px;
-      font-size: 12px;
-      color: #9c9c9c;
+    .right {
+      color: var(--talk-font-color-2);
+      font-size: 14px;
+      img {
+        width: 18px;
+        height: 18px;
+        margin-right: 5px;
+      }
     }
   }
-}
-.reply {
-  width: 100%;
-  height: 44px;
-  font-size: 14px;
-  color: var(--talk-font-color-1);
-  line-height: 38px;
-  padding: 0px 18px;
-  box-sizing: border-box;
 }
 </style>
 

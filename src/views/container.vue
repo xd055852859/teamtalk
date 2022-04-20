@@ -21,9 +21,7 @@ const editorInfo = computed(() => store.state.message.editorInfo);
 const page = computed(() => store.state.message.page);
 
 const editorRef = ref(null);
-const inputVisible = ref<boolean>(false);
-const groupVisible = ref<boolean>(false);
-const groupHeight = ref<number>(0);
+const talkVisible = ref<boolean>(false);
 
 onMounted(() => {
   store.dispatch("message/getMessageList", 1);
@@ -34,9 +32,8 @@ const postContent = async () => {
     //@ts-ignore
     editorRef.value.handlePost(talker.value._key, (res) => {
       if (res.data.receiverType === "user") {
-        store.commit("message/updateMessageList", res.data);
+        store.commit("message/addMessageList", res.data);
       }
-      inputVisible.value = false;
     });
   } else {
     ElMessage.error("choose a receiver");
@@ -73,9 +70,10 @@ const scrollLoading = (e: any) => {
   <div class="talk-container p-5" @scroll="scrollLoading">
     <div class="talk-edit">
       <div class="top dp-space-center">
-        <div class="left dp--center" @click="router.push('/contact')">
+        <div class="left dp--center icon-point" @click="talkVisible = true">
           <span>{{ $t(`surface.to`) }} : </span>
           <el-avatar
+            fit="cover"
             :size="25"
             :src="talker.avatar"
             v-if="talker"
@@ -112,15 +110,15 @@ const scrollLoading = (e: any) => {
       <message-item :item="item" />
     </template>
   </div>
-
   <el-drawer
-    v-model="inputVisible"
-    direction="btt"
+    v-model="talkVisible"
+    direction="ltr"
     :with-header="false"
-    :size="430"
-    custom-class="radius-drawer"
+    :size="'80%'"
+    custom-class="p0-drawer"
     destroy-on-close
   >
+    <contact @close="talkVisible = false"></contact>
   </el-drawer>
 </template>
 <style scoped lang="scss">

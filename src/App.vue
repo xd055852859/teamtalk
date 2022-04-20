@@ -122,7 +122,17 @@ watchEffect(() => {
           }
         }
         console.log("card", msg);
-        store.commit("message/updateMessageList", msg);
+        store.commit("message/addMessageList", msg);
+      });
+      socket.on("addComment", function (msg) {
+        console.log(msg);
+        let obj = { commentCount: msg.commentCount, _key: msg.cardKey };
+        // store.commit("message/updateMessageList", msg);
+        store.commit("message/updateMessageList", obj);
+      });
+      socket.on("deleteComment", function (msg) {
+        let obj = { commentCount: msg.commentCount, _key: msg.cardKey };
+        store.commit("message/updateMessageList", obj);
       });
     });
   } else {

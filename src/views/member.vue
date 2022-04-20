@@ -6,7 +6,7 @@ import muteSvg from "@/assets/svg/mute.svg";
 import blockSvg from "@/assets/svg/block.svg";
 import deleteSvg from "@/assets/svg/delete.svg";
 import api from "@/services/api";
-import { Group } from "@/interface/User";
+import { Mate } from "@/interface/User";
 import router from "@/router";
 import { ResultProps } from "@/interface/Common";
 import Theader from "@/components/theader.vue";
@@ -16,26 +16,45 @@ const user = computed(() => store.state.auth.user);
 const muteState = ref<boolean>(false);
 const blockState = ref<boolean>(false);
 const memberKey = ref<string>("");
-const info = ref<Group | null>(null);
+const delVisible = ref<boolean>(false);
+const info = ref<Mate | null>(null);
 onMounted(() => {
   memberKey.value = route.params.id as string;
   getInfo();
 });
 const getInfo = async () => {
-  let infoRes = (await api.request.get("receiver/info", {
-    receiverKey: memberKey.value,
+  let infoRes = (await api.request.get("user/targetInfo", {
+    targetUser: memberKey.value,
   })) as ResultProps;
   if (infoRes.msg === "OK") {
-    info.value = infoRes.data;
+    let obj: Mate = {
+      email: infoRes.data.email,
+      userAvatar: infoRes.data.userAvatar,
+      userName: infoRes.data.userName,
+      _key: memberKey.value,
+    };
+    if (infoRes.data.receiverKey) {
+      obj.receiverKey = infoRes.data.receiverKey;
+    }
+    info.value = { ...obj };
     muteState.value = infoRes.data.mute;
     blockState.value = infoRes.data.block;
   }
 };
 const toUser = () => {
-  store.commit("message/setReceiver", info.value);
+  let obj = {
+    _key: info.value?.receiverKey,
+    avatar: info.value?.userAvatar,
+    block: blockState.value,
+    mute: muteState.value,
+    receiverType: "user",
+    title: info.value?.userName,
+    toUserKey: info.value?._key,
+  };
+  store.commit("message/setReceiver", obj);
   store.commit("message/setReceiverType", "receiver");
   store.dispatch("message/getMessageList", 1);
-  store.commit("message/setTalker", info.value);
+  store.commit("message/setTalker", obj);
   router.push("/home");
 };
 const changeConfig = async () => {
@@ -48,17 +67,30 @@ const changeConfig = async () => {
     ElMessage.success("Update Config Success");
   }
 };
+const saveMember = async () => {
+  const saveRes = (await api.request.post("receiver", {
+    receiverType: "user",
+    toUserKey: info.value?._key,
+  })) as ResultProps;
+  if (saveRes.msg === "OK") {
+    ElMessage.success("add Member success");
+    if (info.value) {
+      info.value.receiverKey = saveRes.data._key;
+      toUser();
+    }
+
+    //
+  }
+};
 const deleteMember = async () => {
   let deleteRes = (await api.request.delete("receiver", {
-    receiverKey: memberKey.value,
-    mute: muteState.value,
-    block: blockState.value,
+    receiverKey: info.value?.receiverKey,
   })) as ResultProps;
   if (deleteRes.msg === "OK") {
-    ElMessage.success("Delete Member Success");
+    ElMessage.success("Delete Mate Success");
+    delVisible.value = false;
     store.commit("message/setReceiver", null);
     store.commit("message/setReceiverType", "all");
-    store.dispatch("message/getMessageList", 1);
     store.dispatch("auth/getGroupList");
     router.push("/home");
   }
@@ -68,29 +100,51 @@ const deleteMember = async () => {
   <div class="member dp-center-center p-5">
     <Theader @clickBack="$router.back()">
       <template v-slot:title>{{ $t(`surface.Members`) }}</template>
+      <template v-slot:right><div></div></template>
     </Theader>
     <div class="member-user">
-      <el-avatar :src="info?.avatar" :size="100" />
-      <div class="center">{{ info?.title }}</div>
+      <el-avatar fit="cover" :src="info?.userAvatar" :size="100" />
+      <div class="center">{{ info?.userName }}</div>
       <div class="bottom">{{ info?.email }}</div>
     </div>
-    <div class="dp-space-center member-item">
-      <div class="left dp--center"><img :src="muteSvg" alt="" /> Mute</div>
-      <el-switch v-model="muteState" @change="changeConfig" />
-    </div>
-    <div class="dp-space-center member-item">
-      <div class="left dp--center"><img :src="blockSvg" alt="" /> Block</div>
-      <el-switch v-model="blockState" @change="changeConfig" />
-    </div>
-    <div class="dp-space-center member-item" @click="deleteMember()">
-      <div class="left dp--center"><img :src="deleteSvg" alt="" /> Delete</div>
-    </div>
+    <template v-if="info?.receiverKey">
+      <div class="dp-space-center member-item">
+        <div class="left dp--center">
+          <img :src="muteSvg" alt="" /> {{ $t(`form.mute`) }}
+        </div>
+        <el-switch active-color="#16ab78" v-model="muteState" @change="changeConfig" />
+      </div>
+      <div class="dp-space-center member-item">
+        <div class="left dp--center">
+          <img :src="blockSvg" alt="" /> {{ $t(`form.block`) }}
+        </div>
+        <el-switch active-color="#16ab78" v-model="blockState" @change="changeConfig" />
+      </div>
+      <div class="dp-space-center member-item" @click="delVisible = true">
+        <div class="left dp--center">
+          <img :src="deleteSvg" alt="" /> Delete
+        </div>
+      </div>
+    </template>
     <div class="button dp-center-center">
-      <tbutton @click="toUser()" style="width: 120px">{{
-        $t(`surface.sendMessage`)
-      }}</tbutton>
+      <tbutton
+        @click="info?.receiverKey ? toUser() : saveMember()"
+        style="width: 120px"
+        >{{
+          info?.receiverKey ? $t(`surface.talkto`) : $t(`surface.add`)
+        }}</tbutton
+      >
     </div>
   </div>
+  <el-dialog v-model="delVisible" title="Delete" :width="300">
+    <span>{{ $t(`form.deleteMate`) }}</span>
+    <template #footer>
+      <span class="dialog-footer dp-space-center">
+        <tbutton @click="delVisible = false" :disabled="true">Cancel</tbutton>
+        <tbutton @click="deleteMember()">Sure</tbutton>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 <style scoped lang="scss">
 .member {

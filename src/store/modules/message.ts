@@ -11,7 +11,7 @@ import { Editor } from "@tiptap/vue-3";
 const state: MessageState = {
   receiver: null,
   talker: null,
-  talkKey:"",
+  talkKey: "",
   receiverType: "all",
   receiverNumber: 0,
   pageNumber: 1,
@@ -40,7 +40,7 @@ const mutations: MutationTree<MessageState> = {
     }
     state.messageList = [...state.messageList, ...messageList];
   },
-  updateMessageList(state, messageItem: Message) {
+  addMessageList(state, messageItem: Message) {
     messageItem.type = "other";
     if (messageItem.creatorInfo._key === auth.state.user?._key) {
       messageItem.type = "self";
@@ -65,6 +65,14 @@ const mutations: MutationTree<MessageState> = {
         state.messageList.unshift(messageItem);
     }
   },
+  updateMessageList(state, messageItem: any) {
+    state.messageList = state.messageList.map((item: Message) => {
+      if (item._key === messageItem._key) {
+        item = { ...item, ...messageItem };
+      }
+      return item;
+    });
+  },
   setReceiverNumber(state, receiverNumber: number) {
     state.receiverNumber = receiverNumber;
   },
@@ -88,7 +96,7 @@ const actions: ActionTree<MessageState, RootState> = {
       page: page,
       limit: 20,
     };
-    console.log(state.receiver)
+    console.log(state.receiver);
     if (state.receiver && state.receiver.receiverType !== "private") {
       if (state.receiver.receiverType === "group") {
         obj.receiverKey = state.receiver._key;

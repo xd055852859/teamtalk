@@ -69,13 +69,23 @@ const backAll = () => {
           class="m-right-10 filter-close dp-space-center"
           :style="!receiver ? { background: '#e2e2e2' } : {}"
         >
-          <el-avatar :size="30" :src="receiver?.avatar" v-if="receiver" />
+          <el-avatar
+            fit="cover"
+            :size="30"
+            :src="receiver?.avatar"
+            v-if="receiver"
+          />
           <!-- <img
             :src="headerImg"
             alt=""
             style="width: 20px; height: 20px; margin-right: 8px"
           /> -->
-          {{ receiver ? receiver?.title : receiverType }}
+          {{
+            receiver
+              ? receiver?.title
+              : receiverType.slice(0, 1).toUpperCase() +
+                receiverType.slice(1).toLowerCase()
+          }}
           <el-icon
             :size="20"
             class="filter"

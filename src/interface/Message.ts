@@ -12,6 +12,7 @@ export interface Message {
   type?: string;
   title: string;
   refCardInfo?: any;
+  commentCount?: number;
 }
 export interface Card {
   _key?: string;
@@ -27,10 +28,10 @@ export interface Card {
 }
 export interface Reply {
   cardKey: string;
-  content:string;
+  content: string;
   createTime: number;
   userAvatar: string;
-  userKey:string;
+  userKey: string;
   userName: string;
   _key: string;
 }

@@ -7,11 +7,20 @@ import Tbutton from "@/components/tbutton.vue";
 import { ResultProps } from "@/interface/Common";
 import { Group, Search } from "@/interface/User";
 
-import addPersonSvg from "@/assets/svg/addPerson.svg";
+import groupSvg from "@/assets/svg/group.svg";
+import addMateSvg from "@/assets/svg/addMate.svg";
+import addMatewSvg from "@/assets/svg/addMatew.svg";
+import addTeamSvg from "@/assets/svg/addTeam.svg";
+import addTeamwSvg from "@/assets/svg/addTeamw.svg";
+import addApplySvg from "@/assets/svg/addApply.svg";
+import addApplywSvg from "@/assets/svg/addApplyw.svg";
 const router = useRouter();
+const groupList = computed(() => store.state.auth.groupList);
+const dark = computed(() => store.state.common.dark);
+const user = computed(() => store.state.auth.user);
+
 const partnerName = ref<string>("");
 const partnerType = ref<string>("user");
-const groupList = computed(() => store.state.auth.groupList);
 const searchList = ref<Group[]>([]);
 const searchMoreList = ref<Search[]>([]);
 const moreVisible = ref<boolean>(false);
@@ -37,7 +46,7 @@ const choosePartner = (item: Group) => {
   if (item.receiverType === "group") {
     router.push(`/manage/${item._key}`);
   } else {
-    router.push(`/member/${item._key}`);
+    router.push(`/member/${item.toUserKey}`);
   }
 };
 const showMore = async () => {
@@ -50,15 +59,34 @@ const showMore = async () => {
     searchMoreList.value = [...searchRes.data];
   }
 };
-const saveMember = async (userKey: string, index: number) => {
+const saveMate = async (userKey: string, index: number) => {
   const saveRes = (await api.request.post("receiver", {
     receiverType: "user",
     toUserKey: userKey,
   })) as ResultProps;
   if (saveRes.msg === "OK") {
-    ElMessage.success("add Member success");
+    ElMessage.success("add Mate success");
     searchList.value.push({ ...saveRes.data });
     searchMoreList.value.splice(index, 1);
+  }
+};
+const saveMember = async (teamKey: string, userKey: string) => {
+  const groupRes = (await api.request.patch("receiver", {
+    receiverKey: teamKey,
+    memberKeyArr: [userKey],
+  })) as ResultProps;
+  if (groupRes.msg === "OK") {
+    ElMessage.success(`join Team Success`);
+    store.dispatch("auth/getGroupList");
+  }
+};
+const joinTeam = async (key: string, index: number) => {
+  const joinRes = (await api.request.post("receiver/join/apply", {
+    receiverKey: key,
+  })) as ResultProps;
+  if (joinRes.msg === "OK") {
+    ElMessage.success("add Mate success");
+    searchMoreList.value[index].hasApply = true;
   }
 };
 watchEffect(() => {
@@ -103,6 +131,7 @@ watch(partnerType, () => {
           </div>
         </div>
       </template>
+      <template v-slot:right><div></div></template>
     </theader>
     <div class="search dp-space-center">
       <el-input
@@ -153,15 +182,42 @@ watch(partnerType, () => {
           :key="'contact' + index"
         >
           <div class="left dp--center">
-            <el-avatar :size="40" :src="item.avatar" />
-            <div class="name">{{ item.name }}</div>
+            <el-avatar
+              :size="40"
+              :src="partnerType === 'group' ? groupSvg : item.avatar"
+            />
+            <div class="name">{{ item.title }}</div>
           </div>
           <div class="right">
             <img
-              :src="addPersonSvg"
+              :src="dark ? addMatewSvg : addMateSvg"
+              v-if="partnerType === 'user'"
               alt=""
-              style="width: 20px; height: 20px"
-              @click="saveMember(item._key, index)"
+              style="width: 25px; height: 25px"
+              @click=" saveMate(item.toUserKey as string, index)
+              "
+            />
+            <img
+              :src="dark ? addTeamwSvg : addTeamSvg"
+              v-if="partnerType === 'group' && item.allowJoin"
+              alt=""
+              style="width: 25px; height: 25px"
+              @click="saveMember(item._key as string, user?._key as string)"
+            />
+            <img
+              :src="dark ? addTeamwSvg : addTeamSvg"
+              v-if="
+                partnerType === 'group' && !item.hasApply && !item.allowJoin
+              "
+              alt=""
+              style="width: 25px; height: 25px"
+              @click="joinTeam(item._key as string, index)"
+            />
+            <img
+              :src="dark ? addApplywSvg : addApplySvg"
+              v-if="partnerType === 'group' && item.hasApply && !item.allowJoin"
+              alt=""
+              style="width: 25px; height: 25px"
             />
           </div>
         </div>

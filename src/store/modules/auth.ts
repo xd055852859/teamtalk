@@ -87,6 +87,9 @@ const mutations: MutationTree<AuthState> = {
       }
       return item;
     });
+  }, 
+  addGroupList(state, groupItem: Group) {
+    state.groupList.push(groupItem)
   },
   setLogout() {
     localStorage.removeItem("token");

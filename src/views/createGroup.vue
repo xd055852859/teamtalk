@@ -57,6 +57,7 @@ watch(
       "
     >
       <template v-slot:title>New Team</template>
+      <template v-slot:right><div></div></template>
     </theader>
     <div class="input dp-space-center">
       <el-input
@@ -78,7 +79,7 @@ watch(
         @click="chooseMember(item.toUserKey as string)"
       >
         <div class="left dp--center">
-          <el-avatar :size="40" :src="item.avatar" />
+          <el-avatar fit="cover" :size="40" :src="item.avatar" />
           <div class="name">{{ item.title }}</div>
         </div>
         <div class="right">
