@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Close, Star, StarFilled } from "@element-plus/icons-vue";
+import { Close, Star, StarFilled, Edit, Delete } from "@element-plus/icons-vue";
 import { useStore } from "@/store";
 import api from "@/services/api";
 import { Card, Reply } from "@/interface/Message";
@@ -10,13 +10,15 @@ import Tbutton from "@/components/tbutton.vue";
 
 import groupSvg from "@/assets/svg/group.svg";
 import deleteSvg from "@/assets/svg/delete.svg";
+import unshakeSvg from "@/assets/svg/unshake.svg";
+import shakeSvg from "@/assets/svg/shake.svg";
 // const emits = defineEmits(["close"]);
 const socket: any = inject("socket");
 
 const router = useRouter();
 const route = useRoute();
 const user = computed(() => store.state.auth.user);
-const talker = computed(() => store.state.message.talker);
+const dark = computed(() => store.state.common.dark);
 
 const inputRef = ref(null);
 const editorRef = ref(null);
@@ -27,6 +29,8 @@ const receiverRole = ref<number>(4);
 const store = useStore();
 const replyInput = ref<string>("");
 const replyList = ref<Reply[]>([]);
+const updateState = ref<boolean>(false);
+const shakeState = ref<boolean>(false);
 onMounted(() => {
   infoKey.value = route.params.id as string;
   getInfo();
@@ -53,16 +57,32 @@ const getInfo = async () => {
     receiverRole.value = infoRes.data.receiverRole;
   }
 };
-// const postContent = async () => {
-//   console.log(editorRef.value);
-//   if (talker.value && editorRef.value) {
-//     //@ts-ignore
-//     editorRef.value.handlePost(info.value?.receiverInfo._key);
-//   } else {
-//     ElMessage.error("choose a receiver");
-//     return;
-//   }
-// };
+const postCard = async () => {
+  if (editorRef.value) {
+    //@ts-ignore
+    editorRef.value.handlePost(
+      "",
+      (res) => {
+        if (res.data.receiverType === "user") {
+          store.commit("message/addMessageList", res.data);
+          shakeState.value = false;
+        }
+      },
+      false
+    );
+  } else {
+    ElMessage.error("choose a receiver");
+    return;
+  }
+};
+const delCard = async (replyKey: string, index: number) => {
+  const postRes = (await api.request.delete("comment", {
+    commentKey: replyKey,
+  })) as ResultProps;
+  if (postRes.msg === "OK") {
+    ElMessage.success("Delete Reply Success");
+  }
+};
 const favoriteCard = async () => {
   const postRes = (await api.request.patch("card/favorite", {
     cardKey: infoKey.value,
@@ -117,9 +137,9 @@ const delReply = async (replyKey: string, index: number) => {
             : info?.creatorInfo?.userName
         }}
       </div>
-      <div>
+      <div class="dp--center">
         <el-icon
-          style="margin-right: 10px; cursor: pointer"
+          style="margin-right: 10px; margin-left: 10px; cursor: pointer"
           size="20px"
           @click="favoriteCard"
         >
@@ -144,23 +164,77 @@ const delReply = async (replyKey: string, index: number) => {
           :init-data="info"
           :isEdit="
             user?._key === info?.creatorInfo?.userAvatar ||
-            (receiverRole < 3 &&
-              info?.receiverInfo?.receiverType === 'group') ||
-            info?.receiverInfo?.receiverType === 'user'
+            (receiverRole < 3 && info?.receiverInfo?.receiverType === 'group')
           "
-          position="top"
+          :cardKey="infoKey"
+          :shake="shakeState"
           ref="editorRef"
+          @changeUpdate="updateState = true"
         />
-        <!-- <tbutton class="button" @click="postContent">{{
-          $t(`surface.Update`)
-        }}</tbutton> -->
+        <div class="button">
+          <div
+            class="button-item dp-center-center"
+            v-if="info?.receiverInfo.receiverType === 'user'"
+          >
+            <el-tooltip
+              content="Shake"
+              placement="left"
+              class="button-item-icon"
+            >
+              <img
+                :src="shakeSvg"
+                alt=""
+                v-if="shakeState"
+                class="icon-point"
+                style="width: 25px; height: 25px"
+              />
+              <img
+                :src="unshakeSvg"
+                alt=""
+                v-else
+                class="icon-point"
+                style="width: 25px; height: 25px"
+              />
+            </el-tooltip>
+          </div>
+          <div
+            class="button-item dp-center-center"
+            @click="postCard"
+            v-if="updateState"
+          >
+            <el-tooltip
+              content="Update"
+              placement="left"
+              class="button-item-icon"
+            >
+              <el-icon :size="25"><edit /></el-icon>
+            </el-tooltip>
+          </div>
+          <div
+            class="button-item dp-center-center"
+            v-if="
+              user?._key === info?.creatorInfo?.userAvatar ||
+              (receiverRole < 2 &&
+                info?.receiverInfo?.receiverType === 'group') ||
+              info?.receiverInfo?.receiverType === 'user'
+            "
+          >
+            <el-tooltip
+              content="Delete"
+              placement="left"
+              class="button-item-icon"
+            >
+              <el-icon :size="25"><delete /></el-icon>
+            </el-tooltip>
+          </div>
+        </div>
       </div>
       <div
         class="message p-5"
         v-for="(item, index) in replyList"
         :key="'reply' + index"
       >
-        <div class="header dp--center">
+        <div class="header message-header dp--center">
           <el-avatar fit="cover" :size="25" :src="item.userAvatar" />
           {{ item.userName }}
         </div>
@@ -180,16 +254,16 @@ const delReply = async (replyKey: string, index: number) => {
         </div>
       </div>
     </div>
-    <div class="footer p-5">
+    <div class="footer p-5 dp-space-center">
       <el-input
         v-model="replyInput"
         size="large"
         :placeholder="`Please @ ${info?.creatorInfo?.userName} view`"
         ref="inputRef"
+        @keydown.enter="addReply"
+        style="width: calc(100% - 90px)"
       />
-      <div class="button dp--center" @click="addReply">
-        <tbutton>{{ $t(`surface.Reply`) }}</tbutton>
-      </div>
+      <tbutton @click="addReply">{{ $t(`surface.Reply`) }}</tbutton>
     </div>
   </div>
 </template>
@@ -198,6 +272,8 @@ const delReply = async (replyKey: string, index: number) => {
   width: 100%;
   height: 100vh;
   background: var(--talk-bg-color);
+  padding-bottom: 70px;
+  box-sizing: border-box;
   .header {
     width: 100%;
     height: 55px;
@@ -213,15 +289,13 @@ const delReply = async (replyKey: string, index: number) => {
   }
   .box {
     width: 100%;
-    max-height: calc(100% - 85px);
+    max-height: calc(100% - 55px);
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
     z-index: 1;
-    padding-bottom: 100px;
-    box-sizing: border-box;
     .center {
-      // min-height: 250px;
+      min-height: 30vh;
       margin-bottom: 40px;
       position: relative;
       z-index: 1;
@@ -230,13 +304,21 @@ const delReply = async (replyKey: string, index: number) => {
         z-index: 5;
         top: 0px;
         right: 10px;
+        .button-item {
+          width: 40px;
+          height: 40px;
+          background: var(--talk-item-color);
+          border-radius: 50%;
+          box-shadow: 0px 2px 4px 0px #c7cdc7;
+          margin-top: 10px;
+        }
       }
     }
     .message {
       width: 100%;
       min-height: 100px;
-      background-color: var(--talk-item-color);
-      .header {
+      background: var(--talk-item-color);
+      .message-header {
         padding: 0px;
         box-sizing: border-box;
       }
@@ -255,21 +337,17 @@ const delReply = async (replyKey: string, index: number) => {
   }
   .footer {
     width: 100%;
-    height: 130px;
+    height: 70px;
     position: fixed;
     z-index: 2;
     left: 0px;
     bottom: 0px;
-    background-color: var(--talk-item-color);
-    padding-top: 20px;
     box-sizing: border-box;
-    .button {
-      width: 100%;
-      height: 40px;
-      justify-content: flex-end;
-      margin-top: 10px;
-    }
   }
 }
 </style>
-<style></style>
+<style>
+.button-item-icon {
+  color: #333 !important;
+}
+</style>

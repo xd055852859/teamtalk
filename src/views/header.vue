@@ -12,7 +12,10 @@ import HeaderFilter from "./filter.vue";
 // import favoriteSvg from "../assets/svg/favorite.svg";
 // import sendSvg from "../assets/svg/send.svg";
 // import receivedSvg from "../assets/svg/received.svg";
-
+import headerPartnerSvg from "../assets/svg/headerPartner.svg";
+import headerPartnerwSvg from "../assets/svg/headerPartnerw.svg";
+import headerFilterSvg from "../assets/svg/headerFilter.svg";
+import headerFilterwSvg from "../assets/svg/headerFilterw.svg";
 const store = useStore();
 const receiver = computed(() => store.state.message.receiver);
 const receiverType = computed(() => store.state.message.receiverType);
@@ -95,12 +98,20 @@ const backAll = () => {
           /></el-icon>
         </div>
       </template>
-      <el-icon :size="20" class="filter" @click="chooseVisible = true"
-        ><show-filter
-      /></el-icon>
-      <el-icon :size="20" class="filter" @click="$router.push('/partner')"
-        ><user
-      /></el-icon>
+      <img
+        :src="dark ? headerFilterwSvg : headerFilterSvg"
+        alt=""
+        class="filter"
+        @click="chooseVisible = true"
+        style="margin-right: 8px"
+      />
+      <img
+        :src="dark ? headerPartnerwSvg : headerPartnerSvg"
+        alt=""
+        class="filter"
+        @click="$router.push('/partner')"
+      />
+
       <!-- <el-badge
         :value="receiverNumber"
         v-if="receiverType !== 'all'"
@@ -157,8 +168,9 @@ const backAll = () => {
   .header-right {
     cursor: pointer;
     .filter {
+      width: 25px;
+      height: 25px;
       cursor: pointer;
-      color: var(--el-text-color-primary);
     }
     .filter-close {
       // width: 60px;

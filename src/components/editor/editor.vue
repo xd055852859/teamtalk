@@ -36,8 +36,10 @@ const router = useRouter();
 const props = defineProps<{
   initData?: Card | null;
   isEdit: boolean;
+  cardKey?: string;
+  shake: boolean;
 }>();
-
+const emits = defineEmits(["changeUpdate"]);
 const store = useStore();
 const dark = computed(() => store.state.common.dark);
 
@@ -88,7 +90,7 @@ const editor = useEditor({
   autofocus: true,
   editable: true,
   onUpdate: () => {
-    console.log("改变");
+    emits("changeUpdate", true);
   },
 });
 store.commit("message/setEditor", editor);
@@ -146,18 +148,33 @@ async function handlePost(key: string, callback?: any, clear?: boolean) {
     // } else {
     // 创建数据
     // store.dispatch("card/addCard", { title, content: json, summary });
-    const postRes = (await api.request.post("card", {
-      receiverKey: key,
+    let obj = {
       title: title,
       detail: json.content,
       summary: summary,
       cover: cover,
-    })) as ResultProps;
-    if (postRes.msg === "OK") {
-      ElMessage.success("submit success");
-      callback(postRes);
-      store.commit("message/setEditContent", null);
+      shake: props.shake,
+    };
+    if (props.cardKey) {
+      const postRes = (await api.request.patch("card", {
+        cardKey: props.cardKey,
+        ...obj,
+      })) as ResultProps;
+      if (postRes.msg === "OK") {
+        ElMessage.success("UpDate success");
+        callback(postRes);
+      }
+    } else {
+      const postRes = (await api.request.post("card", {
+        receiverKey: key,
+        ...obj,
+      })) as ResultProps;
+      if (postRes.msg === "OK") {
+        ElMessage.success("Post Success");
+        callback(postRes);
+      }
     }
+
     if (!clear) {
       editor.value.commands.clearContent();
       editor.value.commands.focus();

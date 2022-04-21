@@ -12,7 +12,7 @@ import { ResultProps } from "@/interface/Common";
 import Theader from "@/components/theader.vue";
 const store = useStore();
 const route = useRoute();
-const user = computed(() => store.state.auth.user);
+const muteList = computed(() => store.state.auth.muteList);
 const muteState = ref<boolean>(false);
 const blockState = ref<boolean>(false);
 const memberKey = ref<string>("");
@@ -59,12 +59,17 @@ const toUser = () => {
 };
 const changeConfig = async () => {
   let infoRes = (await api.request.patch("receiver/status", {
-    receiverKey: memberKey.value,
+    receiverKey: info.value?.receiverKey,
     mute: muteState.value,
     block: blockState.value,
   })) as ResultProps;
   if (infoRes.msg === "OK") {
     ElMessage.success("Update Config Success");
+    if (!muteState.value) {
+      store.commit("auth/delMuteList", memberKey.value);
+    }else{
+      store.commit("auth/addMuteList", memberKey.value);
+    }
   }
 };
 const saveMember = async () => {
@@ -112,13 +117,21 @@ const deleteMember = async () => {
         <div class="left dp--center">
           <img :src="muteSvg" alt="" /> {{ $t(`form.mute`) }}
         </div>
-        <el-switch active-color="#16ab78" v-model="muteState" @change="changeConfig" />
+        <el-switch
+          active-color="#16ab78"
+          v-model="muteState"
+          @change="changeConfig"
+        />
       </div>
       <div class="dp-space-center member-item">
         <div class="left dp--center">
           <img :src="blockSvg" alt="" /> {{ $t(`form.block`) }}
         </div>
-        <el-switch active-color="#16ab78" v-model="blockState" @change="changeConfig" />
+        <el-switch
+          active-color="#16ab78"
+          v-model="blockState"
+          @change="changeConfig"
+        />
       </div>
       <div class="dp-space-center member-item" @click="delVisible = true">
         <div class="left dp--center">

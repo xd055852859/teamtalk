@@ -6,6 +6,8 @@ import chooseSvg from "@/assets/svg/choose.svg";
 import unchooseSvg from "@/assets/svg/unchoose.svg";
 import addPersonSvg from "@/assets/svg/addPerson.svg";
 import addMemberSvg from "@/assets/svg/addMember.svg";
+import agreeSvg from "@/assets/svg/agree.svg";
+import rejectSvg from "@/assets/svg/reject.svg";
 import delSvg from "@/assets/svg/del.svg";
 import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
@@ -59,6 +61,10 @@ const getInfo = async () => {
   })) as ResultProps;
   if (infoRes.msg === "OK") {
     teamName.value = infoRes.data.title;
+    allowJoin.value = infoRes.data.allowJoin;
+    isPublic.value = infoRes.data.isPublic;
+    isMute.value = infoRes.data.mute;
+    isBlock.value = infoRes.data.block;
   }
 };
 const getApplyList = async () => {
@@ -149,6 +155,11 @@ const changeConfig = async () => {
   })) as ResultProps;
   if (infoRes.msg === "OK") {
     ElMessage.success("Update Config Success");
+    if (!isMute.value) {
+      store.commit("auth/delMuteList", teamKey.value);
+    }else{
+      store.commit("auth/addMuteList", teamKey.value);
+    }
   }
 };
 const changeRole = async (item: Member, index: number, role: number) => {
@@ -226,7 +237,7 @@ watchEffect(() => {
         </tbutton>
       </template>
     </theader>
-    <template v-if="applyArray.length > 0">
+    <template v-if="applyArray.length > 0 && groupRole < 2">
       <div class="title dp-space-center">
         {{ $t(`message.join`) }}
       </div>
@@ -241,19 +252,20 @@ watchEffect(() => {
             <div class="name">{{ item.userName }}</div>
           </div>
           <div class="right dp--center">
-            <el-icon
-              :size="20"
-              style="margin-right: 10px"
+            <img
+              :src="agreeSvg"
               class="icon-point"
+              alt=""
+              style="margin-right: 10px; width: 25px; height: 25px"
               @click="applyMember(item._key, true, index)"
-              ><check
-            /></el-icon>
-            <el-icon
-              :size="20"
+            />
+            <img
+              :src="rejectSvg"
               class="icon-point"
+              style="width: 25px; height: 25px"
+              alt=""
               @click="applyMember(item._key, false, index)"
-              ><close
-            /></el-icon>
+            />
           </div>
         </div>
       </div>
@@ -321,13 +333,7 @@ watchEffect(() => {
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-          <div
-            style="width: 20px; height: 20px; margin-left: 10px"
-            v-if="
-              groupKeyArray.indexOf(item._key) === -1 &&
-              item._key !== user?._key
-            "
-          >
+          <div style="width: 20px; height: 20px; margin-left: 10px">
             <el-tooltip content="+ mate" placement="top">
               <img
                 :src="addPersonSvg"
@@ -335,6 +341,10 @@ watchEffect(() => {
                 class="del-button"
                 style="width: 100%; height: 100%"
                 @click="saveMember(item._key)"
+                v-if="
+                  groupKeyArray.indexOf(item._key) === -1 &&
+                  item._key !== user?._key
+                "
               />
             </el-tooltip>
           </div>

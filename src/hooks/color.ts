@@ -9,7 +9,8 @@ export const lightColors = [
   { name: "--el-border-color-light", value: "#e4e7ed" },
   { name: "--el-border-color-extra-light", value: "#f2f6fc" },
   { name: "--el-border-color-lighter", value: "#ebeef5" },
-
+  { name: " --el-color-white", value: "#333" },
+ 
   { name: "--talk-font-color", value: "#333" },
   { name: "--talk-bg-color", value: "#f6f6f6" },
   { name: "--talk-item-color", value: "#fff" },
@@ -17,7 +18,7 @@ export const lightColors = [
   { name: "--talk-button-hover-color", value: "#16ab78ba" },
   { name: "--talk-font-color-1", value: "#595851" },
   { name: "--talk-font-color-2", value: "#9c9c9c" },
-  // { name: "--notes-color-border", value: "#e1e1e1" },
+  { name: "--talk-hover-shadow", value: "rgba(178, 178, 178, 0.5)" },
 ];
 
 export const darkColors = [
@@ -30,6 +31,7 @@ export const darkColors = [
   { name: "--el-border-color-light", value: "#434343" },
   { name: "--el-border-color-extra-light", value: "#5c5c5c" },
   { name: "--el-border-color-lighter", value: "#434343" },
+  { name: "--el-color-white", value: "#333" },
 
   { name: "--talk-font-color", value: "#fff" },
   { name: "--talk-bg-color", value: "#333" },
@@ -38,6 +40,7 @@ export const darkColors = [
   { name: "--talk-button-hover-color", value: "#16ab78ba" },
   { name: "--talk-font-color-1", value: "#fff" },
   { name: "--talk-font-color-2", value: "#fff" },
+  { name: "--talk-hover-shadow", value: "rgba(178, 178, 178, 0.5)" },
   // { name: "--notes-color-border", value: "#171923" },
 ];
 export const color = () => {

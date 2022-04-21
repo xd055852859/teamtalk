@@ -2,6 +2,7 @@
 import { ElMessage } from "element-plus";
 import Theader from "@/components/theader.vue";
 import { store } from "@/store";
+import { useDebounceFn } from "@vueuse/core";
 import api from "@/services/api";
 import Tbutton from "@/components/tbutton.vue";
 import { ResultProps } from "@/interface/Common";
@@ -49,16 +50,20 @@ const choosePartner = (item: Group) => {
     router.push(`/member/${item.toUserKey}`);
   }
 };
-const showMore = async () => {
-  let searchRes = (await api.request.get("receiver/search", {
-    keyWord: partnerName.value,
-    type: partnerType.value,
-  })) as ResultProps;
-  if (searchRes.msg === "OK") {
-    // ElMessage.success("Update Config Success");
-    searchMoreList.value = [...searchRes.data];
+const showMore = useDebounceFn(async () => {
+  if (partnerName.value) {
+    let searchRes = (await api.request.get("receiver/search", {
+      keyWord: partnerName.value,
+      type: partnerType.value,
+    })) as ResultProps;
+    if (searchRes.msg === "OK") {
+      // ElMessage.success("Update Config Success");
+      searchMoreList.value = [...searchRes.data];
+    }
+  } else {
+    searchMoreList.value = [];
   }
-};
+}, 1000);
 const saveMate = async (userKey: string, index: number) => {
   const saveRes = (await api.request.post("receiver", {
     receiverType: "user",
@@ -168,13 +173,7 @@ watch(partnerType, () => {
           <div class="name">{{ item.title }}</div>
         </div>
       </div>
-      <div
-        @click="moreVisible = true"
-        class="more-button icon-point"
-        v-if="partnerName"
-      >
-        more
-      </div>
+      <div @click="moreVisible = true" class="more-button icon-point">more</div>
       <template v-if="searchMoreList.length > 0">
         <div
           class="container dp-space-center contact-item"
@@ -222,6 +221,10 @@ watch(partnerType, () => {
           </div>
         </div>
       </template>
+      <el-empty
+        description="description"
+        v-else-if="moreVisible === true && searchMoreList.length === 0"
+      />
     </div>
   </div>
 </template>

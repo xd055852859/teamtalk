@@ -6,19 +6,34 @@ import EditorNav from "@/components/editor/editorNav.vue";
 import Editor from "../components/editor/editor.vue";
 import { ElMessage } from "element-plus";
 import Tbutton from "@/components/tbutton.vue";
-
 import { getSearchParamValue } from "@/services/util";
+
+import unshakeSvg from "@/assets/svg/unshake.svg";
+import unshakewSvg from "@/assets/svg/unshakew.svg";
+import shakeSvg from "@/assets/svg/shake.svg";
 const talkKey = computed(() => store.state.message.talkKey);
 const editorInfo = computed(() => store.state.message.editorInfo);
+const dark = computed(() => store.state.common.dark);
 
 const store = useStore();
 const editorRef = ref(null);
-
+const userState = ref<boolean>(false);
+const shakeState = ref<boolean>(false);
+onMounted(() => {
+  const search = window.location.search
+    ? window.location.search.split("?")[1]
+    : window.location.hash.split("?")[1];
+  userState.value = (getSearchParamValue(search, "receiverType") as string)
+    ? true
+    : false;
+});
 const postContent = async () => {
   console.log(editorRef.value);
   if (talkKey.value && editorRef.value) {
     //@ts-ignore
-    editorRef.value.handlePost(talkKey.value);
+    editorRef.value.handlePost(talkKey.value, () => {
+      shakeState.value = false;
+    });
   } else {
     ElMessage.error("choose a receiver");
     return;
@@ -27,14 +42,37 @@ const postContent = async () => {
 </script>
 <template>
   <div class="info p-5">
-    <editor :init-data="null" :isEdit="true" ref="editorRef" />
+    <editor
+      :init-data="null"
+      :isEdit="true"
+      ref="editorRef"
+      :shake="shakeState"
+    />
   </div>
 
   <div class="footer dp-space-center p-5">
     <editor-nav :editor="editorInfo" v-if="editorInfo" />
-    <tbutton class="button" @click="postContent" v-if="talkKey">{{
-      $t(`surface.Post`)
-    }}</tbutton>
+    <div class="button dp--center">
+      <template v-if="userState">
+        <img
+          :src="shakeSvg"
+          alt=""
+          v-if="shakeState"
+          class="icon-point"
+          style="width: 25px; height: 25px; margin-right: 10px"
+        />
+        <img
+          :src="dark ? unshakewSvg : unshakeSvg"
+          alt=""
+          v-else
+          class="icon-point"
+          style="width: 25px; height: 25px; margin-right: 10px"
+        />
+      </template>
+      <tbutton class="button" @click="postContent" v-if="talkKey">{{
+        $t(`surface.Post`)
+      }}</tbutton>
+    </div>
   </div>
 </template>
 <style scoped lang="scss">

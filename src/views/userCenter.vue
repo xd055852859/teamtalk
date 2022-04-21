@@ -18,8 +18,6 @@ import helpwSvg from "@/assets/svg/Helpw.svg";
 import communitywSvg from "@/assets/svg/Communityw.svg";
 import quitwSvg from "@/assets/svg/Quitw.svg";
 
-
-
 const store = useStore();
 const { proxy } = useCurrentInstance();
 const user = computed(() => store.state.auth.user);
@@ -36,19 +34,9 @@ const themeIndex = ref<number>(0);
 const setVisible = ref<boolean>(false);
 const localeValue = ref<string>("");
 const darkValue = ref<string>("");
+const autoValue = ref<boolean>(false);
 onMounted(() => {
   if (user.value) {
-    avatar.value = user.value?.userAvatar ? user.value.userAvatar : "";
-    userName.value = user.value?.userName ? user.value.userName : "";
-    email.value = user.value?.email ? user.value.email : "";
-    localeValue.value = locale.value === "zh" ? "中文" : "English";
-    darkValue.value = dark.value
-      ? locale.value === "zh"
-        ? "暗黑模式"
-        : "Dark Mode"
-      : locale.value === "zh"
-      ? "明亮模式"
-      : "Light Mode";
   }
 });
 const changeLanguage = (value: string) => {
@@ -115,6 +103,31 @@ const chooseImg = (e) => {
     avatar.value = url;
   });
 };
+watch(
+  user,
+  (newVal) => {
+    if (newVal) {
+      avatar.value = newVal.userAvatar ? newVal.userAvatar : "";
+      userName.value = newVal.userName ? newVal.userName : "";
+      email.value = newVal.email ? newVal.email : "";
+      localeValue.value = locale.value === "zh" ? "中文" : "English";
+      darkValue.value = dark.value
+        ? locale.value === "zh"
+          ? "暗黑模式"
+          : "Dark Mode"
+        : locale.value === "zh"
+        ? "明亮模式"
+        : "Light Mode";
+      autoValue.value = localStorage.getItem("AUTO") ? true : false;
+    }
+  },
+  { immediate: true }
+);
+watch(autoValue, (newVal) => {
+  newVal
+    ? localStorage.setItem("AUTO", "auto")
+    : localStorage.removeItem("AUTO");
+});
 </script>
 <template>
   <div class="userCenter-user" @click="userVisible = true">
@@ -214,12 +227,17 @@ const chooseImg = (e) => {
         </el-select>
       </div>
       <div class="text dp-space-center">
+        AutoMode :
+        <el-switch v-model="autoValue" active-color="#16ab78" />
+      </div>
+      <div class="text dp-space-center">
         DarkMode :
         <el-select
           v-model="darkValue"
           :placeholder="'choose mode'"
           size="large"
           @change="changeDark"
+          :disabled="autoValue"
         >
           <el-option :value="$t(`surface.DarkMode`)">{{
             $t(`surface.DarkMode`)

@@ -11,6 +11,7 @@ import request from "@/services/api";
 import groupSvg from "@/assets/svg/group.svg";
 import strongestMusic from "@/assets/audio/strongest.mp3";
 import strongMusic from "@/assets/audio/strong.mp3";
+import middleMusic from "@/assets/audio/middle.mp3";
 
 import { Group } from "./interface/User";
 const { proxy } = useCurrentInstance();
@@ -20,6 +21,7 @@ const router = useRouter();
 
 const user = computed(() => store.state.auth.user);
 const groupList = computed(() => store.state.auth.groupList);
+const muteList = computed(() => store.state.auth.muteList);
 
 const musicRef = ref(null);
 const dark = computed(() => store.state.common.dark);
@@ -57,7 +59,13 @@ onBeforeMount(() => {
   }
 });
 onMounted(() => {
-  setDark(dark.value);
+  if (localStorage.getItem("AUTO")) {
+    let hour = new Date().getHours() + 1;
+    setDark(hour < 6 || hour >= 20);
+    store.commit("common/setDark", hour < 6 || hour >= 20);
+  } else {
+    setDark(dark.value);
+  }
   setTheme(theme.value);
   window.addEventListener("message", handle, false);
 });
@@ -108,21 +116,55 @@ watchEffect(() => {
       socket.emit("login", token.value);
       socket.on("card", function (msg) {
         // 1:1卡片
-        if (msg.creatorInfo._key !== user.value?._key) {
-          if (msg.receiverType === "user") {
+        if (
+          msg.creatorInfo._key !== user.value?._key &&
+          ((msg.receiverType === "user" &&
+            muteList.value.indexOf(msg.creatorInfo._key) === -1) ||
+            (msg.receiverType === "group" &&
+              muteList.value.indexOf(msg._key) === -1))
+        ) {
+          if (msg.shake) {
             //@ts-ignore
             musicRef.value.src = strongestMusic;
             //@ts-ignore
             musicRef.value.play();
-          } else if (msg.receiverType === "group") {
+          } else if (msg.receiverType === "user") {
             //@ts-ignore
             musicRef.value.src = strongMusic;
+            //@ts-ignore
+            musicRef.value.play();
+          } else if (msg.receiverType === "group") {
+            //@ts-ignore
+            musicRef.value.src = middleMusic;
             //@ts-ignore
             musicRef.value.play();
           }
         }
         console.log("card", msg);
         store.commit("message/addMessageList", msg);
+      });
+      socket.on("updateCard", function (msg) {
+        // 1:1卡片
+        // if (msg.creatorInfo._key !== user.value?._key) {
+        if (msg.shake) {
+          //@ts-ignore
+          musicRef.value.src = strongestMusic;
+          //@ts-ignore
+          musicRef.value.play();
+        } else if (msg.receiverType === "user") {
+          //@ts-ignore
+          musicRef.value.src = strongMusic;
+          //@ts-ignore
+          musicRef.value.play();
+        } else if (msg.receiverType === "group") {
+          //@ts-ignore
+          musicRef.value.src = middleMusic;
+          //@ts-ignore
+          musicRef.value.play();
+        }
+        // }
+        console.log("card", msg);
+        store.commit("message/updateMessageList", msg);
       });
       socket.on("addComment", function (msg) {
         console.log(msg);

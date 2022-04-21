@@ -18,6 +18,7 @@ const state: AuthState = {
   token: localStorage.getItem("token") || "",
   user: null,
   groupList: [],
+  muteList: [],
   groupItem: null,
   //0:组长 1:管理员 2:编辑 3:组员
   groupRole: 4,
@@ -46,8 +47,6 @@ const mutations: MutationTree<AuthState> = {
       common.state.dark = user.config.dark;
       // common.state.theme = user.config.theme;
       common.state.locale = user.config.locale;
-      localStorage.setItem("LANGUAGE", user.config.locale);
-      setDark(user.config.dark);
       // setTheme(user.config.theme);
     }
   },
@@ -78,7 +77,7 @@ const mutations: MutationTree<AuthState> = {
     });
   },
   addMemberList(state, memberList: Member[]) {
-    state.memberList=[...state.memberList,...memberList];
+    state.memberList = [...state.memberList, ...memberList];
   },
   updateGroupList(state, groupItem: Group) {
     state.groupList = state.groupList.map((item) => {
@@ -87,9 +86,26 @@ const mutations: MutationTree<AuthState> = {
       }
       return item;
     });
-  }, 
+  },
   addGroupList(state, groupItem: Group) {
-    state.groupList.push(groupItem)
+    state.groupList.push(groupItem);
+  },
+  setMuteList(state, muteList: string[]) {
+    state.muteList = [...muteList];
+  },
+  delMuteList(state, key: string) {
+    let index = state.muteList.indexOf(key);
+    console.log(index)
+    if (index !== -1) {
+      state.muteList.splice(index, 1);
+    }
+  },
+  addMuteList(state, key: string) {
+    let index = state.muteList.indexOf(key);
+    console.log(index)
+    if (index === -1) {
+      state.muteList.push(key);
+    }
   },
   setLogout() {
     localStorage.removeItem("token");
@@ -118,12 +134,20 @@ const actions: ActionTree<AuthState, RootState> = {
       "receiver/list"
     )) as ResultProps;
     if (memberRes.msg === "OK") {
+      let muteArray: string[] = [];
       memberRes.data = memberRes.data.map((item) => {
         if (item.receiverType === "group") {
           item.avatar = groupSvg;
         }
+        if (item.mute) {
+          console.log(item);
+          muteArray.push(
+            item.receiverType === "user" ? item.toUserKey : item._key
+          );
+        }
         return item;
       });
+      commit("setMuteList", muteArray);
       commit("setGroupList", memberRes.data);
       // setTalker
       if (!message.state.talker || type === "delete") {

@@ -12,7 +12,9 @@ const groupList = computed(() => store.state.auth.groupList);
 <template>
   <div
     class="item"
-    :style="props.item.type === 'self' ? {} : { border: '0px' }"
+    :style="{
+      border: props.item.type === 'self' ? '1px solid #e1e1e1' : '0px',
+    }"
     @click="$router.push('/info/' + item._key)"
   >
     <div
@@ -94,10 +96,7 @@ const groupList = computed(() => store.state.auth.groupList);
           >
         </div>
       </div>
-      <div
-        class="right dp--center"
-        v-if="props.item?.commentCount"
-      >
+      <div class="right dp--center" v-if="props.item?.commentCount">
         <img :src="dark ? commentwSvg : commentSvg" alt="" />{{
           props.item?.commentCount
         }}
@@ -118,10 +117,11 @@ const groupList = computed(() => store.state.auth.groupList);
   background-color: var(--talk-item-color);
   // border: 1px solid var(--el-color-primary);
   // filter: drop-shadow(0px 2px 9px rgba(178, 178, 178, 0.5));
-  border: 1px solid #e1e1e1;
   border-radius: 8px;
   color: var(--el-text-color-primary);
-
+  &:hover {
+    box-shadow: 0px 4px 9px 0px var(--talk-hover-shadow);
+  }
   .triangle,
   .triangle1 {
     width: 0;

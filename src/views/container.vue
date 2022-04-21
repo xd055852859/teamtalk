@@ -6,23 +6,28 @@ import { ResultProps } from "@/interface/Common";
 import { ElMessage } from "element-plus";
 import { useStore } from "@/store";
 import Editor from "@/components/editor/editor.vue";
+import Tbutton from "@/components/tbutton.vue";
 import EditorNav from "@/components/editor/editorNav.vue";
 import MessageItem from "@/components/messageItem.vue";
 // import fullScreenSvg from "../assets/svg/fullScreen.svg";
-import moreSvg from "../assets/svg/more.svg";
-import Tbutton from "@/components/tbutton.vue";
+import toTopSvg from "../assets/svg/toTop.svg";
+import unshakeSvg from "@/assets/svg/unshake.svg";
+import unshakewSvg from "@/assets/svg/unshakew.svg";
+import shakeSvg from "@/assets/svg/shake.svg";
 
 const store = useStore();
-const router = useRouter();
 const talker = computed(() => store.state.message.talker);
 const messageList = computed(() => store.state.message.messageList);
 const pageNumber = computed(() => store.state.message.pageNumber);
 const editorInfo = computed(() => store.state.message.editorInfo);
 const page = computed(() => store.state.message.page);
+const dark = computed(() => store.state.common.dark);
 
+const talkRef = ref(null);
 const editorRef = ref(null);
 const talkVisible = ref<boolean>(false);
-
+const topVisible = ref<boolean>(false);
+const shakeState = ref<boolean>(false);
 onMounted(() => {
   store.dispatch("message/getMessageList", 1);
 });
@@ -33,6 +38,7 @@ const postContent = async () => {
     editorRef.value.handlePost(talker.value._key, (res) => {
       if (res.data.receiverType === "user") {
         store.commit("message/addMessageList", res.data);
+        shakeState.value = false;
       }
     });
   } else {
@@ -48,7 +54,7 @@ const scrollLoading = (e: any) => {
   let scrollTop = e.target.scrollTop;
   //窗口可视范围高度
   let clientHeight = e.target.clientHeight;
-  console.log(page.value, pageNumber.value);
+  topVisible.value = scrollTop > clientHeight ? true : false;
   if (
     clientHeight + scrollTop >= scrollHeight &&
     page.value < pageNumber.value
@@ -58,16 +64,25 @@ const scrollLoading = (e: any) => {
     store.dispatch("message/getMessageList", newPage);
   }
 };
-// const toInfo = () => {
-//   //@ts-ignore
-//   editorRef.value.toInfo();
-// };
+const toTop = () => {
+  topVisible.value = false;
+  let timer = setInterval(function () {
+    //@ts-ignore
+    // 设置定时器
+    //@ts-ignore
+    talkRef.value.scrollTop -= 80; // 使高度每次减少20px
+    //@ts-ignore
+    if (talkRef.value.scrollTop <= 0) {
+      clearInterval(timer); // 关闭定时器
+    }
+  }, 30);
+};
 // TODO
 // filter: unset;
 // transition: filter .2s;
 </script>
 <template>
-  <div class="talk-container p-5" @scroll="scrollLoading">
+  <div class="talk-container p-5" @scroll="scrollLoading" ref="talkRef">
     <div class="talk-edit">
       <div class="top dp-space-center">
         <div class="left dp--center icon-point" @click="talkVisible = true">
@@ -97,11 +112,35 @@ const scrollLoading = (e: any) => {
       <!-- <el-divider /> -->
       <div class="center">
         <div class="editor">
-          <editor :init-data="null" ref="editorRef" :isEdit="true" />
+          <editor
+            :init-data="null"
+            ref="editorRef"
+            :isEdit="true"
+            :shake="shakeState"
+          />
         </div>
         <div class="bottom dp-space-center">
           <editor-nav :editor="editorInfo" v-if="editorInfo" />
-          <tbutton @click="postContent">{{ $t(`surface.Post`) }}</tbutton>
+          <div class="bottom dp--center">
+            <template v-if="talker?.receiverType === 'user'">
+              <img
+                :src="shakeSvg"
+                alt=""
+                v-if="shakeState"
+                class="icon-point"
+                style="width: 25px; height: 25px; margin-right: 10px"
+              />
+              <img
+                :src="dark ? unshakewSvg : unshakeSvg"
+                alt=""
+                v-else
+                class="icon-point"
+                @click="shakeState = true"
+                style="width: 25px; height: 25px; margin-right: 10px"
+              />
+            </template>
+            <tbutton @click="postContent">{{ $t(`surface.Post`) }}</tbutton>
+          </div>
         </div>
       </div>
     </div>
@@ -109,7 +148,11 @@ const scrollLoading = (e: any) => {
     <template v-for="(item, index) in messageList" :key="'chat' + index">
       <message-item :item="item" />
     </template>
+    <div class="toTop icon-point" v-if="topVisible" @click="toTop">
+      <img :src="toTopSvg" alt="" style="width: 50px; height: 50px" />
+    </div>
   </div>
+
   <el-drawer
     v-model="talkVisible"
     direction="ltr"
@@ -128,6 +171,8 @@ const scrollLoading = (e: any) => {
   overflow-x: hidden;
   overflow-y: auto;
   background: var(--talk-bg-color);
+  position: relative;
+  z-index: 1;
   .talk-edit {
     width: 100%;
     min-height: 200px;
@@ -174,6 +219,12 @@ const scrollLoading = (e: any) => {
         }
       }
     }
+  }
+  .toTop {
+    position: fixed;
+    z-index: 5;
+    right: 20px;
+    bottom: 40px;
   }
 }
 </style>

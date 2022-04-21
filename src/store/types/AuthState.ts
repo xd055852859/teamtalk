@@ -3,6 +3,7 @@ import { User, Group, Member } from "@/interface/User";
 export interface AuthState {
   user: User | null;
   groupList: Group[];
+  muteList: string[];
   groupItem: Group | null;
   memberList: Member[];
   token: string;

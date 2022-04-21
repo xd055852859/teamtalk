@@ -67,6 +67,12 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/inviteOut.vue"),
     children: [],
   },
+  {
+    path: "/test",
+    name: "test",
+    component: () => import("@/views/test.vue"),
+    children: [],
+  },
 ];
 const routerHistory = createWebHashHistory();
 const router = createRouter({
