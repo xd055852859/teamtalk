@@ -166,6 +166,14 @@ watchEffect(() => {
         console.log("card", msg);
         store.commit("message/updateMessageList", msg);
       });
+      socket.on("deleteCard", function (msg) {
+        console.log(msg);
+        store.commit("message/delMessageList", msg._key);
+      });
+      socket.on("fileCard", function (msg) {
+        console.log(msg);
+        store.commit("message/delMessageList", msg._key);
+      });
       socket.on("addComment", function (msg) {
         console.log(msg);
         let obj = { commentCount: msg.commentCount, _key: msg.cardKey };

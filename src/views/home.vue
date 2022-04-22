@@ -3,7 +3,6 @@ import TalkHeader from "./header.vue";
 import TalkContainer from "./container.vue";
 
 import { ArrowDown } from "@element-plus/icons-vue";
-
 </script>
 <template>
   <div class="home">

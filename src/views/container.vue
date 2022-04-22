@@ -41,9 +41,6 @@ const postContent = async () => {
         shakeState.value = false;
       }
     });
-  } else {
-    ElMessage.error("choose a receiver");
-    return;
   }
 };
 

@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { ElMessage } from "element-plus";
-import { Filter as ShowFilter, Close, User } from "@element-plus/icons-vue";
-
+import { Close } from "@element-plus/icons-vue";
 import { useStore } from "@/store";
 
 import logoSvg from "../assets/svg/logoHeader.svg";

@@ -34,9 +34,6 @@ const postContent = async () => {
     editorRef.value.handlePost(talkKey.value, () => {
       shakeState.value = false;
     });
-  } else {
-    ElMessage.error("choose a receiver");
-    return;
   }
 };
 </script>

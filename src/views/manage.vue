@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowDown, Check, Close } from "@element-plus/icons-vue";
+import { ArrowDown, ArrowRight } from "@element-plus/icons-vue";
 import { useStore } from "@/store";
 
 import chooseSvg from "@/assets/svg/choose.svg";
@@ -44,7 +44,8 @@ const isPublic = ref<boolean>(false);
 const allowJoin = ref<boolean>(false);
 const isMute = ref<boolean>(false);
 const isBlock = ref<boolean>(false);
-
+const filedVisible = ref<boolean>(false);
+const page = ref<number>(1);
 const applyArray = ref<Member[]>([]);
 const delItem = ref<{ item: Member; index: number } | null>(null);
 const roleArray = ["owner", "admin", "editor", "member"];
@@ -58,6 +59,20 @@ onMounted(() => {
 const getInfo = async () => {
   let infoRes = (await api.request.get("receiver/info", {
     receiverKey: teamKey.value,
+  })) as ResultProps;
+  if (infoRes.msg === "OK") {
+    teamName.value = infoRes.data.title;
+    allowJoin.value = infoRes.data.allowJoin;
+    isPublic.value = infoRes.data.isPublic;
+    isMute.value = infoRes.data.mute;
+    isBlock.value = infoRes.data.block;
+  }
+};
+const getFiledInfo = async () => {
+  let infoRes = (await api.request.get("card/filed/list", {
+    receiverKey: teamKey.value,
+    page: page.value,
+    limit: 50,
   })) as ResultProps;
   if (infoRes.msg === "OK") {
     teamName.value = infoRes.data.title;
@@ -157,7 +172,7 @@ const changeConfig = async () => {
     ElMessage.success("Update Config Success");
     if (!isMute.value) {
       store.commit("auth/delMuteList", teamKey.value);
-    }else{
+    } else {
       store.commit("auth/addMuteList", teamKey.value);
     }
   }
@@ -169,7 +184,6 @@ const changeRole = async (item: Member, index: number, role: number) => {
     role: role,
   })) as ResultProps;
   if (roleRes.msg === "OK") {
-    ElMessage.success(`${teamKey.value ? "Update" : "Create"} Role Success`);
     store.commit("auth/updateMemberList", {
       ...memberList.value[index],
       role: role,
@@ -395,7 +409,15 @@ watchEffect(() => {
     custom-class="p0-drawer"
   >
     <template v-if="groupRole < 2">
-      <div class="manage-text dp-space-center p-5" style="margin-top: 20px">
+      <div
+        class="manage-text dp-space-center p-5 icon-point"
+        style="margin-top: 20px"
+        @click="filedVisible = true"
+      >
+        <span>Archive :</span>
+        <el-icon><arrow-right /></el-icon>
+      </div>
+      <div class="manage-text dp-space-center p-5">
         <span>{{ $t(`form.public`) }} :</span>
         <el-switch
           active-color="#16ab78"
@@ -436,6 +458,19 @@ watchEffect(() => {
         $t(`surface['Exit']`)
       }}</span>
     </div>
+  </el-drawer>
+  <el-drawer
+    v-model="filedVisible"
+    direction="rtl"
+    :title="$t(`surface.Settings`)"
+    :size="'80%'"
+    custom-class="p0-drawer"
+  >
+    <!-- <div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div> -->
   </el-drawer>
   <el-dialog v-model="exitVisible" title="Tips" width="350px">
     <span>{{ $t(`form.out`) }}</span>

@@ -11,7 +11,12 @@ import Tbutton from "@/components/tbutton.vue";
 import groupSvg from "@/assets/svg/group.svg";
 import deleteSvg from "@/assets/svg/delete.svg";
 import unshakeSvg from "@/assets/svg/unshake.svg";
+import unshakewSvg from "@/assets/svg/unshakew.svg";
 import shakeSvg from "@/assets/svg/shake.svg";
+import infoDelSvg from "@/assets/svg/infoDel.svg";
+import infoDelwSvg from "@/assets/svg/infoDelw.svg";
+import archiveSvg from "@/assets/svg/archive.svg";
+import archivewSvg from "@/assets/svg/archivew.svg";
 // const emits = defineEmits(["close"]);
 const socket: any = inject("socket");
 
@@ -68,19 +73,27 @@ const postCard = async () => {
           shakeState.value = false;
         }
       },
-      false
+      true
     );
-  } else {
-    ElMessage.error("choose a receiver");
-    return;
   }
 };
-const delCard = async (replyKey: string, index: number) => {
-  const postRes = (await api.request.delete("comment", {
-    commentKey: replyKey,
+const delCard = async () => {
+  const delRes = (await api.request.delete("card", {
+    cardKey: infoKey.value,
   })) as ResultProps;
-  if (postRes.msg === "OK") {
-    ElMessage.success("Delete Reply Success");
+  if (delRes.msg === "OK") {
+    ElMessage.success("Delete Card Success");
+    router.push("/home");
+  }
+};
+const filedCard = async () => {
+  const filedRes = (await api.request.patch("card/filed", {
+    cardKey: infoKey.value,
+    filed: true,
+  })) as ResultProps;
+  if (filedRes.msg === "OK") {
+    ElMessage.success("Filed Card Success");
+    router.push("/home");
   }
 };
 const favoriteCard = async () => {
@@ -118,7 +131,9 @@ const delReply = async (replyKey: string, index: number) => {
         <span class="title">
           {{
             info?.receiverInfo && info.receiverInfo.receiverType === "user"
-              ? `From : `
+              ? user?._key === info?.creatorInfo?._key
+                ? `To : `
+                : `From : `
               : `In : `
           }}
         </span>
@@ -128,11 +143,15 @@ const delReply = async (replyKey: string, index: number) => {
           :src="
             info?.receiverInfo && info.receiverInfo.receiverType === 'group'
               ? groupSvg
+              : user?._key === info?.creatorInfo?._key
+              ? info?.receiverInfo?.logo
               : info?.creatorInfo?.userAvatar
           "
         />
         {{
           info?.receiverInfo && info.receiverInfo.receiverType === "group"
+            ? info?.receiverInfo?.title
+            : user?._key === info?.creatorInfo?._key
             ? info?.receiverInfo?.title
             : info?.creatorInfo?.userName
         }}
@@ -163,7 +182,7 @@ const delReply = async (replyKey: string, index: number) => {
         <editor
           :init-data="info"
           :isEdit="
-            user?._key === info?.creatorInfo?.userAvatar ||
+            user?._key === info?.creatorInfo?._key ||
             (receiverRole < 3 && info?.receiverInfo?.receiverType === 'group')
           "
           :cardKey="infoKey"
@@ -171,10 +190,23 @@ const delReply = async (replyKey: string, index: number) => {
           ref="editorRef"
           @changeUpdate="updateState = true"
         />
-        <div class="button">
+      </div>
+      <div class="button dp-space-center p-5">
+        <div class="left dp--center">
+          <div
+            class="button-item dp-center-center icon-point"
+            v-if="updateState"
+          >
+            Changed
+          </div>
+        </div>
+        <div class="right dp--center">
           <div
             class="button-item dp-center-center"
-            v-if="info?.receiverInfo.receiverType === 'user'"
+            v-if="
+              info?.receiverInfo.receiverType === 'user' &&
+              user?._key === info?.creatorInfo?._key
+            "
           >
             <el-tooltip
               content="Shake"
@@ -189,7 +221,7 @@ const delReply = async (replyKey: string, index: number) => {
                 style="width: 25px; height: 25px"
               />
               <img
-                :src="unshakeSvg"
+                :src="dark ? unshakewSvg : unshakeSvg"
                 alt=""
                 v-else
                 class="icon-point"
@@ -199,34 +231,49 @@ const delReply = async (replyKey: string, index: number) => {
           </div>
           <div
             class="button-item dp-center-center"
-            @click="postCard"
-            v-if="updateState"
+            v-if="
+              user?._key === info?.creatorInfo?._key ||
+              (receiverRole < 3 && info?.receiverInfo?.receiverType === 'group')
+            "
           >
             <el-tooltip
-              content="Update"
-              placement="left"
+              content="Archive"
+              placement="top"
               class="button-item-icon"
             >
-              <el-icon :size="25"><edit /></el-icon>
+              <img
+                :src="dark ? archivewSvg : archiveSvg"
+                alt=""
+                class="icon-point"
+                style="width: 25px; height: 25px"
+                @click="filedCard()"
+              />
             </el-tooltip>
           </div>
           <div
             class="button-item dp-center-center"
             v-if="
-              user?._key === info?.creatorInfo?.userAvatar ||
-              (receiverRole < 2 &&
-                info?.receiverInfo?.receiverType === 'group') ||
-              info?.receiverInfo?.receiverType === 'user'
+              user?._key === info?.creatorInfo?._key ||
+              (receiverRole < 2 && info?.receiverInfo?.receiverType === 'group')
             "
           >
             <el-tooltip
               content="Delete"
-              placement="left"
+              placement="top"
               class="button-item-icon"
             >
-              <el-icon :size="25"><delete /></el-icon>
+              <img
+                :src="dark ? infoDelwSvg : infoDelSvg"
+                alt=""
+                class="icon-point"
+                style="width: 25px; height: 25px"
+                @click="delCard()"
+              />
             </el-tooltip>
           </div>
+          <tbutton @click="postCard" v-if="updateState">{{
+            $t(`surface.Update`)
+          }}</tbutton>
         </div>
       </div>
       <div
@@ -295,22 +342,20 @@ const delReply = async (replyKey: string, index: number) => {
     position: relative;
     z-index: 1;
     .center {
-      min-height: 30vh;
       margin-bottom: 40px;
       position: relative;
       z-index: 1;
-      .button {
-        position: absolute;
-        z-index: 5;
-        top: 0px;
-        right: 10px;
+    }
+    .button {
+      width: 100%;
+      height: 40px;
+      .left,
+      .right {
+        height: 100%;
         .button-item {
           width: 40px;
           height: 40px;
-          background: var(--talk-item-color);
-          border-radius: 50%;
-          box-shadow: 0px 2px 4px 0px #c7cdc7;
-          margin-top: 10px;
+          margin-right: 10px;
         }
       }
     }
@@ -330,7 +375,7 @@ const delReply = async (replyKey: string, index: number) => {
       }
       .message-footer {
         width: 100%;
-        height: 40px;
+        height: 30px;
         justify-content: flex-end;
       }
     }
@@ -343,11 +388,8 @@ const delReply = async (replyKey: string, index: number) => {
     left: 0px;
     bottom: 0px;
     box-sizing: border-box;
+    background: var(--talk-item-color);
   }
 }
 </style>
-<style>
-.button-item-icon {
-  color: #333 !important;
-}
-</style>
+<style></style>

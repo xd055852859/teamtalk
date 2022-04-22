@@ -47,7 +47,7 @@ const changeReceiver = (
     </div>
     <div class="container dp-space-center" @click="changeReceiver('all')">
       <div class="left dp--center">
-        <img :src="dark?allwSvg:allSvg" alt="" class="img" />
+        <img :src="dark ? allwSvg : allSvg" alt="" class="img" />
         <div class="name">{{ $t(`form.all`) }}</div>
       </div>
     </div>
@@ -56,34 +56,34 @@ const changeReceiver = (
       @click="changeReceiver('private', null, groupItem)"
     >
       <div class="left dp--center">
-        <img :src="dark?privatewSvg:privateSvg" alt="" class="img" />
+        <img :src="dark ? privatewSvg : privateSvg" alt="" class="img" />
         <div class="name">{{ $t(`form.private`) }}</div>
       </div>
       <div class="right dp--center">{{ user?.privateMessageCount }}</div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('favorite')">
       <div class="left dp--center">
-        <img :src="dark?favoritewSvg:favoriteSvg" alt="" class="img" />
+        <img :src="dark ? favoritewSvg : favoriteSvg" alt="" class="img" />
         <div class="name">{{ $t(`form.favorite`) }}</div>
       </div>
       <div class="right dp--center">{{ user?.favoriteMessageCount }}</div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('sent')">
       <div class="left dp--center">
-        <img :src="dark?sendwSvg:sendSvg" alt="" class="img" />
+        <img :src="dark ? sendwSvg : sendSvg" alt="" class="img" />
         <div class="name">{{ $t(`form.send`) }}</div>
       </div>
       <div class="right dp--center">{{ user?.sentMessageCount }}</div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('receive')">
       <div class="left dp--center">
-        <img :src="dark?receivedwSvg:receivedSvg" alt="" class="img" />
+        <img :src="dark ? receivedwSvg : receivedSvg" alt="" class="img" />
         <div class="name">{{ $t(`form.received`) }}</div>
       </div>
     </div>
-     <div class="container dp-space-center" @click="changeReceiver('notice')">
+    <div class="container dp-space-center" @click="changeReceiver('notice')">
       <div class="left dp--center">
-        <img :src="dark?noticewSvg:noticeSvg" alt="" class="img" />
+        <img :src="dark ? noticewSvg : noticeSvg" alt="" class="img" />
         <div class="name">{{ $t(`form.notice`) }}</div>
       </div>
     </div>
@@ -101,13 +101,13 @@ const changeReceiver = (
         </div>
       </div>
     </div>
-    <div class="button dp-space-center">
-     
-    </div>
+    <!-- <div class="button dp-space-center"></div> -->
   </div>
 </template>
 <style scoped lang="scss">
 .filter {
+  width: 100%;
+  height: 100vh;
   .header {
     width: 100%;
     height: 45px;

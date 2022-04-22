@@ -73,6 +73,11 @@ const mutations: MutationTree<MessageState> = {
       return item;
     });
   },
+  delMessageList(state, messageKey: string) {
+    state.messageList = state.messageList.filter((item: Message) => {
+      return item._key !== messageKey;
+    });
+  },
   setReceiverNumber(state, receiverNumber: number) {
     state.receiverNumber = receiverNumber;
   },

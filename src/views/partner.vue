@@ -90,7 +90,7 @@ const joinTeam = async (key: string, index: number) => {
     receiverKey: key,
   })) as ResultProps;
   if (joinRes.msg === "OK") {
-    ElMessage.success("add Mate success");
+    ElMessage.success("join success");
     searchMoreList.value[index].hasApply = true;
   }
 };
@@ -147,7 +147,7 @@ watch(partnerType, () => {
       />
       <tbutton
         style="height: 40px; padding: 0px 30px"
-        @click="router.push('/createGroup')"
+        @click="router.push('/invite')"
         v-if="partnerType === 'user'"
       >
         {{ $t(`surface.Invite`) }}
@@ -173,7 +173,15 @@ watch(partnerType, () => {
           <div class="name">{{ item.title }}</div>
         </div>
       </div>
-      <div @click="moreVisible = true" class="more-button icon-point">more</div>
+      <el-empty :description="'No Content'" v-if="searchList.length === 0" />
+      <el-divider border-style="dashed" />
+      <div
+        @click="moreVisible = true"
+        class="more-button icon-point p-5"
+        :class="{ 'common-color': !moreVisible ? true : false }"
+      >
+        more
+      </div>
       <template v-if="searchMoreList.length > 0">
         <div
           class="container dp-space-center contact-item"
@@ -222,8 +230,10 @@ watch(partnerType, () => {
         </div>
       </template>
       <el-empty
-        description="description"
-        v-else-if="moreVisible === true && searchMoreList.length === 0"
+        :description="'No More'"
+        v-else-if="
+          moreVisible === true && searchMoreList.length === 0 && partnerName
+        "
       />
     </div>
   </div>

@@ -33,7 +33,12 @@
 .el-collapse-item__content {
   padding-bottom: 0px !important;
 }
-
+.el-popper.is-dark {
+  color: #333;
+}
+.el-switch__core .el-switch__action{
+  color: #fff !important;
+}
 .tbutton.is-disabled {
   background-color: transparent !important;
 }
