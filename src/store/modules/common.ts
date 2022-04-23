@@ -10,6 +10,7 @@ const state: CommonState = {
   theme:  "#16ab78",
   // localStorage.getItem("THEME") ||
   loading: false,
+  top:0
 };
 
 const mutations: MutationTree<CommonState> = {
@@ -25,7 +26,9 @@ const mutations: MutationTree<CommonState> = {
   setLoading(state, data) {
     state.loading = data;
   },
- 
+  setTop(state, top:number) {
+    state.top = top;
+  },
 };
 
 const actions: ActionTree<CommonState, RootState> = {

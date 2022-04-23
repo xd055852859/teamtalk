@@ -3,4 +3,5 @@ export interface CommonState {
   dark: boolean;
   theme: string;
   loading: boolean;
+  top: number;
 }

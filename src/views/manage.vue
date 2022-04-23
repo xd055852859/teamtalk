@@ -19,6 +19,8 @@ import Theader from "@/components/theader.vue";
 
 import setSvg from "@/assets/svg/Settings.svg";
 import setwSvg from "@/assets/svg/Settingsw.svg";
+import { Message } from "@/interface/Message";
+import MessageItem from "@/components/messageItem.vue";
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
@@ -47,6 +49,7 @@ const isBlock = ref<boolean>(false);
 const filedVisible = ref<boolean>(false);
 const page = ref<number>(1);
 const applyArray = ref<Member[]>([]);
+const filedArray = ref<Message[]>([]);
 const delItem = ref<{ item: Member; index: number } | null>(null);
 const roleArray = ["owner", "admin", "editor", "member"];
 
@@ -72,14 +75,10 @@ const getFiledInfo = async () => {
   let infoRes = (await api.request.get("card/filed/list", {
     receiverKey: teamKey.value,
     page: page.value,
-    limit: 50,
+    limit: 500,
   })) as ResultProps;
   if (infoRes.msg === "OK") {
-    teamName.value = infoRes.data.title;
-    allowJoin.value = infoRes.data.allowJoin;
-    isPublic.value = infoRes.data.isPublic;
-    isMute.value = infoRes.data.mute;
-    isBlock.value = infoRes.data.block;
+    filedArray.value = [...infoRes.data];
   }
 };
 const getApplyList = async () => {
@@ -209,6 +208,11 @@ const exitGroup = async () => {
     store.dispatch("auth/getGroupList", "delete");
     router.push("/home");
   }
+};
+const flashFiled = (key: string) => {
+  filedArray.value = filedArray.value.filter((item) => {
+    return item._key !== key;
+  });
 };
 watchEffect(() => {
   memberArray.value = [];
@@ -412,7 +416,10 @@ watchEffect(() => {
       <div
         class="manage-text dp-space-center p-5 icon-point"
         style="margin-top: 20px"
-        @click="filedVisible = true"
+        @click="
+          filedVisible = true;
+          getFiledInfo();
+        "
       >
         <span>Archive :</span>
         <el-icon><arrow-right /></el-icon>
@@ -462,15 +469,15 @@ watchEffect(() => {
   <el-drawer
     v-model="filedVisible"
     direction="rtl"
-    :title="$t(`surface.Settings`)"
     :size="'80%'"
+    :title="$t(`surface.Settings`)"
     custom-class="p0-drawer"
   >
-    <!-- <div>
-      <div></div>
-      <div></div>
-      <div></div>
-    </div> -->
+    <div class="filed p-5">
+      <template v-for="(item, index) in filedArray" :key="'chat' + index">
+        <message-item :item="item" :type="'filed'" @changeItem="flashFiled" />
+      </template>
+    </div>
   </el-drawer>
   <el-dialog v-model="exitVisible" title="Tips" width="350px">
     <span>{{ $t(`form.out`) }}</span>
@@ -533,6 +540,11 @@ watchEffect(() => {
 }
 .manage-text {
   height: 50px;
+}
+.filed {
+  width: 100%;
+  height:100%;
+  overflow: auto;
 }
 </style>
 <style></style>

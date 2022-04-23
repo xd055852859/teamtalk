@@ -19,6 +19,7 @@ const state: MessageState = {
   messageList: [],
   editContent: null,
   editorInfo: null,
+  editKey: "",
 };
 
 const mutations: MutationTree<MessageState> = {
@@ -89,6 +90,9 @@ const mutations: MutationTree<MessageState> = {
   },
   setEditContent(state, editContent: any) {
     state.editContent = editContent;
+  },
+  setEditKey(state, editKey: string) {
+    state.editKey = editKey;
   },
   setEditor(state, editorInfo: Editor) {
     state.editorInfo = editorInfo;

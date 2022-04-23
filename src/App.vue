@@ -111,7 +111,7 @@ watchEffect(() => {
     init();
     store.dispatch("auth/getGroupList");
     store.dispatch("auth/getUptoken");
-
+    store.dispatch("message/getMessageList", 1);
     socket.on("connect", () => {
       socket.emit("login", token.value);
       socket.on("card", function (msg) {

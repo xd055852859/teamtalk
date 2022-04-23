@@ -42,7 +42,8 @@ const props = defineProps<{
 const emits = defineEmits(["changeUpdate"]);
 const store = useStore();
 const dark = computed(() => store.state.common.dark);
-
+const editKey = computed(() => store.state.message.editKey);
+const editContent = computed(() => store.state.message.editContent);
 const editor = useEditor({
   content: {
     type: "doc",
@@ -87,7 +88,7 @@ const editor = useEditor({
     //   element: document.querySelector(".menu"),
     // }),
   ],
-  autofocus: true,
+  // autofocus: true,
   editable: true,
   onUpdate: () => {
     emits("changeUpdate", true);
@@ -97,15 +98,24 @@ store.commit("message/setEditor", editor);
 watch(
   () => props,
   (props) => {
+    console.log(props.initData?._key);
     if (props.initData?.detail) {
       editor.value?.commands.setContent(props.initData.detail);
     }
-    console.log(props);
+    if (props.initData?._key) {
+      editor.value?.commands.setContent(props.initData.detail);
+    }
     editor.value?.setEditable(props.isEdit);
   },
   { deep: true }
 );
-
+// watch(editKey, (newVal) => {
+//   console.log(editKey);
+//   console.log(editContent.value);
+//   if (newVal && editContent.value) {
+//     editor.value?.commands.setContent(editContent.value);
+//   }
+// });
 async function handlePost(key: string, callback?: any, clear?: boolean) {
   if (!editor.value) return;
   const json: JSONContent = editor.value.getJSON();

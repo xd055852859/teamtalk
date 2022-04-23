@@ -69,7 +69,7 @@ const postCard = async () => {
       "",
       (res) => {
         if (res.data.receiverType === "user") {
-          store.commit("message/addMessageList", res.data);
+          store.commit("message/updateMessageList", res.data);
           shakeState.value = false;
         }
       },
@@ -84,6 +84,7 @@ const delCard = async () => {
   if (delRes.msg === "OK") {
     ElMessage.success("Delete Card Success");
     router.push("/home");
+    store.commit("message/delMessageList", infoKey.value);
   }
 };
 const filedCard = async () => {
@@ -94,6 +95,7 @@ const filedCard = async () => {
   if (filedRes.msg === "OK") {
     ElMessage.success("Filed Card Success");
     router.push("/home");
+    store.commit("message/delMessageList", infoKey.value);
   }
 };
 const favoriteCard = async () => {
@@ -113,6 +115,9 @@ const addReply = async () => {
   if (postRes.msg === "OK") {
     ElMessage.success("Reply Success");
     replyInput.value = "";
+    if (info.value?.receiverInfo.receiverType === "user") {
+      replyList.value.push(postRes.data);
+    }
   }
 };
 const delReply = async (replyKey: string, index: number) => {
@@ -192,14 +197,7 @@ const delReply = async (replyKey: string, index: number) => {
         />
       </div>
       <div class="button dp-space-center p-5">
-        <div class="left dp--center">
-          <div
-            class="button-item dp-center-center icon-point"
-            v-if="updateState"
-          >
-            Changed
-          </div>
-        </div>
+        <div class="left dp--center"></div>
         <div class="right dp--center">
           <div
             class="button-item dp-center-center"
@@ -246,7 +244,7 @@ const delReply = async (replyKey: string, index: number) => {
                 alt=""
                 class="icon-point"
                 style="width: 25px; height: 25px"
-                @click="filedCard()"
+                @click.once="filedCard()"
               />
             </el-tooltip>
           </div>
@@ -267,11 +265,11 @@ const delReply = async (replyKey: string, index: number) => {
                 alt=""
                 class="icon-point"
                 style="width: 25px; height: 25px"
-                @click="delCard()"
+                @click.once="delCard()"
               />
             </el-tooltip>
           </div>
-          <tbutton @click="postCard" v-if="updateState">{{
+          <tbutton @click.once="postCard" v-if="updateState">{{
             $t(`surface.Update`)
           }}</tbutton>
         </div>
@@ -292,9 +290,8 @@ const delReply = async (replyKey: string, index: number) => {
           class="icon-point message-footer dp--center"
           @click="delReply(item._key, index)"
           v-if="
-            (receiverRole < 3 &&
-              info?.receiverInfo?.receiverType === 'group') ||
-            info?.receiverInfo?.receiverType === 'user'
+            user?._key === info?.creatorInfo?._key ||
+            (receiverRole < 2 && info?.receiverInfo?.receiverType === 'group')
           "
         >
           <img :src="deleteSvg" alt="" style="width: 20px; height: 20px" />

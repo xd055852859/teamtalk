@@ -22,16 +22,19 @@ const pageNumber = computed(() => store.state.message.pageNumber);
 const editorInfo = computed(() => store.state.message.editorInfo);
 const page = computed(() => store.state.message.page);
 const dark = computed(() => store.state.common.dark);
+const top = computed(() => store.state.common.top);
 
 const talkRef = ref(null);
 const editorRef = ref(null);
 const talkVisible = ref<boolean>(false);
 const topVisible = ref<boolean>(false);
 const shakeState = ref<boolean>(false);
-onMounted(() => {
-  store.dispatch("message/getMessageList", 1);
-});
 
+onMounted(() => {
+  console.log(top.value);
+  //@ts-ignore
+  talkRef.value.scrollTop = top.value;
+});
 const postContent = async () => {
   if (talker.value && editorRef.value) {
     //@ts-ignore
@@ -52,6 +55,7 @@ const scrollLoading = (e: any) => {
   //窗口可视范围高度
   let clientHeight = e.target.clientHeight;
   topVisible.value = scrollTop > clientHeight ? true : false;
+  store.commit("common/setTop", scrollTop);
   if (
     clientHeight + scrollTop >= scrollHeight &&
     page.value < pageNumber.value
@@ -74,6 +78,14 @@ const toTop = () => {
     }
   }, 30);
 };
+
+watchEffect(() => {
+  if (talkRef.value) {
+    //@ts-ignore
+
+    console.log(talkRef.value.scrollTop);
+  }
+});
 // TODO
 // filter: unset;
 // transition: filter .2s;

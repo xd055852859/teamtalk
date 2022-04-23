@@ -1,13 +1,63 @@
 <script setup lang="ts">
-import { Message } from "@/interface/Message";
+import { Card, Message } from "@/interface/Message";
 import { useStore } from "@/store";
 import commentSvg from "@/assets/svg/comment.svg";
 import commentwSvg from "@/assets/svg/commentw.svg";
 import { Group } from "@/interface/User";
+import fullScreenSvg from "../assets/svg/fullScreen.svg";
+import archiveSvg from "@/assets/svg/archive.svg";
+import archivewSvg from "@/assets/svg/archivew.svg";
+import api from "@/services/api";
+import { ElMessage } from "element-plus";
+import { ResultProps } from "@/interface/Common";
+import Editor from "./editor/editor.vue";
+import Tbutton from "./tbutton.vue";
 const store = useStore();
-const props = defineProps<{ item: Message }>();
+const props = defineProps<{ item: Message; type?: string }>();
+const emits = defineEmits(["changeItem"]);
+const user = computed(() => store.state.auth.user);
 const dark = computed(() => store.state.common.dark);
-const groupList = computed(() => store.state.auth.groupList);
+const editKey = computed(() => store.state.message.editKey);
+const editContent = computed(() => store.state.message.editContent);
+const editorRef = ref(null);
+const receiverRole = ref<number>(4);
+const updateState = ref<boolean>(false);
+const getInfo = async (key) => {
+  let infoRes = (await api.request.get("card/detail", {
+    cardKey: key,
+  })) as ResultProps;
+  if (infoRes.msg === "OK") {
+    store.commit("message/setEditContent", infoRes.data);
+    store.commit("message/setEditKey", key);
+    receiverRole.value = infoRes.data.receiverRole;
+  }
+};
+const filedCard = async (key) => {
+  const filedRes = (await api.request.patch("card/filed", {
+    cardKey: key,
+    filed: false,
+  })) as ResultProps;
+  if (filedRes.msg === "OK") {
+    ElMessage.success("unFiled Card Success");
+    emits("changeItem", key);
+  }
+};
+const postCard = async () => {
+  if (editorRef.value) {
+    //@ts-ignore
+    editorRef.value.handlePost(
+      "",
+      (res) => {
+        if (res.data.receiverType === "user") {
+          store.commit("message/updateMessageList", res.data);
+        }
+        store.commit("message/setEditContent", null);
+        store.commit("message/setEditKey", "");
+      },
+      true
+    );
+  }
+};
 </script>
 <template>
   <div
@@ -15,30 +65,60 @@ const groupList = computed(() => store.state.auth.groupList);
     :style="{
       border: props.item.type === 'self' ? '1px solid #e1e1e1' : '0px',
     }"
-    @click="$router.push('/info/' + item._key)"
+    @click="getInfo(props.item._key)"
   >
-    <div
-      class="title"
-      :style="!props.item.summary ? { marginBottom: '0px' } : {}"
-    >
-      {{ props.item.title }}
-    </div>
-    <div
-      class="center dp-space-center"
-      :style="
-        props.item.type === 'self' ? { 'flex-direction': 'row-reverse' } : {}
+    <template
+      v-if="
+        editKey !== props.item._key ||
+        user?._key !== editContent?.creatorInfo?._key ||
+        (receiverRole > 2 &&
+          editContent?.receiverInfo?.receiverType === 'group')
       "
     >
-      <div class="right" v-if="props.item.cover">
-        <img :src="props.item.cover" alt="" />
+      <div
+        class="title"
+        :style="!props.item.summary ? { marginBottom: '0px' } : {}"
+      >
+        {{ props.item.title }}
       </div>
       <div
-        class="left more-to-long"
-        :style="{ width: props.item.cover ? 'calc(100% - 115px)' : '100%' }"
+        class="center dp-space-center"
+        :style="
+          props.item.type === 'self' ? { 'flex-direction': 'row-reverse' } : {}
+        "
       >
-        {{ props.item.summary }}
+        <div class="right" v-if="props.item.cover">
+          <img :src="props.item.cover" alt="" />
+        </div>
+        <div
+          class="left more-to-long"
+          :style="{ width: props.item.cover ? 'calc(100% - 115px)' : '100%' }"
+        >
+          {{ props.item.summary }}
+        </div>
       </div>
-    </div>
+    </template>
+    <template
+      v-if="
+        editKey === props.item._key &&
+        editContent &&
+        (user?._key === editContent?.creatorInfo?._key ||
+          (receiverRole < 3 &&
+            editContent?.receiverInfo?.receiverType === 'group'))
+      "
+    >
+      <Editor
+        :init-data="editContent"
+        :isEdit="true"
+        :shake="false"
+        :cardKey="editKey"
+        ref="editorRef"
+        @changeUpdate="updateState = true"
+      />
+      <tbutton @click.once="postCard" v-if="updateState">{{
+        $t(`surface.Update`)
+      }}</tbutton>
+    </template>
     <!-- <span
       class="triangle top"
       :style="props.item.type === 'self' ? { right: '46px' } : { left: '25px' }"
@@ -96,10 +176,32 @@ const groupList = computed(() => store.state.auth.groupList);
           >
         </div>
       </div>
-      <div class="right dp--center" v-if="props.item?.commentCount">
-        <img :src="dark ? commentwSvg : commentSvg" alt="" />{{
-          props.item?.commentCount
-        }}
+      <div class="right dp--center">
+        <div
+          class="dp--center"
+          style="margin-right: 10px"
+          @click.stop="$router.push('/info/' + props.item._key)"
+        >
+          <img :src="fullScreenSvg" alt="" style="width: 15px; height: 15px" />
+        </div>
+        <div
+          class="dp--center"
+          v-if="props.item?.commentCount"
+          style="margin-right: 10px"
+        >
+          <img :src="dark ? commentwSvg : commentSvg" alt="" />{{
+            props.item?.commentCount
+          }}
+        </div>
+        <div class="dp--center" v-if="props.type === 'filed'">
+          <img
+            :src="dark ? archivewSvg : archiveSvg"
+            alt=""
+            class="icon-point"
+            style="width: 20px; height: 20px"
+            @click.stop="filedCard(props.item._key)"
+          />
+        </div>
       </div>
     </div>
   </div>

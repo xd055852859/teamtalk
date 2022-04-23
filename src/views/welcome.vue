@@ -49,24 +49,13 @@ const login = () => {
   background: var(--talk-bg-color);
   .logo-img {
     width: 100%;
-    margin-bottom: 20vh;
+    margin-bottom: 40vh;
     .logo {
       max-width: 400px;
       width: 70vw;
-      margin-bottom: 10px;
     }
   }
 
-  .title {
-    width: 100%;
-    height: 40px;
-    text-align: center;
-    margin-bottom: 20vh;
-    font-size: 18px;
-    font-weight: 400;
-    color: #999;
-    line-height: 40px;
-  }
   .button {
     width: 90px;
     height: 30px;
