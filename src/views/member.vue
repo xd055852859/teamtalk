@@ -65,11 +65,15 @@ const changeConfig = async () => {
   })) as ResultProps;
   if (infoRes.msg === "OK") {
     ElMessage.success("Update Config Success");
-    if (!muteState.value) {
-      store.commit("auth/delMuteList", memberKey.value);
-    }else{
+    if (muteState.value) {
       store.commit("auth/addMuteList", memberKey.value);
+    } else {
+      store.commit("auth/delMuteList", memberKey.value);
     }
+    store.commit("auth/updateGroupList", {
+      _key: info.value?.receiverKey,
+      block: blockState.value,
+    });
   }
 };
 const saveMember = async () => {

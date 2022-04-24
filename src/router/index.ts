@@ -73,6 +73,12 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/test.vue"),
     children: [],
   },
+  {
+    path: "/block",
+    name: "block",
+    component: () => import("@/views/block.vue"),
+    children: [],
+  },
 ];
 const routerHistory = createWebHashHistory();
 const router = createRouter({

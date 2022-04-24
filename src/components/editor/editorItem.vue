@@ -12,6 +12,7 @@ import taskListSvg from "@/assets/editor/taskList.svg";
 import codeSvg from "@/assets/editor/code.svg";
 import blockquoteSvg from "@/assets/editor/blockquote.svg";
 import codeBlockSvg from "@/assets/editor/codeBlock.svg";
+
 import textwSvg from "@/assets/editor/textw.svg";
 import h1wSvg from "@/assets/editor/h1w.svg";
 import h2wSvg from "@/assets/editor/h2w.svg";
@@ -30,6 +31,7 @@ const props = defineProps<{
   itemHeight: number;
 }>();
 const emits = defineEmits(["close", "chooseReceiver"]);
+
 const editorInfo = computed(() => store.state.message.editorInfo);
 const dark = computed(() => store.state.common.dark);
 
@@ -74,11 +76,12 @@ const insertNode = (type) => {
   }
   emits("close");
 };
+
 </script>
 <template>
   <div
     class="block-item"
-    :style="{ ...props.itemObj, height: itemHeight  * 11 + 'px' }"
+    :style="{ ...props.itemObj, height: itemHeight * 11 + 'px' }"
   >
     <div
       @click="insertNode('text')"
@@ -163,6 +166,8 @@ const insertNode = (type) => {
     box-sizing: border-box;
     display: flex;
     align-items: center;
+    position: relative;
+    z-index: 1;
     cursor: pointer;
     img {
       width: 20px;
@@ -172,6 +177,7 @@ const insertNode = (type) => {
     &:hover {
       background-color: #c9c9c9;
     }
+   
   }
 }
 </style>

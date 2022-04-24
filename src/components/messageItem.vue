@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import { Card, Message } from "@/interface/Message";
 import { useStore } from "@/store";
-import commentSvg from "@/assets/svg/comment.svg";
-import commentwSvg from "@/assets/svg/commentw.svg";
 import { Group } from "@/interface/User";
-import fullScreenSvg from "../assets/svg/fullScreen.svg";
-import archiveSvg from "@/assets/svg/archive.svg";
-import archivewSvg from "@/assets/svg/archivew.svg";
-import api from "@/services/api";
 import { ElMessage } from "element-plus";
 import { ResultProps } from "@/interface/Common";
 import Editor from "./editor/editor.vue";
 import Tbutton from "./tbutton.vue";
+import api from "@/services/api";
+import { OnClickOutside } from "@vueuse/components";
+
+import commentSvg from "@/assets/svg/comment.svg";
+import commentwSvg from "@/assets/svg/commentw.svg";
+import fullScreenSvg from "../assets/svg/fullScreen.svg";
+import archiveSvg from "@/assets/svg/archive.svg";
+import archivewSvg from "@/assets/svg/archivew.svg";
+
 const store = useStore();
 const props = defineProps<{ item: Message; type?: string }>();
 const emits = defineEmits(["changeItem"]);
@@ -19,7 +22,9 @@ const user = computed(() => store.state.auth.user);
 const dark = computed(() => store.state.common.dark);
 const editKey = computed(() => store.state.message.editKey);
 const editContent = computed(() => store.state.message.editContent);
+
 const editorRef = ref(null);
+const itemRef = ref(null);
 const receiverRole = ref<number>(4);
 const updateState = ref<boolean>(false);
 const getInfo = async (key) => {
@@ -51,11 +56,26 @@ const postCard = async () => {
         if (res.data.receiverType === "user") {
           store.commit("message/updateMessageList", res.data);
         }
-        store.commit("message/setEditContent", null);
-        store.commit("message/setEditKey", "");
       },
+      true,
       true
     );
+  }
+};
+const close = () => {
+  if (
+    editKey.value === props.item._key &&
+    (user.value?._key === editContent?.value.creatorInfo?._key ||
+      (receiverRole.value < 3 &&
+        editContent.value?.receiverInfo?.receiverType === "group"))
+  ) {
+    console.log(updateState.value);
+    if (updateState.value) {
+      postCard();
+    }
+    store.commit("message/setEditContent", null);
+    store.commit("message/setEditKey", "");
+    updateState.value = false;
   }
 };
 </script>
@@ -65,16 +85,32 @@ const postCard = async () => {
     :style="{
       border: props.item.type === 'self' ? '1px solid #e1e1e1' : '0px',
     }"
-    @click="getInfo(props.item._key)"
   >
     <template
       v-if="
-        editKey !== props.item._key ||
-        user?._key !== editContent?.creatorInfo?._key ||
-        (receiverRole > 2 &&
-          editContent?.receiverInfo?.receiverType === 'group')
+        editKey === props.item._key &&
+        (user?._key === editContent?.creatorInfo?._key ||
+          (receiverRole < 3 &&
+            editContent?.receiverInfo?.receiverType === 'group'))
       "
     >
+      <OnClickOutside @trigger="close">
+        <Editor
+          :init-data="editContent"
+          :isEdit="true"
+          :shake="false"
+          :cardKey="editKey"
+          ref="editorRef"
+          @changeUpdate="updateState = true"
+        />
+      </OnClickOutside>
+      <!-- <div class="editor-button dp--center">
+          <tbutton @click.once="postCard" v-if="updateState">{{
+            $t(`surface.Update`)
+          }}</tbutton>
+        </div> -->
+    </template>
+    <div v-else @click="getInfo(props.item._key)">
       <div
         class="title"
         :style="!props.item.summary ? { marginBottom: '0px' } : {}"
@@ -97,28 +133,7 @@ const postCard = async () => {
           {{ props.item.summary }}
         </div>
       </div>
-    </template>
-    <template
-      v-if="
-        editKey === props.item._key &&
-        editContent &&
-        (user?._key === editContent?.creatorInfo?._key ||
-          (receiverRole < 3 &&
-            editContent?.receiverInfo?.receiverType === 'group'))
-      "
-    >
-      <Editor
-        :init-data="editContent"
-        :isEdit="true"
-        :shake="false"
-        :cardKey="editKey"
-        ref="editorRef"
-        @changeUpdate="updateState = true"
-      />
-      <tbutton @click.once="postCard" v-if="updateState">{{
-        $t(`surface.Update`)
-      }}</tbutton>
-    </template>
+    </div>
     <!-- <span
       class="triangle top"
       :style="props.item.type === 'self' ? { right: '46px' } : { left: '25px' }"
@@ -178,7 +193,7 @@ const postCard = async () => {
       </div>
       <div class="right dp--center">
         <div
-          class="dp--center"
+          class="dp--center icon-point"
           style="margin-right: 10px"
           @click.stop="$router.push('/info/' + props.item._key)"
         >
@@ -278,6 +293,10 @@ const postCard = async () => {
   }
   .top1 {
     top: -26px;
+  }
+  .editor-button {
+    width: 100%;
+    justify-content: flex-end;
   }
   .footer {
     width: 100%;

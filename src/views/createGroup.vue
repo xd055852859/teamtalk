@@ -8,8 +8,11 @@ import api from "@/services/api";
 import Tbutton from "@/components/tbutton.vue";
 import { ResultProps } from "@/interface/Common";
 import { Group } from "@/interface/User";
+import { userInfo } from "os";
 const router = useRouter();
 const groupList = computed(() => store.state.auth.groupList);
+const user = computed(() => store.state.auth.user);
+
 const teamKeyArray = ref<string[]>([]);
 const teamName = ref<string>("");
 const memberArray = ref<Group[]>([]);
@@ -22,6 +25,10 @@ const chooseMember = (memberKey: string) => {
   }
 };
 const createGroup = async () => {
+  if (teamKeyArray.value.length === 0) {
+    ElMessage.error("please choose a member");
+    return;
+  }
   const config = {
     title: teamName.value,
     memberKeyArr: teamKeyArray.value,
@@ -40,7 +47,7 @@ watch(
   groupList,
   (newVal: Group[]) => {
     newVal.forEach((item: Group) => {
-      if (item.receiverType === "user") {
+      if (item.receiverType === "user" && item.toUserKey !== user.value?._key) {
         memberArray.value.push(item);
       }
     });

@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import { ElMessage } from "element-plus";
+import { uploadImage } from "@/services/util";
+import { useStore } from "@/store";
+
+const store = useStore();
 const props = defineProps<{
   items: any;
   command: Function;
 }>();
+const uploadToken = computed(() => store.state.auth.uploadToken);
+const editorInfo = computed(() => store.state.message.editorInfo);
+const dark = computed(() => store.state.common.dark);
+
 const selectedIndex = ref<number>(0);
 const onKeyDown = ({ event }) => {
   if (event.key === "ArrowUp") {
@@ -39,10 +47,19 @@ const enterHandler = () => {
 
 const selectItem = (index) => {
   const item = props.items[index];
-
+  console.log(props.command);
   if (item) {
     props.command(item);
   }
+};
+const chooseImg = (e, index: number) => {
+  console.log(e.target.files[0]);
+  let mimeType = ["image/png", "image/jpeg"];
+  uploadImage(e.target.files[0], uploadToken.value, mimeType, (url: string) => {
+    props.items[index].props = { url: url };
+    props.command(props.items[index]);
+    // editorInfo.value?.chain().focus().deleteRange(range).setImage({ src: url });
+  });
 };
 watch(
   () => props.items,
@@ -57,10 +74,26 @@ watch(
       class="item dp-space-center"
       v-for="(item, index) in props.items"
       :key="'tab' + index"
-      @click="selectItem(index)"
+      @click="item.title !== 'img' ? selectItem(index) : ''"
     >
-      <img :src="item.icon" alt="" class="img" />
-      <div class="title">{{ item.title }}</div>
+      <template v-if="item.title !== 'img'">
+        <img :src="item.icon" alt="" class="img" />
+        <div class="title">{{ item.title }}</div>
+      </template>
+      <template v-else>
+        <input
+          type="file"
+          accept="image/*"
+          @change="
+            (e) => {
+              chooseImg(e, index);
+            }
+          "
+          class="upload-img"
+        />
+        <img :src="item.icon" alt="" class="img" />
+        <div class="title">{{ item.title }}</div>
+      </template>
     </div>
   </div>
 </template>
@@ -81,6 +114,8 @@ watch(
   padding: 0px 10px;
   box-sizing: border-box;
   background: #fff;
+  position: relative;
+  z-index: 1;
   .img {
     width: 18px;
     height: 18px;
@@ -91,6 +126,17 @@ watch(
   }
   &:hover {
     background-color: rgb(200, 196, 196);
+  }
+  .upload-img {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 5;
+    overflow: hidden;
+    opacity: 0;
+    cursor: pointer;
   }
 }
 </style>

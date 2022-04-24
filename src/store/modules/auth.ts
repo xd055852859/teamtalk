@@ -140,7 +140,6 @@ const actions: ActionTree<AuthState, RootState> = {
           item.avatar = groupSvg;
         }
         if (item.mute) {
-          console.log(item);
           muteArray.push(
             item.receiverType === "user" ? item.toUserKey : item._key
           );

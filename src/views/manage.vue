@@ -42,6 +42,7 @@ const setVisible = ref<boolean>(false);
 const memberKeyArray = ref<string[]>([]);
 const groupKeyArray = ref<string[]>([]);
 const delVisible = ref<boolean>(false);
+const disbandVisible = ref<boolean>(false);
 const isPublic = ref<boolean>(false);
 const allowJoin = ref<boolean>(false);
 const isMute = ref<boolean>(false);
@@ -206,7 +207,17 @@ const exitGroup = async () => {
   if (exitRes.msg === "OK") {
     ElMessage.success("exit Group success");
     store.dispatch("auth/getGroupList", "delete");
-    router.push("/home");
+    router.back();
+  }
+};
+const disbandGroup = async () => {
+  const exitRes = (await api.request.delete("receiver", {
+    receiverKey: teamKey.value,
+  })) as ResultProps;
+  if (exitRes.msg === "OK") {
+    ElMessage.success("disband Group success");
+    store.dispatch("auth/getGroupList", "delete");
+    router.back();
   }
 };
 const flashFiled = (key: string) => {
@@ -465,6 +476,11 @@ watchEffect(() => {
         $t(`surface['Exit']`)
       }}</span>
     </div>
+    <div class="manage-text dp-space-center p-5" v-else>
+      <span @click="disbandVisible = true" class="exit icon-point">{{
+        $t(`surface['disband']`)
+      }}</span>
+    </div>
   </el-drawer>
   <el-drawer
     v-model="filedVisible"
@@ -498,6 +514,17 @@ watchEffect(() => {
           @click="delItem ? delMember(delItem.item, delItem.index) : null"
           >Sure</tbutton
         >
+      </span>
+    </template>
+  </el-dialog>
+  <el-dialog v-model="disbandVisible" title="Tips" width="350px">
+    <span>{{ $t(`form.disband`) }}</span>
+    <template #footer>
+      <span class="dialog-footer dp-space-center">
+        <tbutton @click="disbandVisible = false" :disabled="true"
+          >Cancel</tbutton
+        >
+        <tbutton @click="disbandGroup()">Sure</tbutton>
       </span>
     </template>
   </el-dialog>
@@ -543,7 +570,7 @@ watchEffect(() => {
 }
 .filed {
   width: 100%;
-  height:100%;
+  height: 100%;
   overflow: auto;
 }
 </style>

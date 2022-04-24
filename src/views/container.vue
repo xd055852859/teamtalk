@@ -9,6 +9,7 @@ import Editor from "@/components/editor/editor.vue";
 import Tbutton from "@/components/tbutton.vue";
 import EditorNav from "@/components/editor/editorNav.vue";
 import MessageItem from "@/components/messageItem.vue";
+
 // import fullScreenSvg from "../assets/svg/fullScreen.svg";
 import toTopSvg from "../assets/svg/toTop.svg";
 import unshakeSvg from "@/assets/svg/unshake.svg";
@@ -31,7 +32,7 @@ const topVisible = ref<boolean>(false);
 const shakeState = ref<boolean>(false);
 
 onMounted(() => {
-  console.log(top.value);
+  // console.log(top.value);
   //@ts-ignore
   talkRef.value.scrollTop = top.value;
 });
@@ -79,16 +80,6 @@ const toTop = () => {
   }, 30);
 };
 
-watchEffect(() => {
-  if (talkRef.value) {
-    //@ts-ignore
-
-    console.log(talkRef.value.scrollTop);
-  }
-});
-// TODO
-// filter: unset;
-// transition: filter .2s;
 </script>
 <template>
   <div class="talk-container p-5" @scroll="scrollLoading" ref="talkRef">
@@ -155,7 +146,7 @@ watchEffect(() => {
     </div>
     <!-- </div> -->
     <template v-for="(item, index) in messageList" :key="'chat' + index">
-      <message-item :item="item" />
+      <message-item :item="item"/>
     </template>
     <div class="toTop icon-point" v-if="topVisible" @click="toTop">
       <img :src="toTopSvg" alt="" style="width: 50px; height: 50px" />

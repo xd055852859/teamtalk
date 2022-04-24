@@ -34,4 +34,6 @@ export interface Reply {
   userKey: string;
   userName: string;
   _key: string;
+  atUser: string;
+  atUserName?: string;
 }

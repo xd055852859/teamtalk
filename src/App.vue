@@ -8,7 +8,6 @@ import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
 import { getSearchParamValue } from "@/services/util";
 import request from "@/services/api";
-import groupSvg from "@/assets/svg/group.svg";
 import strongestMusic from "@/assets/audio/strongest.mp3";
 import strongMusic from "@/assets/audio/strong.mp3";
 import middleMusic from "@/assets/audio/middle.mp3";
@@ -179,6 +178,12 @@ watchEffect(() => {
         let obj = { commentCount: msg.commentCount, _key: msg.cardKey };
         // store.commit("message/updateMessageList", msg);
         store.commit("message/updateMessageList", obj);
+        if (msg.atUser && msg.atUser === user.value?._key) {
+          //@ts-ignore
+          musicRef.value.src = strongestMusic;
+          //@ts-ignore
+          musicRef.value.play();
+        }
       });
       socket.on("deleteComment", function (msg) {
         let obj = { commentCount: msg.commentCount, _key: msg.cardKey };

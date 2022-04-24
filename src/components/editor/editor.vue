@@ -89,25 +89,34 @@ const editor = useEditor({
     // }),
   ],
   // autofocus: true,
-  editable: true,
+  editable: props.isEdit,
   onUpdate: () => {
     emits("changeUpdate", true);
+  },
+  onCreate: ({ editor }) => {
+    if (props.initData) {
+      console.log(props.initData);
+      editor.commands.setContent(props.initData.detail);
+      editor.setEditable(props.isEdit);
+      editor.commands.focus();
+    }
   },
 });
 store.commit("message/setEditor", editor);
 watch(
-  () => props,
-  (props) => {
-    console.log(props.initData?._key);
-    if (props.initData?.detail) {
-      editor.value?.commands.setContent(props.initData.detail);
+  () => props.initData,
+  (newData) => {
+    if (newData) {
+      editor.value?.commands.setContent(newData.detail);
     }
-    if (props.initData?._key) {
-      editor.value?.commands.setContent(props.initData.detail);
-    }
-    editor.value?.setEditable(props.isEdit);
   },
   { deep: true }
+);
+watch(
+  () => props.isEdit,
+  (newVal) => {
+    editor.value?.setEditable(newVal);
+  }
 );
 // watch(editKey, (newVal) => {
 //   console.log(editKey);
@@ -116,7 +125,12 @@ watch(
 //     editor.value?.commands.setContent(editContent.value);
 //   }
 // });
-async function handlePost(key: string, callback?: any, clear?: boolean) {
+async function handlePost(
+  key: string,
+  callback?: any,
+  clear?: boolean,
+  noMessage?: boolean
+) {
   if (!editor.value) return;
   const json: JSONContent = editor.value.getJSON();
   console.log(json);
@@ -171,7 +185,9 @@ async function handlePost(key: string, callback?: any, clear?: boolean) {
         ...obj,
       })) as ResultProps;
       if (postRes.msg === "OK") {
-        ElMessage.success("UpDate success");
+        if (!noMessage) {
+          ElMessage.success("UpDate success");
+        }
         callback(postRes);
       }
     } else {
@@ -180,7 +196,9 @@ async function handlePost(key: string, callback?: any, clear?: boolean) {
         ...obj,
       })) as ResultProps;
       if (postRes.msg === "OK") {
-        ElMessage.success("Post Success");
+        if (!noMessage) {
+          ElMessage.success("Post Success");
+        }
         callback(postRes);
       }
     }
@@ -305,8 +323,7 @@ defineExpose({
   }
 
   img {
-    max-width: 100%;
-    height: auto;
+    max-width: 80%;
   }
 
   blockquote {
@@ -318,6 +335,48 @@ defineExpose({
     border: none;
     border-top: 2px solid rgba(#0d0d0d, 0.1);
     margin: 2rem 0;
+  }
+
+  // 自定义checkbox样式
+  ul[data-type="taskList"] > li {
+    margin: 6px 0;
+    line-height: 19px;
+  }
+  ul[data-type="taskList"] > li > label {
+    input {
+      display: none;
+    }
+    span {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--el-color-primary);
+      position: relative;
+      cursor: pointer;
+      // margin-top: 5px;
+    }
+    span::before {
+      display: inline-block;
+      content: " ";
+      width: 8px;
+      border: 2px solid #fff;
+      height: 4px;
+      border-top: none;
+      border-right: none;
+      transform: rotate(-45deg);
+      top: 4px;
+      left: 3px;
+      position: absolute;
+      opacity: 0;
+    }
+    input:checked + span {
+      background: var(--el-color-primary);
+    }
+    input:checked + span::before {
+      opacity: 1;
+      transform: all 0.5s;
+    }
   }
 }
 
@@ -379,6 +438,9 @@ ul[data-type="taskList"] {
   float: left;
   height: 0;
   pointer-events: none;
+}
+.ProseMirror input[type="checkbox"] {
+  border-radius: 50%;
 }
 .editor-nav {
   height: 30px;

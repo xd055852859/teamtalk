@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ElMessage } from "element-plus";
+import { ArrowRight } from "@element-plus/icons-vue";
 import Theader from "@/components/theader.vue";
 import { store } from "@/store";
 import { useDebounceFn } from "@vueuse/core";
@@ -38,7 +39,7 @@ const searchPartner = () => {
     }
   } else {
     searchList.value = groupList.value.filter((item) => {
-      return item.receiverType === partnerType.value;
+      return item.receiverType === partnerType.value&&!item.block;
     });
     searchMoreList.value = [];
   }
@@ -236,6 +237,9 @@ watch(partnerType, () => {
         "
       />
     </div>
+    <div class="footer icon-point dp--center" @click="router.push('/block')">
+      查看黑名单 <el-icon style="margin-left: 10px"><arrow-right /></el-icon>
+    </div>
   </div>
 </template>
 <style scoped lang="scss">
@@ -249,13 +253,19 @@ watch(partnerType, () => {
   }
   .info {
     width: 100%;
-    height: calc(100% - 120px);
+    height: calc(100% - 150px);
     overflow-y: auto;
     margin-top: 10px;
     .more-button {
       width: 100%;
       text-align: right;
     }
+  }
+  .footer {
+    width: 100%;
+    height: 30px;
+    color: var(--talk-font-color-2);
+    font-size: 14px;
   }
 }
 </style>

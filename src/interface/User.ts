@@ -22,6 +22,8 @@ export interface Group {
   toUserKey?: string | null;
   checked?: boolean;
   email?: boolean;
+  mute?: boolean;
+  block?: boolean;
 }
 export interface Member extends User {
   role: number;
@@ -30,7 +32,7 @@ export interface Mate extends User {
   receiverKey?: string;
 }
 export interface Search {
-  _key?:string;
+  _key?: string;
   toUserKey?: string;
   avatar: string;
   title: string;

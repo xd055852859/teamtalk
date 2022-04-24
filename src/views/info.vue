@@ -24,6 +24,7 @@ const router = useRouter();
 const route = useRoute();
 const user = computed(() => store.state.auth.user);
 const dark = computed(() => store.state.common.dark);
+const memberList = computed(() => store.state.auth.memberList);
 
 const inputRef = ref(null);
 const editorRef = ref(null);
@@ -36,6 +37,7 @@ const replyInput = ref<string>("");
 const replyList = ref<Reply[]>([]);
 const updateState = ref<boolean>(false);
 const shakeState = ref<boolean>(false);
+const atUser = ref<{ [key: string]: string } | null>(null);
 onMounted(() => {
   infoKey.value = route.params.id as string;
   getInfo();
@@ -60,6 +62,9 @@ const getInfo = async () => {
       replyList.value = infoRes.data.replyList;
     }
     receiverRole.value = infoRes.data.receiverRole;
+    if (info.value?.receiverInfo.receiverType === "group") {
+      store.dispatch("auth/getMemberList", info.value?.receiverInfo._key);
+    }
   }
 };
 const postCard = async () => {
@@ -111,13 +116,17 @@ const addReply = async () => {
   const postRes = (await api.request.post("comment", {
     cardKey: infoKey.value,
     content: replyInput.value,
+    atUser: atUser.value,
   })) as ResultProps;
   if (postRes.msg === "OK") {
     ElMessage.success("Reply Success");
     replyInput.value = "";
-    if (info.value?.receiverInfo.receiverType === "user") {
-      replyList.value.push(postRes.data);
-    }
+    // if (
+    //   info.value?.receiverInfo.receiverType === "user" &&
+    //   postRes.data?.userKey === user.value?._key
+    // ) {
+    //   replyList.value.push(postRes.data);
+    // }
   }
 };
 const delReply = async (replyKey: string, index: number) => {
@@ -174,7 +183,7 @@ const delReply = async (replyKey: string, index: number) => {
           style="margin-right: 10px; cursor: pointer"
           size="20px"
           @click="
-            router.push('/home')
+            router.back()
             // store.commit('message/setEditContent', null);
           "
           ><close
@@ -283,7 +292,12 @@ const delReply = async (replyKey: string, index: number) => {
           <el-avatar fit="cover" :size="25" :src="item.userAvatar" />
           {{ item.userName }}
         </div>
-        <div class="title">{{ item.content }}</div>
+        <div class="title">
+          <span class="common-color" v-if="item.atUserName">{{
+            `@ ${item.atUserName}`
+          }}</span>
+          {{ item.content }}
+        </div>
         <!--  
           " -->
         <div
@@ -298,16 +312,29 @@ const delReply = async (replyKey: string, index: number) => {
         </div>
       </div>
     </div>
-    <div class="footer p-5 dp-space-center">
+    <div class="footer p-5">
       <el-input
         v-model="replyInput"
         size="large"
-        :placeholder="`Please @ ${info?.creatorInfo?.userName} view`"
+        :placeholder="`Please Enter Reply`"
         ref="inputRef"
         @keydown.enter="addReply"
-        style="width: calc(100% - 90px)"
-      />
-      <tbutton @click="addReply">{{ $t(`surface.Reply`) }}</tbutton>
+        style="width: 100%; margin-bottom: 10px; margin-top: 10px"
+      >
+        <template #prepend v-if="info?.receiverInfo.receiverType === 'group'">
+          <el-select v-model="atUser" placeholder="@" style="width: 100px">
+            <el-option
+              v-for="(item, index) in memberList"
+              :key="'member' + index"
+              :label="item.userName"
+              :value="item._key"
+            />
+          </el-select>
+        </template>
+      </el-input>
+      <div class="button dp--center">
+        <tbutton @click="addReply">{{ $t(`surface.Reply`) }}</tbutton>
+      </div>
     </div>
   </div>
 </template>
@@ -316,7 +343,7 @@ const delReply = async (replyKey: string, index: number) => {
   width: 100%;
   height: 100vh;
   background: var(--talk-bg-color);
-  padding-bottom: 70px;
+  padding-bottom: 100px;
   box-sizing: border-box;
   .header {
     width: 100%;
@@ -379,13 +406,16 @@ const delReply = async (replyKey: string, index: number) => {
   }
   .footer {
     width: 100%;
-    height: 70px;
+    height: 100px;
     position: fixed;
     z-index: 2;
     left: 0px;
     bottom: 0px;
     box-sizing: border-box;
     background: var(--talk-item-color);
+    .button {
+      justify-content: flex-end;
+    }
   }
 }
 </style>
