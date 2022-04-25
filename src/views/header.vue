@@ -1,19 +1,17 @@
 <script setup lang="ts">
+import UserCenter from "./userCenter.vue";
+import HeaderFilter from "./filter.vue";
+
 import { Close } from "@element-plus/icons-vue";
 import { useStore } from "@/store";
 
 import logoSvg from "../assets/svg/logoHeader.svg";
 import logowSvg from "../assets/svg/logoHeaderw.svg";
-import UserCenter from "./userCenter.vue";
-import HeaderFilter from "./filter.vue";
-// import privateSvg from "../assets/svg/private.svg";
-// import favoriteSvg from "../assets/svg/favorite.svg";
-// import sendSvg from "../assets/svg/send.svg";
-// import receivedSvg from "../assets/svg/received.svg";
 import headerPartnerSvg from "../assets/svg/headerPartner.svg";
 import headerPartnerwSvg from "../assets/svg/headerPartnerw.svg";
 import headerFilterSvg from "../assets/svg/headerFilter.svg";
 import headerFilterwSvg from "../assets/svg/headerFilterw.svg";
+
 const store = useStore();
 const receiver = computed(() => store.state.message.receiver);
 const receiverType = computed(() => store.state.message.receiverType);
@@ -23,30 +21,12 @@ const dark = computed(() => store.state.common.dark);
 const chooseVisible = ref<boolean>(false);
 const themeVisible = ref<boolean>(false);
 
-const headerImg = ref<string>("");
-
 const backAll = () => {
   store.commit("message/setReceiver", null);
   store.commit("message/setReceiverType", "all");
   store.commit("message/setReceiverNumber", 0);
   store.dispatch("message/getMessageList", 1);
 };
-// watchEffect(() => {
-//   switch (receiverType.value) {
-//     case "private":
-//       headerImg.value = privateSvg;
-//       break;
-//     case "favorite":
-//       headerImg.value = favoriteSvg;
-//       break;
-//     case "send":
-//       headerImg.value = sendSvg;
-//       break;
-//     case "received":
-//       headerImg.value = receivedSvg;
-//       break;
-//   }
-// });
 </script>
 <template>
   <div class="talk-header dp-space-center">
@@ -76,11 +56,6 @@ const backAll = () => {
             :src="receiver?.avatar"
             v-if="receiver"
           />
-          <!-- <img
-            :src="headerImg"
-            alt=""
-            style="width: 20px; height: 20px; margin-right: 8px"
-          /> -->
           {{
             receiver
               ? receiver?.title
@@ -96,20 +71,23 @@ const backAll = () => {
           /></el-icon>
         </div>
       </template>
-      <img
-        :src="dark ? headerFilterwSvg : headerFilterSvg"
-        alt=""
-        class="filter"
-        @click="chooseVisible = true"
-        style="margin-right: 8px"
-      />
-      <img
-        :src="dark ? headerPartnerwSvg : headerPartnerSvg"
-        alt=""
-        class="filter"
-        @click="$router.push('/partner')"
-      />
-
+      <el-tooltip :content="$t(`icon.Filter`)">
+        <img
+          :src="dark ? headerFilterwSvg : headerFilterSvg"
+          alt=""
+          class="filter"
+          @click="chooseVisible = true"
+          style="margin-right: 8px"
+        />
+      </el-tooltip>
+      <el-tooltip :content="$t(`icon.Mates`)">
+        <img
+          :src="dark ? headerPartnerwSvg : headerPartnerSvg"
+          alt=""
+          class="filter"
+          @click="$router.push('/partner')"
+        />
+      </el-tooltip>
       <!-- <el-badge
         :value="receiverNumber"
         v-if="receiverType !== 'all'"

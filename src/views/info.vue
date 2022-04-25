@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { Close, Star, StarFilled, Edit, Delete } from "@element-plus/icons-vue";
-import { useStore } from "@/store";
+import Editor from "../components/editor/editor.vue";
+import Tbutton from "@/components/tbutton.vue";
+
 import api from "@/services/api";
+import i18n from "@/language/i18n";
+import { useStore } from "@/store";
+import { ElMessage } from "element-plus";
+import { Close, Star, StarFilled } from "@element-plus/icons-vue";
+
 import { Card, Reply } from "@/interface/Message";
 import { ResultProps } from "@/interface/Common";
-import Editor from "../components/editor/editor.vue";
-import { ElMessage } from "element-plus";
-import Tbutton from "@/components/tbutton.vue";
 
 import groupSvg from "@/assets/svg/group.svg";
 import deleteSvg from "@/assets/svg/delete.svg";
@@ -17,7 +20,7 @@ import infoDelSvg from "@/assets/svg/infoDel.svg";
 import infoDelwSvg from "@/assets/svg/infoDelw.svg";
 import archiveSvg from "@/assets/svg/archive.svg";
 import archivewSvg from "@/assets/svg/archivew.svg";
-// const emits = defineEmits(["close"]);
+
 const socket: any = inject("socket");
 
 const router = useRouter();
@@ -87,7 +90,7 @@ const delCard = async () => {
     cardKey: infoKey.value,
   })) as ResultProps;
   if (delRes.msg === "OK") {
-    ElMessage.success("Delete Card Success");
+    ElMessage.success(i18n.global.t(`tip['Deleted successfully']`));
     router.push("/home");
     store.commit("message/delMessageList", infoKey.value);
   }
@@ -98,7 +101,7 @@ const filedCard = async () => {
     filed: true,
   })) as ResultProps;
   if (filedRes.msg === "OK") {
-    ElMessage.success("Filed Card Success");
+    ElMessage.success(i18n.global.t(`tip['Archived successfully']`));
     router.push("/home");
     store.commit("message/delMessageList", infoKey.value);
   }
@@ -108,7 +111,7 @@ const favoriteCard = async () => {
     cardKey: infoKey.value,
   })) as ResultProps;
   if (postRes.msg === "OK") {
-    ElMessage.success("Favorite Success");
+    ElMessage.success(i18n.global.t(`tip['Set Favourite successfully']`));
     favorite.value = !favorite.value;
   }
 };
@@ -119,14 +122,8 @@ const addReply = async () => {
     atUser: atUser.value,
   })) as ResultProps;
   if (postRes.msg === "OK") {
-    ElMessage.success("Reply Success");
+    ElMessage.success(i18n.global.t(`tip['Reply succeeded']`));
     replyInput.value = "";
-    // if (
-    //   info.value?.receiverInfo.receiverType === "user" &&
-    //   postRes.data?.userKey === user.value?._key
-    // ) {
-    //   replyList.value.push(postRes.data);
-    // }
   }
 };
 const delReply = async (replyKey: string, index: number) => {
@@ -279,7 +276,7 @@ const delReply = async (replyKey: string, index: number) => {
             </el-tooltip>
           </div>
           <tbutton @click.once="postCard" v-if="updateState">{{
-            $t(`surface.Update`)
+            $t(`button.Update`)
           }}</tbutton>
         </div>
       </div>
@@ -288,9 +285,27 @@ const delReply = async (replyKey: string, index: number) => {
         v-for="(item, index) in replyList"
         :key="'reply' + index"
       >
-        <div class="header message-header dp--center">
-          <el-avatar fit="cover" :size="25" :src="item.userAvatar" />
-          {{ item.userName }}
+        <div class="header message-header dp-space-center">
+          <div class="dp--center">
+            <el-avatar fit="cover" :size="25" :src="item.userAvatar" />
+            {{ item.userName }}
+          </div>
+          <div
+            class="icon-point message-right dp--center"
+            @click="delReply(item._key, index)"
+          >
+            <img
+              :src="deleteSvg"
+              alt=""
+              style="width: 20px; height: 20px"
+              class=""
+              v-if="
+                user?._key === item.userKey ||
+                (receiverRole < 2 &&
+                  info?.receiverInfo?.receiverType === 'group')
+              "
+            />
+          </div>
         </div>
         <div class="title">
           <span class="common-color" v-if="item.atUserName">{{
@@ -300,16 +315,6 @@ const delReply = async (replyKey: string, index: number) => {
         </div>
         <!--  
           " -->
-        <div
-          class="icon-point message-footer dp--center"
-          @click="delReply(item._key, index)"
-          v-if="
-            user?._key === info?.creatorInfo?._key ||
-            (receiverRole < 2 && info?.receiverInfo?.receiverType === 'group')
-          "
-        >
-          <img :src="deleteSvg" alt="" style="width: 20px; height: 20px" />
-        </div>
       </div>
     </div>
     <div class="footer p-5">
@@ -322,7 +327,11 @@ const delReply = async (replyKey: string, index: number) => {
         style="width: 100%; margin-bottom: 10px; margin-top: 10px"
       >
         <template #prepend v-if="info?.receiverInfo.receiverType === 'group'">
-          <el-select v-model="atUser" placeholder="@" style="width: 100px">
+          <el-select
+            v-model="atUser"
+            placeholder="@ member"
+            style="width: 100px"
+          >
             <el-option
               v-for="(item, index) in memberList"
               :key="'member' + index"
@@ -333,7 +342,7 @@ const delReply = async (replyKey: string, index: number) => {
         </template>
       </el-input>
       <div class="button dp--center">
-        <tbutton @click="addReply">{{ $t(`surface.Reply`) }}</tbutton>
+        <tbutton @click="addReply">{{ $t(`button.Reply`) }}</tbutton>
       </div>
     </div>
   </div>
@@ -390,17 +399,19 @@ const delReply = async (replyKey: string, index: number) => {
       .message-header {
         padding: 0px;
         box-sizing: border-box;
+        .message-right {
+          height: 100%;
+          display: none;
+        }
+      }
+      &:hover .message-right {
+        display: flex;
       }
       .title {
         width: 100%;
         height: 25px;
         font-size: 14px;
         color: var(--talk-font-color-1);
-      }
-      .message-footer {
-        width: 100%;
-        height: 30px;
-        justify-content: flex-end;
       }
     }
   }

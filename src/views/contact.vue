@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { MoreFilled, Search } from "@element-plus/icons-vue";
+import { Search } from "@element-plus/icons-vue";
 import { useStore } from "@/store";
+
 import { Group } from "@/interface/User";
 
-import addMemberSvg from "@/assets/svg/addMember.svg";
 import Theader from "@/components/theader.vue";
-const router = useRouter();
 const store = useStore();
 const emits = defineEmits(["close"]);
 const groupList = computed(() => store.state.auth.groupList);
@@ -28,22 +27,15 @@ watchEffect(() => {
 <template>
   <div class="contact p-5">
     <theader @clickBack="" :noIcon="true">
-      <template v-slot:title>{{ $t(`surface['Talk with']`) }}</template>
+      <template v-slot:title>{{ $t(`button['talk to']`) }}</template>
     </theader>
     <div class="search dp--center">
       <el-input
         v-model="memberName"
-        :placeholder="$t(`form.keyword`)"
+        :placeholder="$t(`input['Enter Name']`)"
         :prefix-icon="Search"
         @input="searchName"
       />
-      <!-- style="width: calc(100% - 50px)" -->
-      <!-- <img
-        :src="addMemberSvg"
-        alt=""
-        style="margin-left: 15px; width: 35px; height: 35px; cursor: pointer"
-        @click="router.push('/invite')"
-      /> -->
     </div>
     <div class="info">
       <div
@@ -59,23 +51,8 @@ watchEffect(() => {
           <el-avatar fit="cover" :size="40" :src="item.avatar" />
           <div class="name">{{ item.title }}</div>
         </div>
-        <!-- <div
-          class="right"
-          v-if="item.receiverType === 'group'"
-          @click="router.push(`/manage/${item._key}`)"
-        >
-          <el-icon :size="18"><more-filled /></el-icon>
-        </div> -->
       </div>
     </div>
-    <!-- <div class="button dp-space-center">
-      <tbutton  round @click="router.push('/invite')">{{
-        $t(`surface.Invite`)
-      }}</tbutton>
-      <tbutton  round @click="router.push('/manage/create')">{{
-        $t(`surface['+ Group']`)
-      }}</tbutton>
-    </div> -->
   </div>
 </template>
 <style scoped lang="scss">

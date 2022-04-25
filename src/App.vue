@@ -41,8 +41,12 @@ onBeforeMount(() => {
     ? window.location.search.split("?")[1]
     : window.location.hash.split("?")[1];
   const token = getSearchParamValue(search, "token") as string;
+  const inviteKey = getSearchParamValue(search, "inviteKey") as string;
   talkKey = getSearchParamValue(search, "talkKey") as string;
   infoKey = getSearchParamValue(search, "infoKey") as string;
+  if (inviteKey) {
+    localStorage.setItem("inviteKey", inviteKey);
+  }
   if (token) {
     request.setToken(token);
     store.commit("auth/setToken", token);
@@ -104,11 +108,24 @@ const init = async () => {
     }
   }
 };
-
+const addMate = async () => {
+  const saveRes = (await api.request.post("receiver", {
+    receiverType: "user",
+    toUserKey: localStorage.getItem("inviteKey"),
+  })) as ResultProps;
+  if (saveRes.msg === "OK") {
+    localStorage.removeItem("inviteKey");
+    store.dispatch("auth/getGroupList");
+  }
+};
 watchEffect(() => {
   if (token.value) {
     init();
-    store.dispatch("auth/getGroupList");
+    if (localStorage.getItem("inviteKey")) {
+      addMate();
+    } else {
+      store.dispatch("auth/getGroupList");
+    }
     store.dispatch("auth/getUptoken");
     store.dispatch("message/getMessageList", 1);
     socket.on("connect", () => {
@@ -120,7 +137,7 @@ watchEffect(() => {
           ((msg.receiverType === "user" &&
             muteList.value.indexOf(msg.creatorInfo._key) === -1) ||
             (msg.receiverType === "group" &&
-              muteList.value.indexOf(msg._key) === -1))
+              muteList.value.indexOf(msg.receiverKey) === -1))
         ) {
           if (msg.shake) {
             //@ts-ignore
@@ -140,26 +157,39 @@ watchEffect(() => {
           }
         }
         console.log("card", msg);
-        store.commit("message/addMessageList", msg);
+        if (msg.creatorInfo._key !== user.value?._key) {
+          console.log("???")
+          store.commit("message/addMessageList", msg);
+        }
       });
       socket.on("updateCard", function (msg) {
         // 1:1卡片
         // if (msg.creatorInfo._key !== user.value?._key) {
-        if (msg.shake) {
-          //@ts-ignore
-          musicRef.value.src = strongestMusic;
-          //@ts-ignore
-          musicRef.value.play();
-        } else if (msg.receiverType === "user") {
-          //@ts-ignore
-          musicRef.value.src = strongMusic;
-          //@ts-ignore
-          musicRef.value.play();
-        } else if (msg.receiverType === "group") {
-          //@ts-ignore
-          musicRef.value.src = middleMusic;
-          //@ts-ignore
-          musicRef.value.play();
+        console.log(msg);
+        console.log(msg.creatorInfo._key !== user.value?._key);
+        if (
+          (msg.creatorInfo._key !== user.value?._key &&
+            msg.receiverType === "user" &&
+            muteList.value.indexOf(msg.creatorInfo._key) === -1) ||
+          (msg.receiverType === "group" &&
+            muteList.value.indexOf(msg.receiverKey) === -1)
+        ) {
+          if (msg.shake) {
+            //@ts-ignore
+            musicRef.value.src = strongestMusic;
+            //@ts-ignore
+            musicRef.value.play();
+          } else if (msg.receiverType === "user") {
+            //@ts-ignore
+            musicRef.value.src = strongMusic;
+            //@ts-ignore
+            musicRef.value.play();
+          } else if (msg.receiverType === "group") {
+            //@ts-ignore
+            musicRef.value.src = middleMusic;
+            //@ts-ignore
+            musicRef.value.play();
+          }
         }
         // }
         console.log("card", msg);
@@ -178,7 +208,11 @@ watchEffect(() => {
         let obj = { commentCount: msg.commentCount, _key: msg.cardKey };
         // store.commit("message/updateMessageList", msg);
         store.commit("message/updateMessageList", obj);
-        if (msg.atUser && msg.atUser === user.value?._key) {
+        if (
+          msg.atUser &&
+          msg.atUser === user.value?._key &&
+          muteList.value.indexOf(msg.receiverKey) === -1
+        ) {
           //@ts-ignore
           musicRef.value.src = strongestMusic;
           //@ts-ignore

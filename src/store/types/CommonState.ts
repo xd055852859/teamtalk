@@ -1,5 +1,5 @@
 export interface CommonState {
-  locale: "zh" | "en";
+  locale: string;
   dark: boolean;
   theme: string;
   loading: boolean;

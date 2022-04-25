@@ -1,11 +1,14 @@
 <script setup lang="ts">
+import Theader from "@/components/theader.vue";
+import Tbutton from "@/components/tbutton.vue";
+
+import i18n from "@/language/i18n";
+import api from "@/services/api";
+import { store } from "@/store";
 import { ElMessage } from "element-plus";
 import { ArrowRight } from "@element-plus/icons-vue";
-import Theader from "@/components/theader.vue";
-import { store } from "@/store";
 import { useDebounceFn } from "@vueuse/core";
-import api from "@/services/api";
-import Tbutton from "@/components/tbutton.vue";
+
 import { ResultProps } from "@/interface/Common";
 import { Group, Search } from "@/interface/User";
 
@@ -39,7 +42,7 @@ const searchPartner = () => {
     }
   } else {
     searchList.value = groupList.value.filter((item) => {
-      return item.receiverType === partnerType.value&&!item.block;
+      return item.receiverType === partnerType.value && !item.block;
     });
     searchMoreList.value = [];
   }
@@ -71,7 +74,7 @@ const saveMate = async (userKey: string, index: number) => {
     toUserKey: userKey,
   })) as ResultProps;
   if (saveRes.msg === "OK") {
-    ElMessage.success("add Mate success");
+    ElMessage.success(i18n.global.t(`tip['Friend add succeeded']`));
     searchList.value.push({ ...saveRes.data });
     searchMoreList.value.splice(index, 1);
   }
@@ -82,7 +85,7 @@ const saveMember = async (teamKey: string, userKey: string) => {
     memberKeyArr: [userKey],
   })) as ResultProps;
   if (groupRes.msg === "OK") {
-    ElMessage.success(`join Team Success`);
+    ElMessage.success(i18n.global.t(`tip['Successfully applied']`));
     store.dispatch("auth/getGroupList");
   }
 };
@@ -122,7 +125,7 @@ watch(partnerType, () => {
             "
             @click="partnerType = 'user'"
           >
-            {{ $t(`surface.Mate`) }}
+            {{ $t(`icon.Mates`) }}
           </div>
           <el-divider direction="vertical" />
           <div
@@ -133,7 +136,7 @@ watch(partnerType, () => {
             "
             @click="partnerType = 'group'"
           >
-            {{ $t(`surface.Team`) }}
+            {{ $t(`icon.Team`) }}
           </div>
         </div>
       </template>
@@ -143,7 +146,11 @@ watch(partnerType, () => {
       <el-input
         v-model="partnerName"
         size="large"
-        :placeholder="$t(`message.partnerName`)"
+        :placeholder="
+          partnerType === 'user'
+            ? $t(`input['Enter Mate Name']`)
+            : $t(`input['Enter Team Name']`)
+        "
         style="width: calc(100% - 140px)"
       />
       <tbutton
@@ -151,14 +158,14 @@ watch(partnerType, () => {
         @click="router.push('/invite')"
         v-if="partnerType === 'user'"
       >
-        {{ $t(`surface.Invite`) }}
+        {{ $t(`button.Invite`) }}
       </tbutton>
       <tbutton
         style="height: 40px; padding: 0px 30px"
         @click="router.push('/createGroup')"
         v-else
       >
-        {{ $t(`surface['+ Team']`) }}
+        {{ $t(`button['New Team']`) }}
       </tbutton>
     </div>
     <div class="info">
@@ -181,7 +188,7 @@ watch(partnerType, () => {
         class="more-button icon-point p-5"
         :class="{ 'common-color': !moreVisible ? true : false }"
       >
-        more
+        {{ $t(`text.More`) }}
       </div>
       <template v-if="searchMoreList.length > 0">
         <div

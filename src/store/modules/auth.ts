@@ -4,6 +4,7 @@ import { AuthState } from "../types/AuthState";
 import common from "./common";
 import message from "./message";
 import { User, Group, Member } from "@/interface/User";
+import i18n from "@/language/i18n";
 import setDark from "@/hooks/dark";
 import setTheme from "@/hooks/theme";
 import router from "@/router";
@@ -110,7 +111,7 @@ const mutations: MutationTree<AuthState> = {
   setLogout() {
     localStorage.removeItem("token");
     router.push("/");
-    ElMessage.success("退出登录成功");
+    ElMessage.success(i18n.global.t(`tip['LogOut successfully']`));
   },
 };
 

@@ -104,7 +104,7 @@ const delMember = async (item: Member, index: number) => {
     memberKey: item._key,
   })) as ResultProps;
   if (delRes.msg === "OK") {
-    ElMessage.success("Delete GroupMember Success");
+ ElMessage.success(i18n.global.t(`tip['Group members deleted successfully']`));
     store.commit("auth/delMemberList", index);
     delVisible.value = false;
     delItem.value = null;
@@ -117,7 +117,7 @@ const applyMember = async (key: string, state: boolean, index: number) => {
     verifyResult: state,
   })) as ResultProps;
   if (applyRes.msg === "OK") {
-    ElMessage.success("Apply GroupMember Success");
+   ElMessage.success(i18n.global.t(`tip['Audit successful']`));
     applyArray.value.splice(index, 1);
     if (state) {
       store.dispatch("auth/getMemberList", teamKey.value);
@@ -129,7 +129,7 @@ const saveGroup = async (type, done?: any) => {
   switch (type) {
     case "name":
       if (!teamName.value) {
-        ElMessage.error(i18n.global.t("message.teamName"));
+        ElMessage.error(i18n.global.t(`input['Enter Team Name']`));
         return;
       }
       config.title = teamName.value;
@@ -153,7 +153,7 @@ const saveGroup = async (type, done?: any) => {
   })) as ResultProps;
   if (groupRes.msg === "OK") {
     if (type === "name") {
-      ElMessage.success(`Update Group Success`);
+      ElMessage.success(i18n.global.t(`tip['Update group succeeded']`));
     } else if (type === "member") {
       store.commit("auth/addMemberList", groupRes.data);
     }
@@ -169,7 +169,7 @@ const changeConfig = async () => {
     block: isBlock.value,
   })) as ResultProps;
   if (infoRes.msg === "OK") {
-    ElMessage.success("Update Config Success");
+  ElMessage.success(i18n.global.t(`tip['Update group succeeded']`));
     if (!isMute.value) {
       store.commit("auth/delMuteList", teamKey.value);
     } else {
@@ -196,7 +196,7 @@ const saveMember = async (userKey: string) => {
     toUserKey: userKey,
   })) as ResultProps;
   if (saveRes.msg === "OK") {
-    ElMessage.success("add Member success");
+   ElMessage.success(i18n.global.t(`tip['Successfully added team members']`));
     store.dispatch("auth/getGroupList");
   }
 };
@@ -205,7 +205,7 @@ const exitGroup = async () => {
     receiverKey: teamKey.value,
   })) as ResultProps;
   if (exitRes.msg === "OK") {
-    ElMessage.success("exit Group success");
+  ElMessage.success(i18n.global.t(`tip['Quit the group successfully']`));
     store.dispatch("auth/getGroupList", "delete");
     router.back();
   }
@@ -262,13 +262,13 @@ watchEffect(() => {
           style="height: 40px; padding: 0px 30px"
           @click="saveGroup('name')"
         >
-          {{ $t(`surface.Update`) }}
+          {{ $t(`button.Update`) }}
         </tbutton>
       </template>
     </theader>
     <template v-if="applyArray.length > 0 && groupRole < 2">
       <div class="title dp-space-center">
-        {{ $t(`message.join`) }}
+        {{ $t(`icon.Join`) }}
       </div>
       <div class="info">
         <div
@@ -300,7 +300,7 @@ watchEffect(() => {
       </div>
     </template>
     <div class="title dp-space-center">
-      {{ $t(`message.selectTeam`) }} {{ ` ( ${memberList.length} ) ` }}
+      {{ $t(`text['Team members']`) }} {{ ` ( ${memberList.length} ) ` }}
       <div class="dp--center icon-point" style="cursor: pointer">
         <img
           :src="addMemberSvg"
@@ -384,7 +384,6 @@ watchEffect(() => {
   <el-drawer
     v-model="memberVisible"
     direction="rtl"
-    :title="$t(`surface['+ Member']`)"
     :size="'80%'"
     custom-class="p0-drawer"
     :before-close="

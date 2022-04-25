@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import request from "@/services/api";
-import { useStore } from "@/store";
-import { Card } from "@/interface/Message";
 import EditorNav from "@/components/editor/editorNav.vue";
 import Editor from "../components/editor/editor.vue";
-import { ElMessage } from "element-plus";
 import Tbutton from "@/components/tbutton.vue";
+
+import { useStore } from "@/store";
 import { getSearchParamValue } from "@/services/util";
 
 import unshakeSvg from "@/assets/svg/unshake.svg";
 import unshakewSvg from "@/assets/svg/unshakew.svg";
 import shakeSvg from "@/assets/svg/shake.svg";
+
 const talkKey = computed(() => store.state.message.talkKey);
 const editorInfo = computed(() => store.state.message.editorInfo);
 const dark = computed(() => store.state.common.dark);
@@ -67,7 +66,7 @@ const postContent = async () => {
         />
       </template>
       <tbutton class="button" @click="postContent" v-if="talkKey">{{
-        $t(`surface.Post`)
+        $t(`button.Send`)
       }}</tbutton>
     </div>
   </div>

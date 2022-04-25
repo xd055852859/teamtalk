@@ -1,14 +1,17 @@
 <script setup lang="ts">
-import { ElMessage } from "element-plus";
 import Theader from "@/components/theader.vue";
-import chooseSvg from "@/assets/svg/choose.svg";
-import unchooseSvg from "@/assets/svg/unchoose.svg";
-import { store } from "@/store";
-import api from "@/services/api";
 import Tbutton from "@/components/tbutton.vue";
+
+import i18n from "@/language/i18n";
+import api from "@/services/api";
+import { ElMessage } from "element-plus";
+import { store } from "@/store";
+
 import { ResultProps } from "@/interface/Common";
 import { Group } from "@/interface/User";
-import { userInfo } from "os";
+
+import chooseSvg from "@/assets/svg/choose.svg";
+import unchooseSvg from "@/assets/svg/unchoose.svg";
 const router = useRouter();
 const groupList = computed(() => store.state.auth.groupList);
 const user = computed(() => store.state.auth.user);
@@ -38,7 +41,7 @@ const createGroup = async () => {
     ...config,
   })) as ResultProps;
   if (groupRes.msg === "OK") {
-    ElMessage.success(`Create Group Success`);
+    ElMessage.success(i18n.global.t(`tip['Group created successfully']`));
     router.push("/home");
     store.dispatch("auth/getGroupList");
   }
@@ -59,25 +62,25 @@ watch(
   <div class="create p-5">
     <theader
       @clickBack="
-        router.push('/home');
+        router.back();
         store.dispatch('auth/getGroupList');
       "
     >
-      <template v-slot:title>New Team</template>
+      <template v-slot:title>{{ $t(`button[New Team]`) }}</template>
       <template v-slot:right><div></div></template>
     </theader>
     <div class="input dp-space-center">
       <el-input
         v-model="teamName"
         size="large"
-        :placeholder="$t(`message.teamName`)"
+        :placeholder="$t(`input[Enter Team Name]`)"
         style="width: calc(100% - 120px)"
       />
       <tbutton style="height: 40px; padding: 0px 30px" @click="createGroup">
-        {{ $t(`surface.Save`) }}
+        {{ $t(`button.Save`) }}
       </tbutton>
     </div>
-    <div class="title">{{ $t(`message.selectTeam`) }}</div>
+    <div class="title">{{ $t(`text[Team members]`) }}</div>
     <div class="info">
       <div
         class="container dp-space-center"

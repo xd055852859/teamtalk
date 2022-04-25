@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { Card, Message } from "@/interface/Message";
-import { useStore } from "@/store";
-import { Group } from "@/interface/User";
-import { ElMessage } from "element-plus";
-import { ResultProps } from "@/interface/Common";
 import Editor from "./editor/editor.vue";
-import Tbutton from "./tbutton.vue";
-import api from "@/services/api";
+
+import i18n from "@/language/i18n";
 import { OnClickOutside } from "@vueuse/components";
+import { Close } from "@element-plus/icons-vue";
+import api from "@/services/api";
+import { useStore } from "@/store";
+import { ElMessage } from "element-plus";
+
+import { Message } from "@/interface/Message";
+import { ResultProps } from "@/interface/Common";
 
 import commentSvg from "@/assets/svg/comment.svg";
 import commentwSvg from "@/assets/svg/commentw.svg";
@@ -43,7 +45,7 @@ const filedCard = async (key) => {
     filed: false,
   })) as ResultProps;
   if (filedRes.msg === "OK") {
-    ElMessage.success("unFiled Card Success");
+    ElMessage.success(i18n.global.t(`tip['Archived successfully']`));
     emits("changeItem", key);
   }
 };
@@ -62,7 +64,16 @@ const postCard = async () => {
     );
   }
 };
-const close = () => {
+const delMessage = async () => {
+  const delRes = (await api.request.delete("message", {
+    cardKey: props.item._key,
+  })) as ResultProps;
+  if (delRes.msg === "OK") {
+    ElMessage.success("Delete Message Success");
+    store.commit("message/delMessageList", props.item._key);
+  }
+};
+const saveUpdate = () => {
   if (
     editKey.value === props.item._key &&
     (user.value?._key === editContent?.value.creatorInfo?._key ||
@@ -73,28 +84,33 @@ const close = () => {
     if (updateState.value) {
       postCard();
     }
-    store.commit("message/setEditContent", null);
-    store.commit("message/setEditKey", "");
     updateState.value = false;
   }
 };
 </script>
 <template>
-  <div
-    class="item"
-    :style="{
-      border: props.item.type === 'self' ? '1px solid #e1e1e1' : '0px',
-    }"
-  >
-    <template
-      v-if="
-        editKey === props.item._key &&
-        (user?._key === editContent?.creatorInfo?._key ||
-          (receiverRole < 3 &&
-            editContent?.receiverInfo?.receiverType === 'group'))
-      "
+  <OnClickOutside @trigger="saveUpdate">
+    <div
+      class="item"
+      :style="{
+        border: props.item.type === 'self' ? '1px solid #e1e1e1' : '0px',
+      }"
     >
-      <OnClickOutside @trigger="close">
+      <div
+        class="del-button icon-point"
+        @click="delMessage"
+        v-if="props.item.creatorInfo._key !== user?._key"
+      >
+        <el-icon><close /></el-icon>
+      </div>
+      <template
+        v-if="
+          editKey === props.item._key &&
+          (user?._key === editContent?.creatorInfo?._key ||
+            (receiverRole < 3 &&
+              editContent?.receiverInfo?.receiverType === 'group'))
+        "
+      >
         <Editor
           :init-data="editContent"
           :isEdit="true"
@@ -103,123 +119,119 @@ const close = () => {
           ref="editorRef"
           @changeUpdate="updateState = true"
         />
-      </OnClickOutside>
-      <!-- <div class="editor-button dp--center">
-          <tbutton @click.once="postCard" v-if="updateState">{{
-            $t(`surface.Update`)
-          }}</tbutton>
-        </div> -->
-    </template>
-    <div v-else @click="getInfo(props.item._key)">
-      <div
-        class="title"
-        :style="!props.item.summary ? { marginBottom: '0px' } : {}"
-      >
-        {{ props.item.title }}
+      </template>
+      <div v-else @click="getInfo(props.item._key)">
+        <div
+          class="title"
+          :style="!props.item.summary ? { marginBottom: '0px' } : {}"
+        >
+          {{ props.item.title }}
+        </div>
+        <div
+          class="center dp-space-center"
+          :style="
+            props.item.type === 'self'
+              ? { 'flex-direction': 'row-reverse' }
+              : {}
+          "
+        >
+          <div class="right" v-if="props.item.cover">
+            <img :src="props.item.cover" alt="" />
+          </div>
+          <div
+            class="left more-to-long"
+            :style="{ width: props.item.cover ? 'calc(100% - 115px)' : '100%' }"
+          >
+            {{ props.item.summary }}
+          </div>
+        </div>
       </div>
       <div
-        class="center dp-space-center"
+        class="footer dp-space-center"
         :style="
-          props.item.type === 'self' ? { 'flex-direction': 'row-reverse' } : {}
+          props.item.type === 'self'
+            ? {
+                'flex-direction': 'row-reverse',
+              }
+            : {}
         "
       >
-        <div class="right" v-if="props.item.cover">
-          <img :src="props.item.cover" alt="" />
-        </div>
-        <div
-          class="left more-to-long"
-          :style="{ width: props.item.cover ? 'calc(100% - 115px)' : '100%' }"
-        >
-          {{ props.item.summary }}
-        </div>
-      </div>
-    </div>
-    <!-- <span
-      class="triangle top"
-      :style="props.item.type === 'self' ? { right: '46px' } : { left: '25px' }"
-    ></span>
-    <span
-      class="triangle1 top1"
-      :style="{ right: '45px' }"
-      v-if="props.item.type === 'self'"
-    ></span> -->
-    <div
-      class="footer dp-space-center"
-      :style="
-        props.item.type === 'self'
-          ? {
-              'flex-direction': 'row-reverse',
-            }
-          : {}
-      "
-    >
-      <div class="left dp--center">
-        <el-avatar
-          fit="cover"
-          :size="25"
-          :src="props.item.creatorInfo.userAvatar"
-          @click.stop="$router.push(`/member/` + props.item.creatorInfo._key)"
-          class="icon-point"
-        />
-        <div
-          class="footer-subtitle common-color"
-          :style="
-            props.item.type === 'self'
-              ? {
-                  'text-align': 'right',
-                }
-              : {}
-          "
-          v-if="props.item.receiverTitle"
-        >
-          # {{ props.item.receiverTitle }} /
-        </div>
-        <div
-          class="footer-title"
-          :style="
-            props.item.type === 'self'
-              ? {
-                  'text-align': 'right',
-                }
-              : {}
-          "
-        >
-          <span
+        <div class="left dp--center">
+          <el-avatar
+            fit="cover"
+            :size="25"
+            :src="props.item.creatorInfo.userAvatar"
             @click.stop="$router.push(`/member/` + props.item.creatorInfo._key)"
             class="icon-point"
-            >{{ props.item.creatorInfo.userName }}</span
-          >
-        </div>
-      </div>
-      <div class="right dp--center">
-        <div
-          class="dp--center icon-point"
-          style="margin-right: 10px"
-          @click.stop="$router.push('/info/' + props.item._key)"
-        >
-          <img :src="fullScreenSvg" alt="" style="width: 15px; height: 15px" />
-        </div>
-        <div
-          class="dp--center"
-          v-if="props.item?.commentCount"
-          style="margin-right: 10px"
-        >
-          <img :src="dark ? commentwSvg : commentSvg" alt="" />{{
-            props.item?.commentCount
-          }}
-        </div>
-        <div class="dp--center" v-if="props.type === 'filed'">
-          <img
-            :src="dark ? archivewSvg : archiveSvg"
-            alt=""
-            class="icon-point"
-            style="width: 20px; height: 20px"
-            @click.stop="filedCard(props.item._key)"
           />
+          <div
+            class="footer-subtitle common-color"
+            :style="
+              props.item.type === 'self'
+                ? {
+                    'text-align': 'right',
+                  }
+                : {}
+            "
+            v-if="props.item.receiverTitle"
+          >
+            # {{ props.item.receiverTitle }} /
+          </div>
+          <div
+            class="footer-title"
+            :style="
+              props.item.type === 'self'
+                ? {
+                    'text-align': 'right',
+                  }
+                : {}
+            "
+          >
+            <span
+              @click.stop="
+                $router.push(`/member/` + props.item.creatorInfo._key)
+              "
+              class="icon-point"
+              >{{ props.item.creatorInfo.userName }}</span
+            >
+          </div>
+        </div>
+        <div class="right dp--center">
+          <div
+            class="dp--center"
+            v-if="props.item?.commentCount"
+            style="margin-right: 10px"
+          >
+            <img :src="dark ? commentwSvg : commentSvg" alt="" />{{
+              props.item?.commentCount
+            }}
+          </div>
+          <div
+            class="dp--center icon-point full-button"
+            :style="{
+              marginRight: props.item.type === 'self' ? '10px' : '0px',
+            }"
+            @click.stop="$router.push('/info/' + props.item._key)"
+          >
+            <img
+              :src="fullScreenSvg"
+              alt=""
+              style="width: 15px; height: 15px"
+            />
+          </div>
+          <div class="dp--center" v-if="props.type === 'filed'">
+            <img
+              :src="dark ? archivewSvg : archiveSvg"
+              alt=""
+              class="icon-point"
+              style="width: 20px; height: 20px"
+              @click.stop="filedCard(props.item._key)"
+            />
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </OnClickOutside>
 </template>
 <style scoped lang="scss">
 .item {
@@ -297,6 +309,22 @@ const close = () => {
   .editor-button {
     width: 100%;
     justify-content: flex-end;
+  }
+  .del-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    display: none;
+  }
+  &:hover .del-button {
+    display: flex;
+  }
+  .full-button {
+    display: none;
+  }
+  &:hover .full-button {
+    display: flex;
   }
   .footer {
     width: 100%;

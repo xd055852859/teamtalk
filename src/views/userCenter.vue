@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { ElMessage } from "element-plus";
-import i18n from "@/language/i18n";
 import Tbutton from "@/components/tbutton.vue";
+
+import i18n from "@/language/i18n";
+import { ElMessage } from "element-plus";
 import setDark from "@/hooks/dark";
-import { ResultProps } from "@/interface/Common";
 import { uploadImage } from "@/services/util";
 import { useStore } from "@/store";
 import useCurrentInstance from "@/hooks/useCurrentInstance";
 import api from "@/services/api";
+
+import { ResultProps } from "@/interface/Common";
 
 import setSvg from "@/assets/svg/Settings.svg";
 import helpSvg from "@/assets/svg/Help.svg";
@@ -30,7 +32,6 @@ const userVisible = ref<boolean>(false);
 const avatar = ref<string>("");
 const userName = ref<string>("");
 const email = ref<string>("");
-const themeIndex = ref<number>(0);
 const setVisible = ref<boolean>(false);
 const localeValue = ref<string>("");
 const darkValue = ref<string>("");
@@ -40,21 +41,31 @@ onMounted(() => {
   }
 });
 const changeLanguage = (value: string) => {
-  value = value === "中文" ? "zh" : "en";
-  darkValue.value = dark.value
-    ? value === "zh"
-      ? "暗黑模式"
-      : "Dark Mode"
-    : value === "zh"
-    ? "明亮模式"
-    : "Light Mode";
+  switch (value) {
+    case "中文":
+      value = "zh";
+      darkValue.value = dark.value ? "黑暗模式" : "明亮模式";
+      break;
+    case "English":
+      value = "en";
+      darkValue.value = dark.value ? "Dark mode" : "Bright mode";
+      break;
+    case "日本語":
+      value = "jp";
+      darkValue.value = dark.value ? "ダークモード" : "ブライトモード";
+      break;
+    case "繁体":
+      value = "tc";
+      darkValue.value = dark.value ? "黑暗模式" : "明亮模式";
+      break;
+  }
   proxy.$i18n.locale = value;
   changeConfig("locale", value);
   store.commit("common/setLocale", value);
   localStorage.setItem("LANGUAGE", value);
 };
 const changeDark = (value: string | boolean) => {
-  value = value === i18n.global.t("surface.DarkMode");
+  value = value === i18n.global.t(`text['Dark mode']`);
   setDark(value);
   changeConfig("dark", value);
   store.commit("common/setDark", value);
@@ -110,14 +121,24 @@ watch(
       avatar.value = newVal.userAvatar ? newVal.userAvatar : "";
       userName.value = newVal.userName ? newVal.userName : "";
       email.value = newVal.email ? newVal.email : "";
-      localeValue.value = locale.value === "zh" ? "中文" : "English";
+      // localeValue.value = locale.value === "zh" ? "中文" : "English";
+      switch (locale.value) {
+        case "zh":
+          localeValue.value = "中文";
+          break;
+        case "en":
+          localeValue.value = "English";
+          break;
+        case "jp":
+          localeValue.value = "日本語";
+          break;
+        case "tc":
+          localeValue.value = "繁体";
+          break;
+      }
       darkValue.value = dark.value
-        ? locale.value === "zh"
-          ? "暗黑模式"
-          : "Dark Mode"
-        : locale.value === "zh"
-        ? "明亮模式"
-        : "Light Mode";
+        ? i18n.global.t(`text['Dark mode']`)
+        : i18n.global.t(`text['Bright mode']`);
       autoValue.value = localStorage.getItem("AUTO") ? true : false;
     }
   },
@@ -138,37 +159,19 @@ watch(autoValue, (newVal) => {
   <div class="userCenter-item dp--center" @click="setVisible = true">
     <img :src="dark ? setwSvg : setSvg" alt="" />
     <span>
-      {{ $t(`surface.Settings`) }}
+      {{ $t(`text.Setting`) }}
     </span>
   </div>
-  <!-- <div class="userCenter-item dp--center" @click="changeDark(!dark)">
-    <img :src="dark ? darkwSvg : lightSvg" alt="" />
-    <span>
-      {{ dark ? $t(`surface.DarkMode`) : $t(`surface.LightMode`) }}
-    </span>
-  </div>
-  <div
-    class="userCenter-item"
-    @click="changeLanguage(locale === 'zh' ? 'en' : 'zh')"
-  >
-    <img
-      :src="locale === 'zh' ? (dark ? zhwSvg : zhSvg) : dark ? enwSvg : enSvg"
-      alt=""
-    />
-    <span>
-      {{ $t(`surface.Language`) }}
-    </span>
-  </div> -->
   <div class="userCenter-item dp--center">
     <img :src="dark ? helpwSvg : helpSvg" alt="" />
     <span>
-      {{ $t(`surface.Help`) }}
+      {{ $t(`text.Help`) }}
     </span>
   </div>
   <div class="userCenter-item dp--center">
     <img :src="dark ? communitywSvg : communitySvg" alt="" />
     <span>
-      {{ $t(`surface.Community`) }}
+      {{ $t(`text.Communication`) }}
     </span>
   </div>
   <div
@@ -177,10 +180,14 @@ watch(autoValue, (newVal) => {
   >
     <img :src="dark ? quitwSvg : quitSvg" alt="" />
     <span>
-      {{ $t(`surface.Quit`) }}
+      {{ $t(`text['Sign out']`) }}
     </span>
   </div>
-  <el-dialog v-model="userVisible" :title="$t(`tip.info`)" :width="320">
+  <el-dialog
+    v-model="userVisible"
+    :title="$t(`dialog['Information tips']`)"
+    :width="320"
+  >
     <div class="user-edit dp-center-center">
       <div class="avatar">
         <el-avatar fit="cover" :src="avatar" :size="150" />
@@ -193,7 +200,7 @@ watch(autoValue, (newVal) => {
       </div>
 
       <div class="text dp-space-center">
-        {{ $t(`form.userName`) }} :
+        {{ $t(`text['User name']`) }} :
         <el-input
           class="input"
           v-model="userName"
@@ -201,7 +208,7 @@ watch(autoValue, (newVal) => {
         />
       </div>
       <div class="text dp-space-center">
-        {{ $t(`form.email`) }} :
+        {{ $t(`text.email`) }} :
         <el-input class="input" v-model="email" placeholder="enter email" />
       </div>
     </div>
@@ -212,10 +219,10 @@ watch(autoValue, (newVal) => {
       </span>
     </template>
   </el-dialog>
-  <el-dialog v-model="setVisible" :title="$t(`surface.Settings`)" :width="320">
+  <el-dialog v-model="setVisible" :title="$t(`text.Setting`)" :width="320">
     <div class="user-edit dp-center-center">
       <div class="text dp-space-center">
-        Language :
+        {{ $t(`text.Language`) }} :
         <el-select
           v-model="localeValue"
           :placeholder="'choose language'"
@@ -224,14 +231,16 @@ watch(autoValue, (newVal) => {
         >
           <el-option value="中文">中文</el-option>
           <el-option value="English">English</el-option>
+          <el-option value="日本語">日本語</el-option>
+          <el-option value="繁体">繁体</el-option>
         </el-select>
       </div>
       <div class="text dp-space-center">
-        AutoMode :
+        {{ $t(`text['Automatic mode']`) }} :
         <el-switch v-model="autoValue" active-color="#16ab78" />
       </div>
       <div class="text dp-space-center">
-        DarkMode :
+        {{ $t(`text['Dark mode']`) }} :
         <el-select
           v-model="darkValue"
           :placeholder="'choose mode'"
@@ -239,11 +248,11 @@ watch(autoValue, (newVal) => {
           @change="changeDark"
           :disabled="autoValue"
         >
-          <el-option :value="$t(`surface.DarkMode`)">{{
-            $t(`surface.DarkMode`)
+          <el-option :value="$t(`text['Dark mode']`)">{{
+            $t(`text['Dark mode']`)
           }}</el-option>
-          <el-option :value="$t(`surface.LightMode`)"
-            >{{ $t(`surface.LightMode`) }}
+          <el-option :value="$t(`text['Bright mode']`)"
+            >{{ $t(`text['Bright mode']`) }}
           </el-option>
         </el-select>
       </div>

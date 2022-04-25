@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { User } from "@/interface/User";
-import { ResultProps } from "@/interface/Common";
-import { ArrowLeft, Search } from "@element-plus/icons-vue";
+import { Search } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import api from "@/services/api";
+import i18n from "@/language/i18n";
 import { store } from "@/store";
+
+import { ResultProps } from "@/interface/Common";
 
 import addPersonSvg from "../assets/svg/addPerson.svg";
 import inviteOutSvg from "../assets/svg/inviteOut.svg";
@@ -36,7 +38,7 @@ const saveMember = async (key, index) => {
     toUserKey: key,
   })) as ResultProps;
   if (saveRes.msg === "OK") {
-    ElMessage.success("add member success");
+    ElMessage.success(i18n.global.t(`tip['Friend add succeeded']`));
     memberList.value.splice(index, 1);
     // store.dispatch("auth/getGroupList");
     // router.push("/home");
@@ -66,7 +68,7 @@ const saveMember = async (key, index) => {
       <el-input
         v-model="searchName"
         size="large"
-        :placeholder="$t(`form.placeholder`)"
+        :placeholder="$t(`input['Enter Name']`)"
         :suffix-icon="Search"
         @change="searchMember"
       />

@@ -1,18 +1,23 @@
 <script setup lang="ts">
+import Tbutton from "@/components/tbutton.vue";
+import Theader from "@/components/theader.vue";
+
+import i18n from "@/language/i18n";
+import router from "@/router";
+import api from "@/services/api";
 import { ElMessage } from "element-plus";
 import { useStore } from "@/store";
-import Tbutton from "@/components/tbutton.vue";
+
+import { ResultProps } from "@/interface/Common";
+import { Mate } from "@/interface/User";
+
 import muteSvg from "@/assets/svg/mute.svg";
 import blockSvg from "@/assets/svg/block.svg";
 import deleteSvg from "@/assets/svg/delete.svg";
-import api from "@/services/api";
-import { Mate } from "@/interface/User";
-import router from "@/router";
-import { ResultProps } from "@/interface/Common";
-import Theader from "@/components/theader.vue";
+
 const store = useStore();
 const route = useRoute();
-const muteList = computed(() => store.state.auth.muteList);
+
 const muteState = ref<boolean>(false);
 const blockState = ref<boolean>(false);
 const memberKey = ref<string>("");
@@ -82,7 +87,7 @@ const saveMember = async () => {
     toUserKey: info.value?._key,
   })) as ResultProps;
   if (saveRes.msg === "OK") {
-    ElMessage.success("add Member success");
+    ElMessage.success(i18n.global.t(`tip['Friend add succeeded']`));
     if (info.value) {
       info.value.receiverKey = saveRes.data._key;
       toUser();

@@ -11,16 +11,21 @@ const router = useRouter();
 const user = computed(() => store.state.auth.user);
 
 const url = ref<string>("");
-watch(user, (newVal) => {
-  if (newVal) {
-    url.value = `${window.location.protocol}//${window.location.host}/?inviteKey=${newVal._key}`;
-  }
-});
+watch(
+  user,
+  (newVal) => {
+    if (newVal) {
+      url.value = `${window.location.protocol}//${window.location.host}/?inviteKey=${newVal._key}`;
+    }
+  },
+  { immediate: true }
+);
 </script>
 <template>
   <div class="invite-out p-5">
     <theader @clickBack="router.push('/invite')">
       <template v-slot:title> Invite Partner </template>
+      <template v-slot:right><div></div> </template>
     </theader>
     <div class="invite-item dp-center-center">
       <div class="title">{{ $t(`surface.Way2`) }}</div>
@@ -85,6 +90,5 @@ watch(user, (newVal) => {
     }
   }
 }
-
 </style>
 <style></style>

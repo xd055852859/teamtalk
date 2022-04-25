@@ -87,34 +87,34 @@ export default {
             .run();
         },
       },
-      {
-        title: "bold",
-        icon: dark ? boldwSvg : boldSvg,
-        command: ({ editor, range }) => {
-          editor.chain().focus().deleteRange(range).toggleBold().run();
-        },
-      },
-      {
-        title: "italic",
-        icon: dark ? italicwSvg : italicSvg,
-        command: ({ editor, range }) => {
-          editor.chain().focus().deleteRange(range).toggleItalic().run();
-        },
-      },
-      {
-        title: "strike",
-        icon: dark ? strikewSvg : strikeSvg,
-        command: ({ editor, range }) => {
-          editor.chain().focus().deleteRange(range).toggleStrike().run();
-        },
-      },
-      {
-        title: "underline",
-        icon: dark ? underlinewSvg : underlineSvg,
-        command: ({ editor, range }) => {
-          editor.chain().focus().deleteRange(range).toggleUnderline().run();
-        },
-      },
+      // {
+      //   title: "bold",
+      //   icon: dark ? boldwSvg : boldSvg,
+      //   command: ({ editor, range }) => {
+      //     editor.chain().focus().deleteRange(range).toggleBold().run();
+      //   },
+      // },
+      // {
+      //   title: "italic",
+      //   icon: dark ? italicwSvg : italicSvg,
+      //   command: ({ editor, range }) => {
+      //     editor.chain().focus().deleteRange(range).toggleItalic().run();
+      //   },
+      // },
+      // {
+      //   title: "strike",
+      //   icon: dark ? strikewSvg : strikeSvg,
+      //   command: ({ editor, range }) => {
+      //     editor.chain().focus().deleteRange(range).toggleStrike().run();
+      //   },
+      // },
+      // {
+      //   title: "underline",
+      //   icon: dark ? underlinewSvg : underlineSvg,
+      //   command: ({ editor, range }) => {
+      //     editor.chain().focus().deleteRange(range).toggleUnderline().run();
+      //   },
+      // },
       {
         title: "bulletList",
         icon: dark ? bulletListwSvg : bulletListSvg,
@@ -136,13 +136,13 @@ export default {
           editor.chain().focus().deleteRange(range).toggleTaskList().run();
         },
       },
-      {
-        title: "blockquote",
-        icon: dark ? blockquoteSvg : blockquotewSvg,
-        command: ({ editor, range }) => {
-          editor.chain().focus().deleteRange(range).setNode("blockquote").run();
-        },
-      },
+      // {
+      //   title: "blockquote",
+      //   icon: dark ? blockquoteSvg : blockquotewSvg,
+      //   command: ({ editor, range }) => {
+      //     editor.chain().focus().deleteRange(range).setNode("blockquote").run();
+      //   },
+      // },
       {
         title: "code",
         icon: dark ? codewSvg : codeSvg,
@@ -168,7 +168,7 @@ export default {
       .filter((item) =>
         item.title.toLowerCase().startsWith(query.toLowerCase())
       )
-      .slice(0, 10);
+      // .slice(0, 10);
   },
 
   render: () => {

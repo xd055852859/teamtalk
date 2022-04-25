@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ElMessage } from "element-plus";
-// import router from "../router";
+import Tbutton from "@/components/tbutton.vue";
+
+import { useStore } from "@/store";
 
 import logoSvg from "../assets/svg/logo.svg";
 import logowSvg from "../assets/svg/logow.svg";
-import { useStore } from "@/store";
-import Tbutton from "@/components/tbutton.vue";
+
 const store = useStore();
 const router = useRouter();
 const dark = computed(() => store.state.common.dark);
@@ -16,11 +16,9 @@ onMounted(() => {
   }
 });
 
-
 const login = () => {
   let redirect = `${window.location.protocol}//${window.location.host}/home`;
-  // let href: string = `https://account.qingtime.cn?apphigh=50&redirect=${redirect}&logo=https://cdn-icare.qingtime.cn/1605251458500_workingVip`;
-  let href: string = `https://account.qingtime.cn?apphigh=50&redirect=${redirect}&logo=https://cdn-ttalk.qingtime.cn/1650011827416_workingVip.png`;
+  let href: string = `https://account.qingtime.cn?apphigh=50&redirect=${redirect}&logo=https://workfly.qingtime.cn/1650849409262_workingVip.png`;
   window.open(
     href,
     "new",
@@ -35,7 +33,7 @@ const login = () => {
     <div class="logo-img dp-center-center">
       <img :src="dark ? logowSvg : logoSvg" alt="" class="logo" />
     </div>
-    <tbutton @click="login" class="button">{{ $t(`surface.Login`) }}</tbutton>
+    <tbutton @click="login" class="button">{{ $t(`button.Login`) }}</tbutton>
   </div>
 </template>
 <style scoped lang="scss">

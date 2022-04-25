@@ -58,8 +58,10 @@ const editor = useEditor({
     StarterKit,
     Placeholder.configure({
       placeholder: ({ node }) => {
-        const placeholderStr = i18n.global.t("tip.text");
-        const placeholderTitle = i18n.global.t("tip.title");
+        const placeholderTitle = i18n.global.t(`input['Enter title ...']`);
+        const placeholderStr = i18n.global.t(
+          `input["Enter text,or type '/' to select"]`
+        );
         if (node.type.name === "heading") {
           return placeholderTitle;
         } else if (node.type.name === "paragraph") {
@@ -209,7 +211,7 @@ async function handlePost(
     }
     // }
   } else {
-    ElMessage.error("Please Enter Title");
+    ElMessage.error(i18n.global.t(`Enter title ...`));
     return;
   }
 }

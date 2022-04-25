@@ -1,16 +1,13 @@
 <script setup lang="ts">
-import { ArrowDown, CaretBottom } from "@element-plus/icons-vue";
-import Contact from "./contact.vue";
-import api from "@/services/api";
-import { ResultProps } from "@/interface/Common";
-import { ElMessage } from "element-plus";
-import { useStore } from "@/store";
 import Editor from "@/components/editor/editor.vue";
 import Tbutton from "@/components/tbutton.vue";
 import EditorNav from "@/components/editor/editorNav.vue";
 import MessageItem from "@/components/messageItem.vue";
+import Contact from "./contact.vue";
 
-// import fullScreenSvg from "../assets/svg/fullScreen.svg";
+import { ArrowDown} from "@element-plus/icons-vue";
+import { useStore } from "@/store";
+
 import toTopSvg from "../assets/svg/toTop.svg";
 import unshakeSvg from "@/assets/svg/unshake.svg";
 import unshakewSvg from "@/assets/svg/unshakew.svg";
@@ -24,6 +21,7 @@ const editorInfo = computed(() => store.state.message.editorInfo);
 const page = computed(() => store.state.message.page);
 const dark = computed(() => store.state.common.dark);
 const top = computed(() => store.state.common.top);
+const user = computed(() => store.state.auth.user);
 
 const talkRef = ref(null);
 const editorRef = ref(null);
@@ -32,7 +30,6 @@ const topVisible = ref<boolean>(false);
 const shakeState = ref<boolean>(false);
 
 onMounted(() => {
-  // console.log(top.value);
   //@ts-ignore
   talkRef.value.scrollTop = top.value;
 });
@@ -40,7 +37,11 @@ const postContent = async () => {
   if (talker.value && editorRef.value) {
     //@ts-ignore
     editorRef.value.handlePost(talker.value._key, (res) => {
-      if (res.data.receiverType === "user") {
+      if (
+        res.data.receiverType === "user" &&
+        res.data.creatorInfo._key === user.value?._key
+      ) {
+        console.log("!!!");
         store.commit("message/addMessageList", res.data);
         shakeState.value = false;
       }
@@ -70,8 +71,6 @@ const toTop = () => {
   topVisible.value = false;
   let timer = setInterval(function () {
     //@ts-ignore
-    // 设置定时器
-    //@ts-ignore
     talkRef.value.scrollTop -= 80; // 使高度每次减少20px
     //@ts-ignore
     if (talkRef.value.scrollTop <= 0) {
@@ -79,14 +78,13 @@ const toTop = () => {
     }
   }, 30);
 };
-
 </script>
 <template>
   <div class="talk-container p-5" @scroll="scrollLoading" ref="talkRef">
     <div class="talk-edit">
       <div class="top dp-space-center">
         <div class="left dp--center icon-point" @click="talkVisible = true">
-          <span>{{ $t(`surface.to`) }} : </span>
+          <span>To : </span>
           <el-avatar
             fit="cover"
             :size="25"
@@ -99,17 +97,7 @@ const toTop = () => {
             <arrow-down />
           </el-icon>
         </div>
-        <div class="right dp--center">
-          <!-- <img
-            :src="fullScreenSvg"
-            style="width: 16px; height: 16px"
-            alt=""
-            @click="toInfo()"
-          /> -->
-          <!-- <img :src="moreSvg" alt="" style="width: 16px; height: 3px" /> -->
-        </div>
       </div>
-      <!-- <el-divider /> -->
       <div class="center">
         <div class="editor">
           <editor
@@ -139,14 +127,13 @@ const toTop = () => {
                 style="width: 25px; height: 25px; margin-right: 10px"
               />
             </template>
-            <tbutton @click="postContent">{{ $t(`surface.Post`) }}</tbutton>
+            <tbutton @click="postContent">{{ $t(`button.Send`) }}</tbutton>
           </div>
         </div>
       </div>
     </div>
-    <!-- </div> -->
     <template v-for="(item, index) in messageList" :key="'chat' + index">
-      <message-item :item="item"/>
+      <message-item :item="item" />
     </template>
     <div class="toTop icon-point" v-if="topVisible" @click="toTop">
       <img :src="toTopSvg" alt="" style="width: 50px; height: 50px" />
@@ -197,8 +184,6 @@ const toTop = () => {
       position: relative;
       z-index: 1;
       overflow: hidden;
-      // border: 1px solid #c8c8c8;
-      // border-radius: 8px;
       .editor {
         width: 100%;
         min-height: 185px;

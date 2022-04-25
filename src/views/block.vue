@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { ElMessage } from "element-plus";
-import { Group, Search } from "@/interface/User";
-import { useStore } from "@/store";
 import Theader from "@/components/theader.vue";
+
 import api from "@/services/api";
+import { ElMessage } from "element-plus";
+import { useStore } from "@/store";
+
+import { Group} from "@/interface/User";
 import { ResultProps } from "@/interface/Common";
+
 import quitSvg from "@/assets/svg/Quit.svg";
 import groupSvg from "@/assets/svg/group.svg";
 const store = useStore();
