@@ -5,15 +5,12 @@ import common from "./common";
 import message from "./message";
 import { User, Group, Member } from "@/interface/User";
 import i18n from "@/language/i18n";
-import setDark from "@/hooks/dark";
-import setTheme from "@/hooks/theme";
 import router from "@/router";
 import { ElMessage } from "element-plus";
 
 import groupSvg from "@/assets/svg/group.svg";
 import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
-import { userInfo } from "os";
 
 const state: AuthState = {
   token: localStorage.getItem("token") || "",
@@ -32,24 +29,12 @@ const mutations: MutationTree<AuthState> = {
   setToken(state, token: string) {
     state.token = token;
   },
-  //   setConfig(state, config: ConfigTS) {
-  //     console.log(config);
-  //     let newConfig = { ...state.config, ...config };
-  //     state.config = newConfig;
-  //     localStorage.setItem("config", JSON.stringify(newConfig));
-  //   },
   setUploadToken(state, uploadToken: string) {
     state.uploadToken = uploadToken;
   },
 
   setUserInfo(state, user: User) {
     state.user = user;
-    if (user.config) {
-      common.state.dark = user.config.dark;
-      // common.state.theme = user.config.theme;
-      common.state.locale = user.config.locale;
-      // setTheme(user.config.theme);
-    }
   },
   setGroupList(state, groupList: Group[]) {
     state.groupList = groupList;
@@ -96,14 +81,12 @@ const mutations: MutationTree<AuthState> = {
   },
   delMuteList(state, key: string) {
     let index = state.muteList.indexOf(key);
-    console.log(index)
     if (index !== -1) {
       state.muteList.splice(index, 1);
     }
   },
   addMuteList(state, key: string) {
     let index = state.muteList.indexOf(key);
-    console.log(index)
     if (index === -1) {
       state.muteList.push(key);
     }

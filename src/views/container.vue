@@ -5,7 +5,7 @@ import EditorNav from "@/components/editor/editorNav.vue";
 import MessageItem from "@/components/messageItem.vue";
 import Contact from "./contact.vue";
 
-import { ArrowDown} from "@element-plus/icons-vue";
+import { ArrowDown } from "@element-plus/icons-vue";
 import { useStore } from "@/store";
 
 import toTopSvg from "../assets/svg/toTop.svg";
@@ -28,6 +28,7 @@ const editorRef = ref(null);
 const talkVisible = ref<boolean>(false);
 const topVisible = ref<boolean>(false);
 const shakeState = ref<boolean>(false);
+const overKey = ref<string>("");
 
 onMounted(() => {
   //@ts-ignore
@@ -37,11 +38,8 @@ const postContent = async () => {
   if (talker.value && editorRef.value) {
     //@ts-ignore
     editorRef.value.handlePost(talker.value._key, (res) => {
-      if (
-        res.data.receiverType === "user" &&
-        res.data.creatorInfo._key === user.value?._key
-      ) {
-        console.log("!!!");
+      if (res.data.creatorInfo._key === user.value?._key) {
+        res.data.type = "self";
         store.commit("message/addMessageList", res.data);
         shakeState.value = false;
       }
@@ -81,7 +79,13 @@ const toTop = () => {
 </script>
 <template>
   <div class="talk-container p-5" @scroll="scrollLoading" ref="talkRef">
-    <div class="talk-edit">
+    <div
+      class="talk-edit"
+      @click="
+        store.commit('message/setEditContent', null);
+        store.commit('message/setEditKey', '');
+      "
+    >
       <div class="top dp-space-center">
         <div class="left dp--center icon-point" @click="talkVisible = true">
           <span>To : </span>
@@ -111,30 +115,38 @@ const toTop = () => {
           <editor-nav :editor="editorInfo" v-if="editorInfo" />
           <div class="bottom dp--center">
             <template v-if="talker?.receiverType === 'user'">
-              <img
-                :src="shakeSvg"
-                alt=""
-                v-if="shakeState"
-                class="icon-point"
-                style="width: 25px; height: 25px; margin-right: 10px"
-              />
-              <img
-                :src="dark ? unshakewSvg : unshakeSvg"
-                alt=""
-                v-else
-                class="icon-point"
-                @click="shakeState = true"
-                style="width: 25px; height: 25px; margin-right: 10px"
-              />
+              <el-tooltip
+                :content="$t(`icon.Shake`)"
+              >
+                <img
+                  :src="shakeSvg"
+                  alt=""
+                  v-if="shakeState"
+                  class="icon-point"
+                  style="width: 25px; height: 25px; margin-right: 10px"
+                />
+                <img
+                  :src="dark ? unshakewSvg : unshakeSvg"
+                  alt=""
+                  v-else
+                  class="icon-point"
+                  @click="shakeState = true"
+                  style="width: 25px; height: 25px; margin-right: 10px"
+                />
+              </el-tooltip>
             </template>
             <tbutton @click="postContent">{{ $t(`button.Send`) }}</tbutton>
           </div>
         </div>
       </div>
     </div>
-    <template v-for="(item, index) in messageList" :key="'chat' + index">
-      <message-item :item="item" />
-    </template>
+    <div
+      v-for="(item, index) in messageList"
+      :key="'chat' + index"
+      @mouseenter="overKey = item._key"
+    >
+      <message-item :item="item" :overKey="overKey" />
+    </div>
     <div class="toTop icon-point" v-if="topVisible" @click="toTop">
       <img :src="toTopSvg" alt="" style="width: 50px; height: 50px" />
     </div>

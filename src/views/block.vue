@@ -5,7 +5,7 @@ import api from "@/services/api";
 import { ElMessage } from "element-plus";
 import { useStore } from "@/store";
 
-import { Group} from "@/interface/User";
+import { Group } from "@/interface/User";
 import { ResultProps } from "@/interface/Common";
 
 import quitSvg from "@/assets/svg/Quit.svg";
@@ -40,7 +40,7 @@ const outBlock = async (key: string, index: number) => {
   <div class="block p-5">
     <theader @clickBack="$router.back()">
       <template v-slot:title>
-        <div class="dp-center-center">Block List</div>
+        <div class="dp-center-center">{{ $t(`text.BlockList`) }}</div>
       </template>
       <template v-slot:right><div></div></template>
     </theader>

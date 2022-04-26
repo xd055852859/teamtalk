@@ -4,7 +4,7 @@ import { CommonState } from "../types/CommonState";
 
 const state: CommonState = {
   locale: localStorage.getItem("LANGUAGE")
-    ? (localStorage.getItem("LANGUAGE") as "zh" | "en")
+    ? (localStorage.getItem("LANGUAGE") as string)
     : "zh",
   dark: localStorage.getItem("DARK") ? true : false,
   theme:  "#16ab78",

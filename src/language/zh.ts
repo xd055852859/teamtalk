@@ -100,7 +100,7 @@ export default {
     "Delete team members": "是否删除小组成员",
     "Delete card": "是否删除卡片",
     "Archive card": "是否归档卡片",
-    "Cancel archiving": "是否取消归档",
+    "{{$t(`button.Cancel`)}} archiving": "是否取消归档",
     "Join the blacklist": "是否加入黑名单",
     "Remove from blacklist": "是否移出黑名单",
     "Exit prompt": "退出提示",

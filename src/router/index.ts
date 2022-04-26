@@ -89,8 +89,6 @@ const router = createRouter({
 // router.beforeEach((to, from, next) => {
 //   const { user, token } = store.state;
 //   const { redirectAlreadyLogin, requiredLogin } = to.meta;
-//   console.log(user);
-//   console.log(token);
 //   if (!user.isLogin) {
 //     if (token) {
 //       next("/");

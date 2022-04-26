@@ -13,6 +13,7 @@ export interface Message {
   title: string;
   refCardInfo?: any;
   commentCount?: number;
+  favorite: boolean;
 }
 export interface Card {
   _key?: string;

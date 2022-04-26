@@ -52,7 +52,7 @@ const page = ref<number>(1);
 const applyArray = ref<Member[]>([]);
 const filedArray = ref<Message[]>([]);
 const delItem = ref<{ item: Member; index: number } | null>(null);
-const roleArray = ["owner", "admin", "editor", "member"];
+const roleArray = ["Group leader", "Admin", "Edit", "Team member"];
 
 onMounted(() => {
   teamKey.value = route.params.id as string;
@@ -104,7 +104,9 @@ const delMember = async (item: Member, index: number) => {
     memberKey: item._key,
   })) as ResultProps;
   if (delRes.msg === "OK") {
- ElMessage.success(i18n.global.t(`tip['Group members deleted successfully']`));
+    ElMessage.success(
+      i18n.global.t(`tip['Group members deleted successfully']`)
+    );
     store.commit("auth/delMemberList", index);
     delVisible.value = false;
     delItem.value = null;
@@ -117,7 +119,7 @@ const applyMember = async (key: string, state: boolean, index: number) => {
     verifyResult: state,
   })) as ResultProps;
   if (applyRes.msg === "OK") {
-   ElMessage.success(i18n.global.t(`tip['Audit successful']`));
+    ElMessage.success(i18n.global.t(`tip['Audit successful']`));
     applyArray.value.splice(index, 1);
     if (state) {
       store.dispatch("auth/getMemberList", teamKey.value);
@@ -169,7 +171,7 @@ const changeConfig = async () => {
     block: isBlock.value,
   })) as ResultProps;
   if (infoRes.msg === "OK") {
-  ElMessage.success(i18n.global.t(`tip['Update group succeeded']`));
+    ElMessage.success(i18n.global.t(`tip['Update group succeeded']`));
     if (!isMute.value) {
       store.commit("auth/delMuteList", teamKey.value);
     } else {
@@ -196,7 +198,7 @@ const saveMember = async (userKey: string) => {
     toUserKey: userKey,
   })) as ResultProps;
   if (saveRes.msg === "OK") {
-   ElMessage.success(i18n.global.t(`tip['Successfully added team members']`));
+    ElMessage.success(i18n.global.t(`tip['Successfully added team members']`));
     store.dispatch("auth/getGroupList");
   }
 };
@@ -205,7 +207,7 @@ const exitGroup = async () => {
     receiverKey: teamKey.value,
   })) as ResultProps;
   if (exitRes.msg === "OK") {
-  ElMessage.success(i18n.global.t(`tip['Quit the group successfully']`));
+    ElMessage.success(i18n.global.t(`tip['Quit the group successfully']`));
     store.dispatch("auth/getGroupList", "delete");
     router.back();
   }
@@ -329,24 +331,26 @@ watchEffect(() => {
         <div class="right dp--center">
           <el-dropdown :disabled="groupRole > 1 || item._key === user?._key">
             <div class="dp--center">
-              <span style="margin-right: 10px">{{ roleArray[item.role] }}</span
-              ><el-icon v-if="groupRole < 2 && item._key !== user?._key"
-                ><arrow-down
-              /></el-icon>
+              <span style="margin-right: 10px">{{
+                $t(`text['${roleArray[item.role]}']`)
+              }}</span>
+              <el-icon v-if="groupRole < 2 && item._key !== user?._key">
+                <arrow-down />
+              </el-icon>
             </div>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item v-if="groupRole === 0"
-                  >owner
+                  >{{ $t(`text['Group leader']`) }}
                 </el-dropdown-item>
                 <el-dropdown-item @click="changeRole(item, index, 1)"
-                  >admin
+                  >{{ $t(`text.Admin`) }}
                 </el-dropdown-item>
                 <el-dropdown-item @click="changeRole(item, index, 3)"
-                  >editor
+                  >{{ $t(`text.Edit`) }}
                 </el-dropdown-item>
                 <el-dropdown-item @click="changeRole(item, index, 4)"
-                  >member
+                  >{{ $t(`text['Team member']`) }}
                 </el-dropdown-item>
                 <el-divider />
                 <el-dropdown-item
@@ -357,23 +361,26 @@ watchEffect(() => {
                     };
                     delVisible = true;
                   "
-                  >delete
+                  >{{ $t(`icon.Delete`) }}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
           <div style="width: 20px; height: 20px; margin-left: 10px">
-            <el-tooltip content="+ mate" placement="top">
+            <el-tooltip
+              :content="$t(`icon.Mates`)"
+              placement="top"
+              v-if="
+                groupKeyArray.indexOf(item._key) === -1 &&
+                item._key !== user?._key
+              "
+            >
               <img
                 :src="addPersonSvg"
                 alt=""
                 class="del-button"
                 style="width: 100%; height: 100%"
                 @click="saveMember(item._key)"
-                v-if="
-                  groupKeyArray.indexOf(item._key) === -1 &&
-                  item._key !== user?._key
-                "
               />
             </el-tooltip>
           </div>
@@ -418,7 +425,7 @@ watchEffect(() => {
   <el-drawer
     v-model="setVisible"
     direction="rtl"
-    :title="$t(`surface.Settings`)"
+    :title="$t(`text.Setting`)"
     :size="'80%'"
     custom-class="p0-drawer"
   >
@@ -431,11 +438,11 @@ watchEffect(() => {
           getFiledInfo();
         "
       >
-        <span>Archive :</span>
+        <span>{{ $t(`icon.Archive`) }} :</span>
         <el-icon><arrow-right /></el-icon>
       </div>
       <div class="manage-text dp-space-center p-5">
-        <span>{{ $t(`form.public`) }} :</span>
+        <span>{{ $t(`text['Public Team']`) }} :</span>
         <el-switch
           active-color="#16ab78"
           v-model="isPublic"
@@ -443,7 +450,7 @@ watchEffect(() => {
         />
       </div>
       <div class="manage-text dp-space-center p-5">
-        <span>{{ $t(`form.open`) }} :</span>
+        <span>{{ $t(`text['Open  Join']`) }} :</span>
         <el-switch
           active-color="#16ab78"
           v-model="allowJoin"
@@ -454,7 +461,7 @@ watchEffect(() => {
     </template>
 
     <div class="manage-text dp-space-center p-5">
-      <span>{{ $t(`form.mute`) }} :</span>
+      <span>{{ $t(`text.Mute`) }} :</span>
       <el-switch
         active-color="#16ab78"
         v-model="isMute"
@@ -462,7 +469,7 @@ watchEffect(() => {
       />
     </div>
     <div class="manage-text dp-space-center p-5">
-      <span>{{ $t(`form.block`) }} :</span>
+      <span> Block :</span>
       <el-switch
         active-color="#16ab78"
         v-model="isBlock"
@@ -471,21 +478,19 @@ watchEffect(() => {
     </div>
 
     <div class="manage-text dp-space-center p-5" v-if="groupRole">
-      <span @click="exitVisible = true" class="exit icon-point">{{
-        $t(`surface['Exit']`)
-      }}</span>
+      <span @click="exitVisible = true" class="exit icon-point">Exit</span>
     </div>
     <div class="manage-text dp-space-center p-5" v-else>
-      <span @click="disbandVisible = true" class="exit icon-point">{{
-        $t(`surface['disband']`)
-      }}</span>
+      <span @click="disbandVisible = true" class="exit icon-point">
+        Disband
+      </span>
     </div>
   </el-drawer>
   <el-drawer
     v-model="filedVisible"
     direction="rtl"
     :size="'80%'"
-    :title="$t(`surface.Settings`)"
+    :title="$t(`icon.Archive`)"
     custom-class="p0-drawer"
   >
     <div class="filed p-5">
@@ -495,23 +500,31 @@ watchEffect(() => {
     </div>
   </el-drawer>
   <el-dialog v-model="exitVisible" title="Tips" width="350px">
-    <span>{{ $t(`form.out`) }}</span>
+    <span>out Group</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
-        <tbutton @click="exitVisible = false" :disabled="true">Cancel</tbutton>
-        <tbutton @click="exitGroup()">Sure</tbutton>
+        <tbutton @click="exitVisible = false" :disabled="true">{{
+          $t(`button.Cancel`)
+        }}</tbutton>
+        <tbutton @click="exitGroup()">{{ $t(`button.OK`) }}</tbutton>
       </span>
     </template>
   </el-dialog>
 
-  <el-dialog v-model="delVisible" title="Tips" width="350px">
-    <span>{{ $t(`form.delete`) }}</span>
+  <el-dialog
+    v-model="delVisible"
+    :title="$t(`dialog['Delete prompt']`)"
+    width="350px"
+  >
+    <span>{{ $t(`dialog['Delete team members']`) }}</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
-        <tbutton @click="delVisible = false" :disabled="true">Cancel</tbutton>
+        <tbutton @click="delVisible = false" :disabled="true">{{
+          $t(`button.Cancel`)
+        }}</tbutton>
         <tbutton
           @click="delItem ? delMember(delItem.item, delItem.index) : null"
-          >Sure</tbutton
+          >{{ $t(`button.OK`) }}</tbutton
         >
       </span>
     </template>
@@ -520,10 +533,10 @@ watchEffect(() => {
     <span>{{ $t(`form.disband`) }}</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
-        <tbutton @click="disbandVisible = false" :disabled="true"
-          >Cancel</tbutton
-        >
-        <tbutton @click="disbandGroup()">Sure</tbutton>
+        <tbutton @click="disbandVisible = false" :disabled="true">{{
+          $t(`button.Cancel`)
+        }}</tbutton>
+        <tbutton @click="disbandGroup()">{{ $t(`button.OK`) }}</tbutton>
       </span>
     </template>
   </el-dialog>
@@ -546,6 +559,10 @@ watchEffect(() => {
     height: 40px;
   }
   .info {
+    width: 100%;
+    height: calc(100% - 140px);
+    overflow-y: auto;
+    overflow-x: hidden;
     .manage-item {
       .del-button {
         width: 100%;

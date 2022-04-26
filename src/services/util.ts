@@ -57,7 +57,6 @@ export const uploadImage = (
     alert("无文件");
     return;
   }
-  console.log("file", file);
   const domain = "https://cdn-ttalk.qingtime.cn/";
   if (file.size > 20000000) {
     alert("文件不能大于20M,请重新选择");

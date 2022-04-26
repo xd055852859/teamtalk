@@ -36,10 +36,6 @@ const setVisible = ref<boolean>(false);
 const localeValue = ref<string>("");
 const darkValue = ref<string>("");
 const autoValue = ref<boolean>(false);
-onMounted(() => {
-  if (user.value) {
-  }
-});
 const changeLanguage = (value: string) => {
   switch (value) {
     case "中文":
@@ -60,55 +56,32 @@ const changeLanguage = (value: string) => {
       break;
   }
   proxy.$i18n.locale = value;
-  changeConfig("locale", value);
   store.commit("common/setLocale", value);
   localStorage.setItem("LANGUAGE", value);
 };
 const changeDark = (value: string | boolean) => {
   value = value === i18n.global.t(`text['Dark mode']`);
   setDark(value);
-  changeConfig("dark", value);
   store.commit("common/setDark", value);
 };
-// const setTheme = (value: boolean) => {
-//   let lang = value ? "zh" : "en";
-//   proxy.$i18n.locale = lang;
-//   changeConfig("locale", lang);
-//   store.commit("common/setLocale", lang);
-// };
-const changeConfig = async (key?: string, value?: string | boolean) => {
+
+const changeConfig = async () => {
   let config = {
-    userAvatar: "",
-    userName: "",
-    email: "",
-    config: {
-      locale: locale.value,
-      dark: dark.value,
-      theme: theme.value,
-    },
+    userAvatar: avatar.value,
+    userName: userName.value,
+    email: email.value,
   };
-  if (key && config?.config) {
-    config.config[key] = value;
-  } else {
-    config.userAvatar = avatar.value;
-    config.userName = userName.value;
-    config.email = email.value;
-  }
   const configRes = (await api.request.patch("user/config", {
     ...config,
   })) as ResultProps;
   if (configRes.msg === "OK") {
-    console.log(key);
-    if (!key) {
-      ElMessage.success("edit success");
-      userVisible.value = false;
-      store.commit("auth/setUserInfo", { ...user.value, ...config });
-    }
+    ElMessage.success("edit success");
+    userVisible.value = false;
+    store.commit("auth/setUserInfo", { ...user.value, ...config });
   }
 };
 
 const chooseImg = (e) => {
-  console.log(e.target.files[0]);
   let mimeType = ["image/png", "image/jpeg"];
   uploadImage(e.target.files[0], uploadToken.value, mimeType, (url: string) => {
     avatar.value = url;

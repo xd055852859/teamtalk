@@ -100,7 +100,7 @@ export default {
     "Delete team members": "グループメンバーを削除しますか？",
     "Delete card": "カードを削除しますか？",
     "Archive card": "カードをアーカイブしますか？",
-    "Cancel archiving": "アーカイブを解除しますか？",
+    "{{$t(`button.Cancel`)}} archiving": "アーカイブを解除しますか？",
     "Join the blacklist": "ブラックリストに追加しますか？",
     "Remove from blacklist": "ブラックリストから削除しますか？",
     "Exit prompt": "ログアウト",

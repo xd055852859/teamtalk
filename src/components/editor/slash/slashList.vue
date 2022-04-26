@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ElMessage } from "element-plus";
 import { uploadImage } from "@/services/util";
 import { useStore } from "@/store";
 
@@ -47,13 +46,11 @@ const enterHandler = () => {
 
 const selectItem = (index) => {
   const item = props.items[index];
-  console.log(props.command);
   if (item) {
     props.command(item);
   }
 };
 const chooseImg = (e, index: number) => {
-  console.log(e.target.files[0]);
   let mimeType = ["image/png", "image/jpeg"];
   uploadImage(e.target.files[0], uploadToken.value, mimeType, (url: string) => {
     props.items[index].props = { url: url };
@@ -67,6 +64,9 @@ watch(
     selectedIndex.value = 0;
   }
 );
+defineExpose({
+  onKeyDown,
+});
 </script>
 <template>
   <div class="items">
@@ -75,6 +75,7 @@ watch(
       v-for="(item, index) in props.items"
       :key="'tab' + index"
       @click="item.title !== 'img' ? selectItem(index) : ''"
+      :style="selectedIndex === index ? { backgroundColor: '#f0f0f0' } : {}"
     >
       <template v-if="item.title !== 'img'">
         <img :src="item.icon" alt="" class="img" />

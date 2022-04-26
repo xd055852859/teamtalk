@@ -164,11 +164,10 @@ export default {
           editor.chain().focus().deleteRange(range).setHorizontalRule().run();
         },
       },
-    ]
-      .filter((item) =>
-        item.title.toLowerCase().startsWith(query.toLowerCase())
-      )
-      // .slice(0, 10);
+    ].filter((item) =>
+      item.title.toLowerCase().startsWith(query.toLowerCase())
+    );
+    // .slice(0, 10);
   },
 
   render: () => {
@@ -207,12 +206,9 @@ export default {
       onKeyDown(props) {
         if (props.event.key === "Escape") {
           popup[0].hide();
-
           return true;
         }
-        if (component.ref) {
-          return component.ref?.onKeyDown(props);
-        }
+        return component.ref?.onKeyDown(props);
       },
 
       onExit() {

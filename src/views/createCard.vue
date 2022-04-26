@@ -27,7 +27,6 @@ onMounted(() => {
     : false;
 });
 const postContent = async () => {
-  console.log(editorRef.value);
   if (talkKey.value && editorRef.value) {
     //@ts-ignore
     editorRef.value.handlePost(talkKey.value, () => {
@@ -50,20 +49,22 @@ const postContent = async () => {
     <editor-nav :editor="editorInfo" v-if="editorInfo" />
     <div class="button dp--center">
       <template v-if="userState">
-        <img
-          :src="shakeSvg"
-          alt=""
-          v-if="shakeState"
-          class="icon-point"
-          style="width: 25px; height: 25px; margin-right: 10px"
-        />
-        <img
-          :src="dark ? unshakewSvg : unshakeSvg"
-          alt=""
-          v-else
-          class="icon-point"
-          style="width: 25px; height: 25px; margin-right: 10px"
-        />
+        <el-tooltip :content="$t(`icon.Shake`)">
+          <img
+            :src="shakeSvg"
+            alt=""
+            v-if="shakeState"
+            class="icon-point"
+            style="width: 25px; height: 25px; margin-right: 10px"
+          />
+          <img
+            :src="dark ? unshakewSvg : unshakeSvg"
+            alt=""
+            v-else
+            class="icon-point"
+            style="width: 25px; height: 25px; margin-right: 10px"
+          />
+        </el-tooltip>
       </template>
       <tbutton class="button" @click="postContent" v-if="talkKey">{{
         $t(`button.Send`)

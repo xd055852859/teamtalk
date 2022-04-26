@@ -1,5 +1,6 @@
 import axios from "axios";
 import { ElMessage } from "element-plus";
+import i18n from "@/language/i18n";
 import router from "@/router";
 const AUTH_URL = import.meta.env.VITE_AUTH_URL;
 const API_URL = import.meta.env.VITE_API_URL;
@@ -9,7 +10,7 @@ axios.interceptors.response.use(
   (response) => {
     if (response.data.status === 701 && message) {
       message = false;
-      ElMessage.error("请登录");
+      ElMessage.error(i18n.global.t(`tip['Please login']`));
       localStorage.removeItem("token");
       router.push("/");
     } else if (response.data.status === 201) {

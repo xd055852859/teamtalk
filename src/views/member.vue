@@ -69,7 +69,7 @@ const changeConfig = async () => {
     block: blockState.value,
   })) as ResultProps;
   if (infoRes.msg === "OK") {
-    ElMessage.success("Update Config Success");
+    ElMessage.success(i18n.global.t(`tip['Update succeeded']`));
     if (muteState.value) {
       store.commit("auth/addMuteList", memberKey.value);
     } else {
@@ -113,7 +113,7 @@ const deleteMember = async () => {
 <template>
   <div class="member dp-center-center p-5">
     <Theader @clickBack="$router.back()">
-      <template v-slot:title>{{ $t(`surface.Members`) }}</template>
+      <template v-slot:title>{{ $t(`icon.Mates`) }}</template>
       <template v-slot:right><div></div></template>
     </Theader>
     <div class="member-user">
@@ -124,7 +124,7 @@ const deleteMember = async () => {
     <template v-if="info?.receiverKey">
       <div class="dp-space-center member-item">
         <div class="left dp--center">
-          <img :src="muteSvg" alt="" /> {{ $t(`form.mute`) }}
+          <img :src="muteSvg" alt="" /> {{ $t(`text.Mute`) }}
         </div>
         <el-switch
           active-color="#16ab78"
@@ -134,7 +134,7 @@ const deleteMember = async () => {
       </div>
       <div class="dp-space-center member-item">
         <div class="left dp--center">
-          <img :src="blockSvg" alt="" /> {{ $t(`form.block`) }}
+          <img :src="blockSvg" alt="" /> Block
         </div>
         <el-switch
           active-color="#16ab78"
@@ -144,7 +144,7 @@ const deleteMember = async () => {
       </div>
       <div class="dp-space-center member-item" @click="delVisible = true">
         <div class="left dp--center">
-          <img :src="deleteSvg" alt="" /> Delete
+          <img :src="deleteSvg" alt="" /> {{ $t(`icon.Delete`) }}
         </div>
       </div>
     </template>
@@ -158,12 +158,12 @@ const deleteMember = async () => {
       >
     </div>
   </div>
-  <el-dialog v-model="delVisible" title="Delete" :width="300">
-    <span>{{ $t(`form.deleteMate`) }}</span>
+  <el-dialog v-model="delVisible" title="$t(`dialog['Delete prompt']`" :width="300">
+    <span>{{ $t(`dialog['Delete friends']`) }}</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
-        <tbutton @click="delVisible = false" :disabled="true">Cancel</tbutton>
-        <tbutton @click="deleteMember()">Sure</tbutton>
+        <tbutton @click="delVisible = false" :disabled="true">{{$t(`button.Cancel`)}}</tbutton>
+        <tbutton @click="deleteMember()">{{$t(`button.OK`)}}</tbutton>
       </span>
     </template>
   </el-dialog>

@@ -13,6 +13,7 @@ import strongMusic from "@/assets/audio/strong.mp3";
 import middleMusic from "@/assets/audio/middle.mp3";
 
 import { Group } from "./interface/User";
+import { Message } from "./interface/Message";
 const { proxy } = useCurrentInstance();
 const socket: any = inject("socket");
 const store = useStore();
@@ -26,6 +27,7 @@ const musicRef = ref(null);
 const dark = computed(() => store.state.common.dark);
 const theme = computed(() => store.state.common.theme);
 const token = computed(() => store.state.auth.token);
+const messageList = computed(() => store.state.message.messageList);
 
 let talkKey = "";
 let infoKey = "";
@@ -69,6 +71,25 @@ onMounted(() => {
   } else {
     setDark(dark.value);
   }
+  const search = window.location.search
+    ? window.location.search.split("?")[1]
+    : window.location.hash.split("?")[1];
+  const lang = getSearchParamValue(search, "lang") as string;
+  const darkTheme = getSearchParamValue(search, "dark") as string;
+  if (lang) {
+    localStorage.setItem("LANGUAGE", lang);
+    store.commit("common/setLocale", lang);
+  }
+  if (darkTheme === "1") {
+    localStorage.setItem("DARK", darkTheme);
+    store.commit("common/setDark", true);
+    setDark(true);
+  } else if (darkTheme === "0") {
+    localStorage.removeItem("DARK");
+    store.commit("common/setDark", false);
+    setDark(false);
+  }
+  proxy.$i18n.locale = localStorage.getItem("LANGUAGE");
   setTheme(theme.value);
   window.addEventListener("message", handle, false);
 });
@@ -103,9 +124,6 @@ const init = async () => {
       privateMessageCount: userInfoRes.data.privateMessageCount,
       sentMessageCount: userInfoRes.data.sentMessageCount,
     });
-    if (userInfoRes?.data?.config) {
-      proxy.$i18n.locale = userInfoRes.data.config.locale;
-    }
   }
 };
 const addMate = async () => {
@@ -158,15 +176,12 @@ watchEffect(() => {
         }
         console.log("card", msg);
         if (msg.creatorInfo._key !== user.value?._key) {
-          console.log("???")
           store.commit("message/addMessageList", msg);
         }
       });
       socket.on("updateCard", function (msg) {
         // 1:1卡片
         // if (msg.creatorInfo._key !== user.value?._key) {
-        console.log(msg);
-        console.log(msg.creatorInfo._key !== user.value?._key);
         if (
           (msg.creatorInfo._key !== user.value?._key &&
             msg.receiverType === "user" &&
@@ -229,11 +244,24 @@ watchEffect(() => {
   }
 });
 watchEffect(() => {
-  groupList.value.map((item: Group) => {
+  groupList.value.forEach((item: Group) => {
     if (item.toUserKey === user.value?._key) {
       store.commit("auth/setGroupItem", item);
     }
   });
+});
+watchEffect(() => {
+  if (user.value && messageList.value.length > 0) {
+    let messageArray: Message[] = [];
+    messageArray = messageList.value.map((item: Message) => {
+      item.type = "other";
+      if (item.creatorInfo._key === user.value?._key) {
+        item.type = "self";
+      }
+      return item;
+    });
+    store.commit("message/replaceMessageList", messageArray);
+  }
 });
 </script>
 

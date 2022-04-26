@@ -25,7 +25,6 @@ const editorInfo = computed(() => store.state.message.editorInfo);
 
 const drawer = ref<boolean>(false);
 const chooseImg = (e) => {
-  console.log(e.target.files[0]);
   let mimeType = ["image/png", "image/jpeg"];
   uploadImage(e.target.files[0], uploadToken.value, mimeType, (url: string) => {
     editorInfo.value?.commands.setImage({ src: url });

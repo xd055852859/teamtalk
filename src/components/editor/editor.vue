@@ -97,14 +97,16 @@ const editor = useEditor({
   },
   onCreate: ({ editor }) => {
     if (props.initData) {
-      console.log(props.initData);
       editor.commands.setContent(props.initData.detail);
       editor.setEditable(props.isEdit);
       editor.commands.focus();
+      // store.commit("message/setEditor", editor);
+    } else {
+      store.commit("message/setEditor", editor);
     }
   },
 });
-store.commit("message/setEditor", editor);
+
 watch(
   () => props.initData,
   (newData) => {
@@ -135,7 +137,6 @@ async function handlePost(
 ) {
   if (!editor.value) return;
   const json: JSONContent = editor.value.getJSON();
-  console.log(json);
   if (
     json.content &&
     json.content[0] &&
@@ -146,6 +147,12 @@ async function handlePost(
     if (!title) {
       ElMessage.error("Please Enter Title");
       return;
+    } else {
+      json.content[0] = {
+        attrs: { level: 1 },
+        content: [{ type: "text", text: title }],
+        type: "heading",
+      };
     }
     let arr = json.content;
     let cover = "";

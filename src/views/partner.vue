@@ -94,7 +94,7 @@ const joinTeam = async (key: string, index: number) => {
     receiverKey: key,
   })) as ResultProps;
   if (joinRes.msg === "OK") {
-    ElMessage.success("join success");
+    ElMessage.success(i18n.global.t(`tip['Join the group successfully']`));
     searchMoreList.value[index].hasApply = true;
   }
 };
@@ -178,7 +178,12 @@ watch(partnerType, () => {
       >
         <div class="left dp--center">
           <el-avatar :size="40" :src="item.avatar" />
-          <div class="name">{{ item.title }}</div>
+          <div class="name">
+            {{ item.title
+            }}<span style="margin-left: 8px" v-if="item.memberCount"
+              >( {{ item.memberCount }} )</span
+            >
+          </div>
         </div>
       </div>
       <el-empty :description="'No Content'" v-if="searchList.length === 0" />

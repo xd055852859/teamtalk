@@ -3,7 +3,7 @@ import Editor from "./editor/editor.vue";
 
 import i18n from "@/language/i18n";
 import { OnClickOutside } from "@vueuse/components";
-import { Close } from "@element-plus/icons-vue";
+import { Close, Star, StarFilled, MoreFilled } from "@element-plus/icons-vue";
 import api from "@/services/api";
 import { useStore } from "@/store";
 import { ElMessage } from "element-plus";
@@ -14,11 +14,12 @@ import { ResultProps } from "@/interface/Common";
 import commentSvg from "@/assets/svg/comment.svg";
 import commentwSvg from "@/assets/svg/commentw.svg";
 import fullScreenSvg from "../assets/svg/fullScreen.svg";
+import fullScreenwSvg from "../assets/svg/fullScreenw.svg";
 import archiveSvg from "@/assets/svg/archive.svg";
 import archivewSvg from "@/assets/svg/archivew.svg";
 
 const store = useStore();
-const props = defineProps<{ item: Message; type?: string }>();
+const props = defineProps<{ item: Message; type?: string; overKey?: string }>();
 const emits = defineEmits(["changeItem"]);
 const user = computed(() => store.state.auth.user);
 const dark = computed(() => store.state.common.dark);
@@ -26,9 +27,11 @@ const editKey = computed(() => store.state.message.editKey);
 const editContent = computed(() => store.state.message.editContent);
 
 const editorRef = ref(null);
-const itemRef = ref(null);
+const iconRef = ref(null);
 const receiverRole = ref<number>(4);
 const updateState = ref<boolean>(false);
+const updateStr = ref<string>("");
+
 const getInfo = async (key) => {
   let infoRes = (await api.request.get("card/detail", {
     cardKey: key,
@@ -37,6 +40,7 @@ const getInfo = async (key) => {
     store.commit("message/setEditContent", infoRes.data);
     store.commit("message/setEditKey", key);
     receiverRole.value = infoRes.data.receiverRole;
+    updateStr.value = "";
   }
 };
 const filedCard = async (key) => {
@@ -80,158 +84,214 @@ const saveUpdate = () => {
       (receiverRole.value < 3 &&
         editContent.value?.receiverInfo?.receiverType === "group"))
   ) {
-    console.log(updateState.value);
     if (updateState.value) {
       postCard();
     }
     updateState.value = false;
+    updateStr.value = "已保存";
   }
 };
+const favoriteCard = async (key, favorite) => {
+  const postRes = (await api.request.patch("card/favorite", {
+    cardKey: key,
+  })) as ResultProps;
+  if (postRes.msg === "OK") {
+    // ElMessage.success(i18n.global.t(`tip['Set Favourite successfully']`));
+    store.commit("message/updateMessageList", {
+      favorite: !favorite,
+      _key: key,
+    });
+    // favorite.value = !favorite.value;
+  }
+};
+watch(updateState, (newVal, oldVal) => {
+  if (!oldVal && newVal) {
+    updateStr.value = "已修改";
+  }
+});
 </script>
 <template>
-  <OnClickOutside @trigger="saveUpdate">
-    <div
-      class="item"
-      :style="{
-        border: props.item.type === 'self' ? '1px solid #e1e1e1' : '0px',
-      }"
+  <div
+    class="item"
+    :style="{
+      border: props.item.type === 'self' ? '1px solid #e1e1e1' : '0px',
+    }"
+    @click="editKey !== props.item._key ? getInfo(props.item._key) : null"
+  >
+    <!-- <div
+      class="del-button icon-point"
+      @click="delMessage"
+      v-if="props.item.creatorInfo._key !== user?._key"
     >
+      <el-icon><close /></el-icon>
+    </div> -->
+    <div
+      class="icon-box dp--center"
+      ref="iconRef"
+      v-if="props.overKey === props.item._key"
+    >
+      <span v-if="editKey === props.item._key" style="margin-right: 10px">{{
+        updateStr
+      }}</span>
       <div
-        class="del-button icon-point"
-        @click="delMessage"
-        v-if="props.item.creatorInfo._key !== user?._key"
+        class="dp--center"
+        v-if="props.item?.commentCount"
+        style="margin-right: 10px"
       >
-        <el-icon><close /></el-icon>
+        <img
+          :src="dark ? commentwSvg : commentSvg"
+          alt=""
+          style="width: 14px; height: 14px; margin-right: 5px"
+        />{{ props.item?.commentCount }}
       </div>
-      <template
-        v-if="
-          editKey === props.item._key &&
-          (user?._key === editContent?.creatorInfo?._key ||
-            (receiverRole < 3 &&
-              editContent?.receiverInfo?.receiverType === 'group'))
-        "
+      <el-icon
+        style="margin-right: 10px"
+        @click.stop="favoriteCard(item._key, item.favorite)"
+        class="icon-point"
+        :size="18"
       >
-        <Editor
-          :init-data="editContent"
-          :isEdit="true"
-          :shake="false"
-          :cardKey="editKey"
-          ref="editorRef"
-          @changeUpdate="updateState = true"
+        <template v-if="item.favorite"> <star-filled /></template>
+        <template v-else> <star /></template>
+      </el-icon>
+      <div
+        class="dp--center icon-point full-button"
+        style="margin-right: 10px"
+        @click.stop="$router.push('/info/' + props.item._key)"
+      >
+        <img
+          :src="dark ? fullScreenwSvg : fullScreenSvg"
+          alt=""
+          style="width: 12px; height: 12px"
         />
-      </template>
-      <div v-else @click="getInfo(props.item._key)">
-        <div
-          class="title"
-          :style="!props.item.summary ? { marginBottom: '0px' } : {}"
-        >
-          {{ props.item.title }}
+      </div>
+      <el-dropdown>
+        <el-icon :size="16"><more-filled /></el-icon>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item
+              @click.stop="$router.push('/info/' + props.item._key)"
+              >打开</el-dropdown-item
+            >
+            <el-dropdown-item
+              @click.stop="favoriteCard(item._key, item.favorite)"
+              >收藏</el-dropdown-item
+            >
+            <el-dropdown-item
+              @click="delMessage"
+              v-if="props.item.creatorInfo._key !== user?._key"
+              >删除</el-dropdown-item
+            >
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+    </div>
+    <template v-if="editKey === props.item._key">
+      <OnClickOutside @trigger="saveUpdate">
+        <div style="margin-top: 30px">
+          <Editor
+            :init-data="editContent"
+            :isEdit="
+              user?._key === editContent?.creatorInfo?._key ||
+              (receiverRole < 3 &&
+                editContent?.receiverInfo?.receiverType === 'group')
+            "
+            :shake="false"
+            :cardKey="editKey"
+            ref="editorRef"
+            @changeUpdate="updateState = true"
+          />
         </div>
-        <div
-          class="center dp-space-center"
-          :style="
-            props.item.type === 'self'
-              ? { 'flex-direction': 'row-reverse' }
-              : {}
-          "
-        >
-          <div class="right" v-if="props.item.cover">
-            <img :src="props.item.cover" alt="" />
-          </div>
-          <div
-            class="left more-to-long"
-            :style="{ width: props.item.cover ? 'calc(100% - 115px)' : '100%' }"
-          >
-            {{ props.item.summary }}
-          </div>
-        </div>
+      </OnClickOutside>
+    </template>
+    <div v-else>
+      <div
+        class="title single-to-long"
+        :style="{
+          marginBottom: props.item.summary ? '15px' : '0px',
+          width:
+            props.overKey === props.item._key ? 'calc(100% - 100px)' : '100%',
+        }"
+      >
+        {{ props.item.title }}
       </div>
       <div
-        class="footer dp-space-center"
+        class="center dp-space-center"
         :style="
-          props.item.type === 'self'
-            ? {
-                'flex-direction': 'row-reverse',
-              }
-            : {}
+          props.item.type === 'self' ? { 'flex-direction': 'row-reverse' } : {}
         "
       >
-        <div class="left dp--center">
-          <el-avatar
-            fit="cover"
-            :size="25"
-            :src="props.item.creatorInfo.userAvatar"
-            @click.stop="$router.push(`/member/` + props.item.creatorInfo._key)"
-            class="icon-point"
-          />
-          <div
-            class="footer-subtitle common-color"
-            :style="
-              props.item.type === 'self'
-                ? {
-                    'text-align': 'right',
-                  }
-                : {}
-            "
-            v-if="props.item.receiverTitle"
-          >
-            # {{ props.item.receiverTitle }} /
-          </div>
-          <div
-            class="footer-title"
-            :style="
-              props.item.type === 'self'
-                ? {
-                    'text-align': 'right',
-                  }
-                : {}
-            "
-          >
-            <span
-              @click.stop="
-                $router.push(`/member/` + props.item.creatorInfo._key)
-              "
-              class="icon-point"
-              >{{ props.item.creatorInfo.userName }}</span
-            >
-          </div>
+        <div class="right" v-if="props.item.cover">
+          <img :src="props.item.cover" alt="" />
         </div>
-        <div class="right dp--center">
-          <div
-            class="dp--center"
-            v-if="props.item?.commentCount"
-            style="margin-right: 10px"
-          >
-            <img :src="dark ? commentwSvg : commentSvg" alt="" />{{
-              props.item?.commentCount
-            }}
-          </div>
-          <div
-            class="dp--center icon-point full-button"
-            :style="{
-              marginRight: props.item.type === 'self' ? '10px' : '0px',
-            }"
-            @click.stop="$router.push('/info/' + props.item._key)"
-          >
-            <img
-              :src="fullScreenSvg"
-              alt=""
-              style="width: 15px; height: 15px"
-            />
-          </div>
-          <div class="dp--center" v-if="props.type === 'filed'">
-            <img
-              :src="dark ? archivewSvg : archiveSvg"
-              alt=""
-              class="icon-point"
-              style="width: 20px; height: 20px"
-              @click.stop="filedCard(props.item._key)"
-            />
-          </div>
+        <div
+          class="left more-to-long"
+          :style="{ width: props.item.cover ? 'calc(100% - 115px)' : '100%' }"
+        >
+          {{ props.item.summary }}
         </div>
       </div>
     </div>
-  </OnClickOutside>
+    <div
+      class="footer dp-space-center"
+      :style="
+        props.item.type === 'self'
+          ? {
+              'flex-direction': 'row-reverse',
+            }
+          : {}
+      "
+    >
+      <div class="left dp--center">
+        <el-avatar
+          fit="cover"
+          :size="25"
+          :src="props.item.creatorInfo.userAvatar"
+          @click.stop="$router.push(`/member/` + props.item.creatorInfo._key)"
+          class="icon-point"
+        />
+        <div
+          class="footer-subtitle common-color"
+          :style="
+            props.item.type === 'self'
+              ? {
+                  'text-align': 'right',
+                }
+              : {}
+          "
+          v-if="props.item.receiverTitle"
+        >
+          # {{ props.item.receiverTitle }} /
+        </div>
+        <div
+          class="footer-title"
+          :style="
+            props.item.type === 'self'
+              ? {
+                  'text-align': 'right',
+                }
+              : {}
+          "
+        >
+          <span
+            @click.stop="$router.push(`/member/` + props.item.creatorInfo._key)"
+            class="icon-point"
+            >{{ props.item.creatorInfo.userName }}</span
+          >
+        </div>
+      </div>
+      <div class="right dp--center">
+        <div class="dp--center" v-if="props.type === 'filed'">
+          <img
+            :src="dark ? archivewSvg : archiveSvg"
+            alt=""
+            class="icon-point"
+            style="width: 20px; height: 20px"
+            @click.stop="filedCard(props.item._key)"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 <style scoped lang="scss">
 .item {
@@ -274,11 +334,9 @@ const saveUpdate = () => {
     border-bottom-color: #fff;
   }
   .title {
-    width: 100%;
     min-height: 25px;
     font-size: 16px;
     font-weight: 500;
-    margin-bottom: 15px;
   }
   .center {
     width: 100%;
@@ -320,11 +378,15 @@ const saveUpdate = () => {
   &:hover .del-button {
     display: flex;
   }
-  .full-button {
-    display: none;
-  }
-  &:hover .full-button {
-    display: flex;
+  .icon-box {
+    width: 125px;
+    position: absolute;
+    top: 15px;
+    right: 10px;
+    z-index: 2;
+    color: var(--talk-font-color-2);
+    font-size: 14px;
+    justify-content: flex-end;
   }
   .footer {
     width: 100%;
@@ -342,8 +404,6 @@ const saveUpdate = () => {
       }
     }
     .right {
-      color: var(--talk-font-color-2);
-      font-size: 14px;
       img {
         width: 18px;
         height: 18px;

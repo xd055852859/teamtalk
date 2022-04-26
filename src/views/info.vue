@@ -48,7 +48,6 @@ onMounted(() => {
     replyList.value.push(msg);
   });
   socket.on("deleteComment", function (msg) {
-    console.log(msg);
     replyList.value = replyList.value.filter((item: Reply) => {
       return item._key !== msg._key;
     });
@@ -330,7 +329,7 @@ const delReply = async (replyKey: string, index: number) => {
           <el-select
             v-model="atUser"
             placeholder="@ member"
-            style="width: 100px"
+            style="width: 120px"
           >
             <el-option
               v-for="(item, index) in memberList"

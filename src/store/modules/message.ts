@@ -41,11 +41,10 @@ const mutations: MutationTree<MessageState> = {
     }
     state.messageList = [...state.messageList, ...messageList];
   },
+  replaceMessageList(state, messageList: Message[]) {
+    state.messageList = [...messageList];
+  },
   addMessageList(state, messageItem: Message) {
-    messageItem.type = "other";
-    if (messageItem.creatorInfo._key === auth.state.user?._key) {
-      messageItem.type = "self";
-    }
     switch (state.receiverType) {
       case "sent":
         state.receiverNumber++;
@@ -105,7 +104,6 @@ const actions: ActionTree<MessageState, RootState> = {
       page: page,
       limit: 20,
     };
-    console.log(state.receiver);
     if (state.receiver && state.receiver.receiverType !== "private") {
       if (state.receiver.receiverType === "group") {
         obj.receiverKey = state.receiver._key;
@@ -124,13 +122,6 @@ const actions: ActionTree<MessageState, RootState> = {
     if (messageRes.msg === "OK") {
       commit("setPage", page);
       commit("setPageNumber", messageRes.pageNum as number);
-      messageRes.data = messageRes.data.map((item) => {
-        item.type = "other";
-        if (item.creatorInfo._key === auth.state.user?._key) {
-          item.type = "self";
-        }
-        return item;
-      });
       commit("setMessageList", [...messageRes.data]);
     }
   },
