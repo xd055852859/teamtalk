@@ -83,10 +83,11 @@ const saveMember = async (key, index) => {
             <div class="name">{{ item.userName }}</div>
           </div>
           <div class="right">
-            <img
-              :src="addPersonSvg"
-              alt=""
-              style="width: 30px; height: 30px; margin-right: 10px"
+            <icon-font
+              class="icon-point del-button"
+              name="addmate"
+              :size="28"
+              style="margin-right: 10px"
             />
           </div>
         </div>

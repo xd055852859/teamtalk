@@ -4,19 +4,7 @@ import { uploadImage } from "@/services/util";
 import EditorItem from "./editorItem.vue";
 import { useStore } from "@/store";
 
-// import leftSvg from "../assets/editor/left.svg";
-// import rightSvg from "../assets/editor/right.svg";
-import addSvg from "@/assets/editor/add.svg";
-import imgSvg from "@/assets/editor/img.svg";
-import delSvg from "@/assets/editor/del.svg";
-import redoSvg from "@/assets/editor/redo.svg";
-import undoSvg from "@/assets/editor/undo.svg";
-
-import addwSvg from "@/assets/editor/addw.svg";
-import imgwSvg from "@/assets/editor/imgw.svg";
-import delwSvg from "@/assets/editor/delw.svg";
-import redowSvg from "@/assets/editor/redow.svg";
-import undowSvg from "@/assets/editor/undow.svg";
+import IconFont from "../iconFont.vue";
 
 const store = useStore();
 const dark = computed(() => store.state.common.dark);
@@ -35,7 +23,7 @@ const chooseImg = (e) => {
   <div class="button dp--center">
     <el-tooltip :content="'add'" placement="top">
       <el-dropdown>
-        <img :src="dark ? addwSvg : addSvg" alt="" />
+        <icon-font name="add" />
         <template #dropdown>
           <editor-item :itemObj="{ width: '180px' }" :item-height="35" />
         </template>
@@ -46,7 +34,7 @@ const chooseImg = (e) => {
     <el-divider direction="vertical" />
     <el-tooltip :content="'img'" placement="top">
       <div class="img-box">
-        <img :src="dark ? imgwSvg : imgSvg" alt="" />
+        <icon-font name="img" />
         <input
           type="file"
           accept="image/*"
@@ -65,16 +53,15 @@ const chooseImg = (e) => {
     /> -->
     <el-divider direction="vertical" />
     <el-tooltip :content="'redo'" placement="top">
-      <img
-        :src="dark ? redowSvg : redoSvg"
-        alt=""
+      <icon-font
+        name="redo"
         @click="editorInfo?.chain().focus().undo().run()"
+        style="margin-right: 15px"
       />
     </el-tooltip>
     <el-tooltip :content="'undo'" placement="top">
-      <img
-        :src="dark ? undowSvg : undoSvg"
-        alt=""
+      <icon-font
+        name="undo"
         @click="editorInfo?.chain().focus().redo().run()"
       />
     </el-tooltip>

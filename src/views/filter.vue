@@ -2,6 +2,7 @@
 import { useStore } from "@/store";
 
 import { Group } from "@/interface/User";
+import IconFont from "@/components/iconFont.vue";
 
 import allSvg from "../assets/svg/all.svg";
 import privateSvg from "../assets/svg/private.svg";
@@ -44,7 +45,7 @@ const changeReceiver = (
     </div>
     <div class="container dp-space-center" @click="changeReceiver('all')">
       <div class="left dp--center">
-        <img :src="dark ? allwSvg : allSvg" alt="" class="img" />
+        <icon-font name="all" :size="22"></icon-font>
         <div class="name">{{ $t(`text.All`) }}</div>
       </div>
     </div>
@@ -53,31 +54,31 @@ const changeReceiver = (
       @click="changeReceiver('private', null, groupItem)"
     >
       <div class="left dp--center">
-        <img :src="dark ? privatewSvg : privateSvg" alt="" class="img" />
+        <icon-font name="private" :size="22"></icon-font>
         <div class="name">{{ $t(`text.Private`) }}</div>
       </div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('favorite')">
       <div class="left dp--center">
-        <img :src="dark ? favoritewSvg : favoriteSvg" alt="" class="img" />
+        <icon-font name="favorite" :size="22"></icon-font>
         <div class="name">{{ $t(`text.Favourite`) }}</div>
       </div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('sent')">
       <div class="left dp--center">
-        <img :src="dark ? sendwSvg : sendSvg" alt="" class="img" />
+        <icon-font name="send" :size="22"></icon-font>
         <div class="name">{{ $t(`text['I send']`) }}</div>
       </div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('receive')">
       <div class="left dp--center">
-        <img :src="dark ? receivedwSvg : receivedSvg" alt="" class="img" />
+        <icon-font name="received" :size="22"></icon-font>
         <div class="name">{{ $t(`text['I received']`) }}</div>
       </div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('notice')">
       <div class="left dp--center">
-        <img :src="dark ? noticewSvg : noticeSvg" alt="" class="img" />
+        <icon-font name="notice" :size="22"></icon-font>
         <div class="name">{{ $t(`text['System messages']`) }}</div>
       </div>
     </div>

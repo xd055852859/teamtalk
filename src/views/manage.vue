@@ -1,27 +1,23 @@
 <script setup lang="ts">
 import { ArrowDown, ArrowRight } from "@element-plus/icons-vue";
 import { useStore } from "@/store";
+import { Message } from "@/interface/Message";
+import MessageItem from "@/components/messageItem.vue";
+import Theader from "@/components/theader.vue";
+import Tbutton from "@/components/tbutton.vue";
+import i18n from "@/language/i18n";
+import IconFont from "@/components/iconFont.vue";
 
 import chooseSvg from "@/assets/svg/choose.svg";
 import unchooseSvg from "@/assets/svg/unchoose.svg";
-import addPersonSvg from "@/assets/svg/addPerson.svg";
-import addMemberSvg from "@/assets/svg/addMember.svg";
-import agreeSvg from "@/assets/svg/agree.svg";
-import rejectSvg from "@/assets/svg/reject.svg";
 import groupSvg from "@/assets/svg/group.svg";
-import delSvg from "@/assets/svg/del.svg";
 import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
 import { ElMessage } from "element-plus";
 import { Group, Member } from "@/interface/User";
-import Tbutton from "@/components/tbutton.vue";
-import i18n from "@/language/i18n";
-import Theader from "@/components/theader.vue";
 
-import setSvg from "@/assets/svg/Settings.svg";
-import setwSvg from "@/assets/svg/Settingsw.svg";
-import { Message } from "@/interface/Message";
-import MessageItem from "@/components/messageItem.vue";
+
+
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
@@ -29,9 +25,7 @@ const store = useStore();
 const groupList = computed(() => store.state.auth.groupList);
 const user = computed(() => store.state.auth.user);
 const memberList = computed(() => store.state.auth.memberList);
-const groupTitle = computed(() => store.state.auth.groupTitle);
 const groupRole = computed(() => store.state.auth.groupRole);
-const dark = computed(() => store.state.common.dark);
 
 const teamName = ref<string>("");
 const avatar = ref<string>("");
@@ -389,18 +383,17 @@ watchEffect(() => {
             <div class="name">{{ item.userName }}</div>
           </div>
           <div class="right dp--center">
-            <img
-              :src="agreeSvg"
+            <icon-font
               class="icon-point"
-              alt=""
-              style="margin-right: 10px; width: 25px; height: 25px"
+              name="allow"
+              :size="22"
+              style="margin-right: 10px"
               @click="applyMember(item._key, true, index)"
             />
-            <img
-              :src="rejectSvg"
+            <icon-font
               class="icon-point"
-              style="width: 25px; height: 25px"
-              alt=""
+              name="reject"
+              :size="22"
               @click="applyMember(item._key, false, index)"
             />
           </div>
@@ -409,13 +402,8 @@ watchEffect(() => {
     </template>
     <div class="title dp-space-center">
       {{ $t(`text['Team members']`) }} {{ ` ( ${memberList.length} ) ` }}
-      <div class="dp--center icon-point" style="cursor: pointer">
-        <img
-          :src="addMemberSvg"
-          alt=""
-          style="margin-right: 15px; width: 30px; height: 30px"
-          @click="memberVisible = true"
-        />
+      <div class="dp--center icon-point">
+        <icon-font name="addmember" :size="25" @click="memberVisible = true" />
       </div>
     </div>
     <div class="info">
@@ -491,11 +479,10 @@ watchEffect(() => {
                 item._key !== user?._key
               "
             >
-              <img
-                :src="addPersonSvg"
-                alt=""
-                class="del-button"
-                style="width: 100%; height: 100%"
+              <icon-font
+                class="icon-point del-button"
+                name="addmate"
+                :size="20"
                 @click="saveMember(item._key)"
               />
             </el-tooltip>

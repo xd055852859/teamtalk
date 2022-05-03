@@ -19,10 +19,6 @@ import setwSvg from "@/assets/svg/Settingsw.svg";
 import helpwSvg from "@/assets/svg/Helpw.svg";
 import communitywSvg from "@/assets/svg/Communityw.svg";
 import quitwSvg from "@/assets/svg/Quitw.svg";
-import headerPartnerSvg from "../assets/svg/headerPartner.svg";
-import headerPartnerwSvg from "../assets/svg/headerPartnerw.svg";
-import headerFilterSvg from "../assets/svg/headerFilter.svg";
-import headerFilterwSvg from "../assets/svg/headerFilterw.svg";
 import IconFont from "@/components/iconFont.vue";
 
 const store = useStore();
@@ -202,19 +198,19 @@ watch(autoValue, (newVal) => {
     </div>
     <div class="user-set">
       <div class="userCenter-item dp--center" @click="setVisible = true">
-        <img :src="dark ? setwSvg : setSvg" alt="" />
+        <icon-font name="set" :size="18" style="margin-right: 15px" />
         <span>
           {{ $t(`text.Setting`) }}
         </span>
       </div>
       <div class="userCenter-item dp--center">
-        <img :src="dark ? helpwSvg : helpSvg" alt="" />
+        <icon-font name="help" :size="18" style="margin-right: 15px" />
         <span>
           {{ $t(`text.Help`) }}
         </span>
       </div>
       <div class="userCenter-item dp--center">
-        <img :src="dark ? communitywSvg : communitySvg" alt="" />
+        <icon-font name="community" :size="18" style="margin-right: 15px" />
         <span>
           {{ $t(`text.Communication`) }}
         </span>
@@ -223,7 +219,7 @@ watch(autoValue, (newVal) => {
         class="userCenter-item dp--center"
         @click="store.commit('auth/setLogout')"
       >
-        <img :src="dark ? quitwSvg : quitSvg" alt="" />
+      <icon-font name="quit" :size="18" style="margin-right: 15px" />
         <span>
           {{ $t(`text['Sign out']`) }}
         </span>

@@ -83,12 +83,13 @@ const deleteTrash = async () => {
 <style scoped lang="scss">
 .trash-box {
   width: 100%;
+  height: calc(100vh - 55px);
   overflow-x: hidden;
   overflow-y: auto;
   background: var(--talk-bg-color);
+
   .trash-container {
     width: 100%;
-    height: calc(100vh - 55px);
     max-width: 960px;
   }
 }

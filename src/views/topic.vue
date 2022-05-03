@@ -9,9 +9,6 @@ import { ArrowDown } from "@element-plus/icons-vue";
 import { useStore } from "@/store";
 
 import toTopSvg from "../assets/svg/toTop.svg";
-import unshakeSvg from "@/assets/svg/unshake.svg";
-import unshakewSvg from "@/assets/svg/unshakew.svg";
-import shakeSvg from "@/assets/svg/shake.svg";
 import Theader from "@/components/theader.vue";
 import IconFont from "@/components/iconFont.vue";
 
@@ -171,20 +168,13 @@ const toTop = () => {
             <div class="bottom dp--center">
               <template v-if="talker?.receiverType === 'user'">
                 <el-tooltip :content="$t(`icon.Shake`)">
-                  <img
-                    :src="shakeSvg"
-                    alt=""
-                    v-if="shakeState"
+                  <icon-font
+                    :name="shakeState ? 'shake' : 'unshake'"
                     class="icon-point"
-                    style="width: 25px; height: 25px; margin-right: 10px"
-                  />
-                  <img
-                    :src="dark ? unshakewSvg : unshakeSvg"
-                    alt=""
-                    v-else
-                    class="icon-point"
+                    style="margin-right: 10px"
+                    :size="25"
+                    :color="shakeState ? '#16ab78' : ''"
                     @click="shakeState = true"
-                    style="width: 25px; height: 25px; margin-right: 10px"
                   />
                 </el-tooltip>
               </template>

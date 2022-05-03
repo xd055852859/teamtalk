@@ -13,12 +13,9 @@ import { ResultProps } from "@/interface/Common";
 import { Group, Search } from "@/interface/User";
 
 import groupSvg from "@/assets/svg/group.svg";
-import addMateSvg from "@/assets/svg/addMate.svg";
-import addMatewSvg from "@/assets/svg/addMatew.svg";
-import addTeamSvg from "@/assets/svg/addTeam.svg";
-import addTeamwSvg from "@/assets/svg/addTeamw.svg";
 import addApplySvg from "@/assets/svg/addApply.svg";
 import addApplywSvg from "@/assets/svg/addApplyw.svg";
+import IconFont from "@/components/iconFont.vue";
 const router = useRouter();
 const route = useRoute();
 const groupList = computed(() => store.state.auth.groupList);
@@ -145,7 +142,11 @@ watch(
             ? $t(`input['Enter Mate Name']`)
             : $t(`input['Enter Team Name']`)
         "
-        :style="partnerType === 'user'?{width: 'calc(100% - 140px)'}:{width: 'calc(100% - 240px)'}"
+        :style="
+          partnerType === 'user'
+            ? { width: 'calc(100% - 140px)' }
+            : { width: 'calc(100% - 240px)' }
+        "
       />
       <tbutton
         style="height: 40px; padding: 0px 30px"
@@ -183,7 +184,7 @@ watch(
       <el-divider border-style="dashed" />
       <div
         @click="moreVisible = true"
-        class="more-button icon-point p-5"
+        class="more-button icon-point"
         :class="{ 'common-color': !moreVisible ? true : false }"
       >
         {{ $t(`text.More`) }}
@@ -202,29 +203,25 @@ watch(
             <div class="name single-to-long">{{ item.title }}</div>
           </div>
           <div class="right">
-            <img
-              :src="dark ? addMatewSvg : addMateSvg"
+            <icon-font
+              name="addmate"
+              :size="22"
+              @click="saveMate(item.toUserKey as string, index)"
               v-if="partnerType === 'user'"
-              alt=""
-              style="width: 25px; height: 25px"
-              @click=" saveMate(item.toUserKey as string, index)
-              "
             />
-            <img
-              :src="dark ? addTeamwSvg : addTeamSvg"
-              v-if="partnerType === 'group' && item.allowJoin"
-              alt=""
-              style="width: 25px; height: 25px"
+            <icon-font
+              name="addmember"
+              :size="22"
               @click="saveMember(item._key as string, user?._key as string)"
+              v-if="partnerType === 'group' && item.allowJoin"
             />
-            <img
-              :src="dark ? addTeamwSvg : addTeamSvg"
+            <icon-font
+              name="addmember"
+              :size="22"
+              @click="joinTeam(item._key as string, index)"
               v-if="
                 partnerType === 'group' && !item.hasApply && !item.allowJoin
               "
-              alt=""
-              style="width: 25px; height: 25px"
-              @click="joinTeam(item._key as string, index)"
             />
             <img
               :src="dark ? addApplywSvg : addApplySvg"

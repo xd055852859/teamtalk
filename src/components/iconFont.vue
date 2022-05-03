@@ -3,6 +3,7 @@ import { useStore } from "@/store";
 interface iconProps {
   name: string;
   size?: number;
+  color?: string;
 }
 const props = withDefaults(defineProps<iconProps>(), {
   name: "",
@@ -15,8 +16,10 @@ const dark = computed(() => store.state.common.dark);
   <i
     class="iconfont"
     :class="`icon-${props.name}`"
-    style="color: var(--talk-font-color)"
-    :style="{ fontSize: props.size + 'px' }"
+    :style="{
+      fontSize: props.size + 'px',
+      color: color ? color : 'var(--talk-font-color)',
+    }"
   ></i>
 </template>
 <style scoped lang="scss"></style>

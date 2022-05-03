@@ -60,7 +60,6 @@ const insertNode = (type) => {
       :style="itemHeight + 'px' ? { height: itemHeight + 'px' } : {}"
     >
       <icon-font name="text" />
-      <!-- <img :src="dark ? textwSvg : textSvg" alt="" /> -->
       Text
     </div>
     <div

@@ -242,11 +242,10 @@ const toInfo = () => {
       </div>
       <div class="right dp--center">
         <div class="dp--center" v-if="props.type === 'filed'">
-          <img
-            :src="dark ? archivewSvg : archiveSvg"
-            alt=""
+          <icon-font
+            name="archive"
+            :size="24"
             class="icon-point"
-            style="width: 20px; height: 20px"
             @click.stop="filedCard(item._key)"
           />
         </div>
@@ -257,13 +256,6 @@ const toInfo = () => {
             class="icon-point"
             @click.stop="trashCard(item._key)"
           />
-          <!-- <img
-            :src="dark ? archivewSvg : archiveSvg"
-            alt=""
-            class="icon-point"
-            style="width: 20px; height: 20px"
-            @click.stop="filedCard(item._key)"
-          /> -->
         </div>
 
         <div
@@ -271,18 +263,13 @@ const toInfo = () => {
           ref="iconRef"
           v-if="overKey === item._key"
         >
-          <el-tooltip :content="'comment'" placeholder="top">
-            <div
-              class="dp--center"
-              style="margin-right: 10px"
-              v-if="item.unRead || item?.commentCount"
-            >
+          <el-tooltip
+            :content="'comment'"
+            placeholder="top"
+            v-if="item.unRead || item?.commentCount"
+          >
+            <div class="dp--center" style="margin-right: 10px">
               <el-badge :value="item.unRead">
-                <!-- <img
-                :src="dark ? commentwSvg : commentSvg"
-                alt=""
-                
-              /> -->
                 <icon-font name="all" :size="15" style="margin-right: 5px" />
               </el-badge>
               <span>{{ item?.commentCount ? item.commentCount : 0 }}</span>

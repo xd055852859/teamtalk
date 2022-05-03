@@ -20,6 +20,7 @@ import infoDelSvg from "@/assets/svg/infoDel.svg";
 import infoDelwSvg from "@/assets/svg/infoDelw.svg";
 import archiveSvg from "@/assets/svg/archive.svg";
 import archivewSvg from "@/assets/svg/archivew.svg";
+import IconFont from "@/components/iconFont.vue";
 
 const socket: any = inject("socket");
 const props = defineProps<{ cardKey?: string }>();
@@ -205,15 +206,15 @@ defineExpose({
         }}
       </div>
       <div class="dp--center">
-         <el-tooltip :content="'favorite'">
-        <el-icon
-          style="margin-right: 10px; margin-left: 10px; cursor: pointer"
-          size="20px"
-          @click="favoriteCard"
-        >
-          <star-filled v-if="favorite" />
-          <star v-else />
-        </el-icon>
+        <el-tooltip :content="'favorite'">
+          <el-icon
+            style="margin-right: 10px; margin-left: 10px; cursor: pointer"
+            size="20px"
+            @click="favoriteCard"
+          >
+            <star-filled v-if="favorite" />
+            <star v-else />
+          </el-icon>
         </el-tooltip>
         <el-icon
           style="margin-right: 10px; cursor: pointer"
@@ -260,19 +261,12 @@ defineExpose({
               placement="left"
               class="button-item-icon"
             >
-              <img
-                :src="shakeSvg"
-                alt=""
-                v-if="shakeState"
+              <icon-font
+                :name="shakeState ? 'shake' : 'unshake'"
                 class="icon-point"
-                style="width: 25px; height: 25px"
-              />
-              <img
-                :src="dark ? unshakewSvg : unshakeSvg"
-                alt=""
-                v-else
-                class="icon-point"
-                style="width: 25px; height: 25px"
+                :size="25"
+                :color="shakeState ? '#16ab78' : ''"
+                @click="shakeState = true"
               />
             </el-tooltip>
           </div>
@@ -289,15 +283,10 @@ defineExpose({
               placement="top"
               class="button-item-icon"
             >
-              <img
-                :src="dark ? archivewSvg : archiveSvg"
-                alt=""
+              <icon-font
+                name="archive"
+                :size="cardKey ? 20 : 25"
                 class="icon-point"
-                :style="
-                  cardKey
-                    ? { width: '20px', height: '20px' }
-                    : { width: '25px', height: '25px' }
-                "
                 @click.once="filedCard()"
               />
             </el-tooltip>
@@ -315,15 +304,10 @@ defineExpose({
               placement="top"
               class="button-item-icon"
             >
-              <img
-                :src="dark ? infoDelwSvg : infoDelSvg"
-                alt=""
+              <icon-font
+                name="delete"
+                :size="cardKey ? 20 : 25"
                 class="icon-point"
-                :style="
-                  cardKey
-                    ? { width: '20px', height: '20px' }
-                    : { width: '25px', height: '25px' }
-                "
                 @click.once="delCard()"
               />
             </el-tooltip>
@@ -348,11 +332,9 @@ defineExpose({
             class="icon-point message-right dp--center"
             @click="delReply(item._key, index)"
           >
-            <img
-              :src="deleteSvg"
-              alt=""
-              style="width: 20px; height: 20px"
-              class=""
+            <icon-font
+              name="delete"
+              :size="20"
               v-if="
                 user?._key === item.userKey ||
                 (receiverRole < 2 &&

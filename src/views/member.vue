@@ -14,6 +14,7 @@ import { Mate } from "@/interface/User";
 import muteSvg from "@/assets/svg/mute.svg";
 import blockSvg from "@/assets/svg/block.svg";
 import deleteSvg from "@/assets/svg/delete.svg";
+import IconFont from "@/components/iconFont.vue";
 
 const store = useStore();
 const route = useRoute();
@@ -136,7 +137,9 @@ const deleteMember = async () => {
     <template v-if="info?.receiverKey">
       <div class="dp-space-center member-item">
         <div class="left dp--center">
-          <img :src="muteSvg" alt="" /> {{ $t(`text.Mute`) }}
+          <icon-font name="mute" :size="30" style="margin-right: 15px" />{{
+            $t(`text.Mute`)
+          }}
         </div>
         <el-switch
           active-color="#16ab78"
@@ -145,7 +148,9 @@ const deleteMember = async () => {
         />
       </div>
       <div class="dp-space-center member-item">
-        <div class="left dp--center"><img :src="blockSvg" alt="" /> Block</div>
+        <div class="left dp--center">
+          <icon-font name="block" :size="30" style="margin-right: 15px" /> Block
+        </div>
         <el-switch
           active-color="#16ab78"
           v-model="blockState"
@@ -154,7 +159,8 @@ const deleteMember = async () => {
       </div>
       <div class="dp-space-center member-item" @click="delVisible = true">
         <div class="left dp--center">
-          <img :src="deleteSvg" alt="" /> {{ $t(`icon.Delete`) }}
+          <icon-font name="delete" :size="30" style="margin-right: 15px" />
+          {{ $t(`icon.Delete`) }}
         </div>
       </div>
     </template>
