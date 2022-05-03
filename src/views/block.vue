@@ -27,7 +27,11 @@ const outBlock = async (key: string, index: number) => {
     block: false,
   })) as ResultProps;
   if (outRes.msg === "OK") {
-    ElMessage.success("Out Block Success");
+    ElMessage({
+      message: "Out Block Success",
+      type: "success",
+      duration: 1000,
+    });
     blockArray.value.splice(index, 1);
     store.commit("auth/updateGroupList", {
       _key: key,
@@ -37,13 +41,13 @@ const outBlock = async (key: string, index: number) => {
 };
 </script>
 <template>
+  <theader @clickBack="$router.back()">
+    <template v-slot:title>
+      <div class="dp-center-center">{{ $t(`text.BlockList`) }}</div>
+    </template>
+    <template v-slot:right><div></div></template>
+  </theader>
   <div class="block p-5">
-    <theader @clickBack="$router.back()">
-      <template v-slot:title>
-        <div class="dp-center-center">{{ $t(`text.BlockList`) }}</div>
-      </template>
-      <template v-slot:right><div></div></template>
-    </theader>
     <div class="info">
       <div
         class="container dp-space-center manage-item"
@@ -74,7 +78,7 @@ const outBlock = async (key: string, index: number) => {
 <style scoped lang="scss">
 .block {
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 55px);
   background: var(--talk-bg-color);
   .info {
     width: 100%;

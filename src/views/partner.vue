@@ -20,12 +20,13 @@ import addTeamwSvg from "@/assets/svg/addTeamw.svg";
 import addApplySvg from "@/assets/svg/addApply.svg";
 import addApplywSvg from "@/assets/svg/addApplyw.svg";
 const router = useRouter();
+const route = useRoute();
 const groupList = computed(() => store.state.auth.groupList);
 const dark = computed(() => store.state.common.dark);
 const user = computed(() => store.state.auth.user);
 
 const partnerName = ref<string>("");
-const partnerType = ref<string>("user");
+const partnerType = ref<string>("");
 const searchList = ref<Group[]>([]);
 const searchMoreList = ref<Search[]>([]);
 const moreVisible = ref<boolean>(false);
@@ -74,7 +75,11 @@ const saveMate = async (userKey: string, index: number) => {
     toUserKey: userKey,
   })) as ResultProps;
   if (saveRes.msg === "OK") {
-    ElMessage.success(i18n.global.t(`tip['Friend add succeeded']`));
+    ElMessage({
+      message: i18n.global.t(`tip['Friend add succeeded']`),
+      type: "success",
+      duration: 1000,
+    });
     searchList.value.push({ ...saveRes.data });
     searchMoreList.value.splice(index, 1);
   }
@@ -85,7 +90,11 @@ const saveMember = async (teamKey: string, userKey: string) => {
     memberKeyArr: [userKey],
   })) as ResultProps;
   if (groupRes.msg === "OK") {
-    ElMessage.success(i18n.global.t(`tip['Successfully applied']`));
+    ElMessage({
+      message: i18n.global.t(`tip['Successfully applied']`),
+      type: "success",
+      duration: 1000,
+    });
     store.dispatch("auth/getGroupList");
   }
 };
@@ -94,7 +103,11 @@ const joinTeam = async (key: string, index: number) => {
     receiverKey: key,
   })) as ResultProps;
   if (joinRes.msg === "OK") {
-    ElMessage.success(i18n.global.t(`tip['Join the group successfully']`));
+    ElMessage({
+      message: i18n.global.t(`tip['Join the group successfully']`),
+      type: "success",
+      duration: 1000,
+    });
     searchMoreList.value[index].hasApply = true;
   }
 };
@@ -106,42 +119,23 @@ watch(partnerType, () => {
   moreVisible.value = false;
   partnerName.value = "";
 });
+watch(
+  route,
+  (newVal) => {
+    partnerType.value = newVal.params.id as string;
+  },
+  { immediate: true }
+);
 </script>
 <template>
+  <theader
+    headerIcon="menu"
+    :headerTitle="route.params.id === 'user' ? 'Mate' : 'Team'"
+  >
+    <template v-slot:title></template>
+    <template v-slot:right><div></div></template>
+  </theader>
   <div class="partner p-5">
-    <theader
-      @clickBack="
-        router.push('/home');
-        store.dispatch('auth/getGroupList');
-      "
-    >
-      <template v-slot:title>
-        <div class="dp-center-center icon-point">
-          <div
-            :style="
-              partnerType === 'user'
-                ? { borderBottom: `3px solid #16ab78` }
-                : {}
-            "
-            @click="partnerType = 'user'"
-          >
-            {{ $t(`icon.Mates`) }}
-          </div>
-          <el-divider direction="vertical" />
-          <div
-            :style="
-              partnerType === 'group'
-                ? { borderBottom: `3px solid #16ab78` }
-                : {}
-            "
-            @click="partnerType = 'group'"
-          >
-            {{ $t(`icon.Team`) }}
-          </div>
-        </div>
-      </template>
-      <template v-slot:right><div></div></template>
-    </theader>
     <div class="search dp-space-center">
       <el-input
         v-model="partnerName"
@@ -151,26 +145,25 @@ watch(partnerType, () => {
             ? $t(`input['Enter Mate Name']`)
             : $t(`input['Enter Team Name']`)
         "
-        style="width: calc(100% - 140px)"
+        :style="partnerType === 'user'?{width: 'calc(100% - 140px)'}:{width: 'calc(100% - 240px)'}"
       />
       <tbutton
         style="height: 40px; padding: 0px 30px"
-        @click="router.push('/invite')"
-        v-if="partnerType === 'user'"
+        @click="router.push('/home/invite')"
       >
         {{ $t(`button.Invite`) }}
       </tbutton>
       <tbutton
         style="height: 40px; padding: 0px 30px"
         @click="router.push('/createGroup')"
-        v-else
+        v-if="partnerType === 'group'"
       >
         {{ $t(`button['New Team']`) }}
       </tbutton>
     </div>
     <div class="info">
       <div
-        class="container dp-space-center contact-item"
+        class="container dp-space-center partner-item"
         v-for="(item, index) in searchList"
         :key="'contact' + index"
         @click="choosePartner(item)"
@@ -178,7 +171,7 @@ watch(partnerType, () => {
       >
         <div class="left dp--center">
           <el-avatar :size="40" :src="item.avatar" />
-          <div class="name">
+          <div class="name single-to-long">
             {{ item.title
             }}<span style="margin-left: 8px" v-if="item.memberCount"
               >( {{ item.memberCount }} )</span
@@ -197,7 +190,7 @@ watch(partnerType, () => {
       </div>
       <template v-if="searchMoreList.length > 0">
         <div
-          class="container dp-space-center contact-item"
+          class="container dp-space-center partner-item"
           v-for="(item, index) in searchMoreList"
           :key="'contact' + index"
         >
@@ -206,7 +199,7 @@ watch(partnerType, () => {
               :size="40"
               :src="partnerType === 'group' ? groupSvg : item.avatar"
             />
-            <div class="name">{{ item.title }}</div>
+            <div class="name single-to-long">{{ item.title }}</div>
           </div>
           <div class="right">
             <img
@@ -249,7 +242,10 @@ watch(partnerType, () => {
         "
       />
     </div>
-    <div class="footer icon-point dp--center" @click="router.push('/block')">
+    <div
+      class="footer icon-point dp--center"
+      @click="router.push('/home/block')"
+    >
       查看黑名单 <el-icon style="margin-left: 10px"><arrow-right /></el-icon>
     </div>
   </div>
@@ -257,20 +253,31 @@ watch(partnerType, () => {
 <style scoped lang="scss">
 .partner {
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 55px);
   background: var(--talk-bg-color);
+  max-width: 960px;
   .search {
     width: 100%;
     height: 45px;
   }
   .info {
     width: 100%;
-    height: calc(100% - 150px);
+    height: calc(100% - 95px);
     overflow-y: auto;
     margin-top: 10px;
     .more-button {
       width: 100%;
       text-align: right;
+    }
+    .partner-item {
+      width: 100%;
+      .left {
+        width: calc(100% - 50px);
+        .name {
+          width: calc(100% - 50px);
+          margin-left: 5px;
+        }
+      }
     }
   }
   .footer {

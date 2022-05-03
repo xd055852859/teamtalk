@@ -29,7 +29,11 @@ const chooseMember = (memberKey: string) => {
 };
 const createGroup = async () => {
   if (teamKeyArray.value.length === 0) {
-    ElMessage.error("please choose a member");
+    ElMessage({
+      message: "please choose a member",
+      type: "error",
+      duration: 1000,
+    });
     return;
   }
   const config = {
@@ -41,7 +45,11 @@ const createGroup = async () => {
     ...config,
   })) as ResultProps;
   if (groupRes.msg === "OK") {
-    ElMessage.success(i18n.global.t(`tip['Group created successfully']`));
+    ElMessage({
+      message: i18n.global.t(`tip['Group created successfully']`),
+      type: "success",
+      duration: 1000,
+    });
     router.push("/home");
     store.dispatch("auth/getGroupList");
   }
@@ -66,21 +74,21 @@ watch(
         store.dispatch('auth/getGroupList');
       "
     >
-      <template v-slot:title>{{ $t(`button[New Team]`) }}</template>
+      <template v-slot:title>{{ $t(`button['New Team']`) }}</template>
       <template v-slot:right><div></div></template>
     </theader>
     <div class="input dp-space-center">
       <el-input
         v-model="teamName"
         size="large"
-        :placeholder="$t(`input[Enter Team Name]`)"
+        :placeholder="$t(`input['Enter Team Name']`)"
         style="width: calc(100% - 120px)"
       />
       <tbutton style="height: 40px; padding: 0px 30px" @click="createGroup">
         {{ $t(`button.Save`) }}
       </tbutton>
     </div>
-    <div class="title">{{ $t(`text[Team members]`) }}</div>
+    <div class="title">{{ $t(`text['Team members']`) }}</div>
     <div class="info">
       <div
         class="container dp-space-center"

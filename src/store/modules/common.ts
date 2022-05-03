@@ -7,10 +7,11 @@ const state: CommonState = {
     ? (localStorage.getItem("LANGUAGE") as string)
     : "zh",
   dark: localStorage.getItem("DARK") ? true : false,
-  theme:  "#16ab78",
+  theme: "#16ab78",
   // localStorage.getItem("THEME") ||
   loading: false,
-  top:0
+  top: 0,
+  updateState: false,
 };
 
 const mutations: MutationTree<CommonState> = {
@@ -26,8 +27,11 @@ const mutations: MutationTree<CommonState> = {
   setLoading(state, data) {
     state.loading = data;
   },
-  setTop(state, top:number) {
+  setTop(state, top: number) {
     state.top = top;
+  },
+  setUpdateState(state, updateState: boolean) {
+    state.updateState = updateState;
   },
 };
 

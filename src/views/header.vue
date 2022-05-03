@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import UserCenter from "./userCenter.vue";
 import HeaderFilter from "./filter.vue";
 
 import { Close } from "@element-plus/icons-vue";
@@ -7,10 +6,6 @@ import { useStore } from "@/store";
 
 import logoSvg from "../assets/svg/logoHeader.svg";
 import logowSvg from "../assets/svg/logoHeaderw.svg";
-import headerPartnerSvg from "../assets/svg/headerPartner.svg";
-import headerPartnerwSvg from "../assets/svg/headerPartnerw.svg";
-import headerFilterSvg from "../assets/svg/headerFilter.svg";
-import headerFilterwSvg from "../assets/svg/headerFilterw.svg";
 
 const store = useStore();
 const receiver = computed(() => store.state.message.receiver);
@@ -45,7 +40,7 @@ const backAll = () => {
       >
     </div>
     <div class="header-right dp--center">
-      <template v-if="receiverType !== 'all'">
+      <!-- <template v-if="receiverType !== 'all'">
         <div
           class="m-right-10 filter-close dp-space-center"
           :style="!receiver ? { background: '#e2e2e2' } : {}"
@@ -70,31 +65,7 @@ const backAll = () => {
             ><close
           /></el-icon>
         </div>
-      </template>
-      <el-tooltip :content="$t(`icon.Filter`)">
-        <img
-          :src="dark ? headerFilterwSvg : headerFilterSvg"
-          alt=""
-          class="filter"
-          @click="chooseVisible = true"
-          style="margin-right: 8px"
-        />
-      </el-tooltip>
-      <el-tooltip :content="$t(`icon.Mates`)">
-        <img
-          :src="dark ? headerPartnerwSvg : headerPartnerSvg"
-          alt=""
-          class="filter"
-          @click="$router.push('/partner')"
-        />
-      </el-tooltip>
-      <!-- <el-badge
-        :value="receiverNumber"
-        v-if="receiverType !== 'all'"
-        :hidden="!receiverNumber"
-      >
-        <img :src="unReadSvg" alt="" @click="backAll" />
-      </el-badge> -->
+      </template> -->
     </div>
   </div>
   <el-drawer
@@ -106,14 +77,7 @@ const backAll = () => {
   >
     <header-filter @close="chooseVisible = false" />
   </el-drawer>
-  <el-drawer
-    v-model="themeVisible"
-    direction="ltr"
-    :with-header="false"
-    :size="210"
-  >
-    <user-center />
-  </el-drawer>
+
 </template>
 <style scoped lang="scss">
 .talk-header {

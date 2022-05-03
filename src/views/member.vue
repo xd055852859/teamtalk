@@ -69,7 +69,11 @@ const changeConfig = async () => {
     block: blockState.value,
   })) as ResultProps;
   if (infoRes.msg === "OK") {
-    ElMessage.success(i18n.global.t(`tip['Update succeeded']`));
+    ElMessage({
+      message: i18n.global.t(`tip['Update succeeded']`),
+      type: "success",
+      duration: 1000,
+    });
     if (muteState.value) {
       store.commit("auth/addMuteList", memberKey.value);
     } else {
@@ -87,7 +91,11 @@ const saveMember = async () => {
     toUserKey: info.value?._key,
   })) as ResultProps;
   if (saveRes.msg === "OK") {
-    ElMessage.success(i18n.global.t(`tip['Friend add succeeded']`));
+    ElMessage({
+      message: i18n.global.t(`tip['Friend add succeeded']`),
+      type: "success",
+      duration: 1000,
+    });
     if (info.value) {
       info.value.receiverKey = saveRes.data._key;
       toUser();
@@ -101,7 +109,11 @@ const deleteMember = async () => {
     receiverKey: info.value?.receiverKey,
   })) as ResultProps;
   if (deleteRes.msg === "OK") {
-    ElMessage.success("Delete Mate Success");
+    ElMessage({
+      message: "Delete Mate Success",
+      type: "success",
+      duration: 1000,
+    });
     delVisible.value = false;
     store.commit("message/setReceiver", null);
     store.commit("message/setReceiverType", "all");
@@ -111,11 +123,11 @@ const deleteMember = async () => {
 };
 </script>
 <template>
+  <theader @clickBack="$router.back()">
+    <template v-slot:title>{{ $t(`icon.Mates`) }}</template>
+    <template v-slot:right><div></div></template>
+  </theader>
   <div class="member dp-center-center p-5">
-    <Theader @clickBack="$router.back()">
-      <template v-slot:title>{{ $t(`icon.Mates`) }}</template>
-      <template v-slot:right><div></div></template>
-    </Theader>
     <div class="member-user">
       <el-avatar fit="cover" :src="info?.userAvatar" :size="100" />
       <div class="center">{{ info?.userName }}</div>
@@ -133,9 +145,7 @@ const deleteMember = async () => {
         />
       </div>
       <div class="dp-space-center member-item">
-        <div class="left dp--center">
-          <img :src="blockSvg" alt="" /> Block
-        </div>
+        <div class="left dp--center"><img :src="blockSvg" alt="" /> Block</div>
         <el-switch
           active-color="#16ab78"
           v-model="blockState"
@@ -152,18 +162,22 @@ const deleteMember = async () => {
       <tbutton
         @click="info?.receiverKey ? toUser() : saveMember()"
         style="width: 120px"
-        >{{
-          info?.receiverKey ? $t(`surface.talkto`) : $t(`surface.add`)
-        }}</tbutton
+        >{{ info?.receiverKey ? `Talk to` : `Add` }}</tbutton
       >
     </div>
   </div>
-  <el-dialog v-model="delVisible" title="$t(`dialog['Delete prompt']`" :width="300">
+  <el-dialog
+    v-model="delVisible"
+    :title="$t(`dialog['Delete prompt']`)"
+    :width="300"
+  >
     <span>{{ $t(`dialog['Delete friends']`) }}</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
-        <tbutton @click="delVisible = false" :disabled="true">{{$t(`button.Cancel`)}}</tbutton>
-        <tbutton @click="deleteMember()">{{$t(`button.OK`)}}</tbutton>
+        <tbutton @click="delVisible = false" :disabled="true">{{
+          $t(`button.Cancel`)
+        }}</tbutton>
+        <tbutton @click="deleteMember()">{{ $t(`button.OK`) }}</tbutton>
       </span>
     </template>
   </el-dialog>
@@ -171,8 +185,7 @@ const deleteMember = async () => {
 <style scoped lang="scss">
 .member {
   width: 100%;
-  height: 100%;
-  background: var(--talk-bg-color);
+  height: calc(100vh - 55px);
   //   align-content: center;
   align-content: flex-start;
   flex-wrap: wrap;

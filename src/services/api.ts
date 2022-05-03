@@ -10,11 +10,19 @@ axios.interceptors.response.use(
   (response) => {
     if (response.data.status === 701 && message) {
       message = false;
-      ElMessage.error(i18n.global.t(`tip['Please login']`));
+      ElMessage({
+        message: i18n.global.t(`tip['Please login']`),
+        type: "error",
+        duration: 1000,
+      });
       localStorage.removeItem("token");
       router.push("/");
     } else if (response.data.status === 201) {
-      ElMessage.error(response.data.msg);
+      ElMessage({
+        message: response.data.msg,
+        type: "error",
+        duration: 1000,
+      });
     }
     return response;
   },
@@ -23,12 +31,16 @@ axios.interceptors.response.use(
   }
 );
 const request = {
-  get(path: string, params?: object, otherUrl?: boolean) {
+  get(path: string, params?: object, otherUrl?: boolean, otherPath?: string) {
     return new Promise(async function (resolve, reject) {
       try {
         const response = await axios({
           method: "get",
-          url: otherUrl ? AUTH_URL + path : API_URL + path,
+          url: otherPath
+            ? otherPath
+            : otherUrl
+            ? AUTH_URL + path
+            : API_URL + path,
           params: params,
           headers: {
             token: token,

@@ -30,6 +30,7 @@ const searchMember = async () => {
         _key: item._key,
       });
     });
+    searchName.value = "";
   }
 };
 const saveMember = async (key, index) => {
@@ -38,7 +39,11 @@ const saveMember = async (key, index) => {
     toUserKey: key,
   })) as ResultProps;
   if (saveRes.msg === "OK") {
-    ElMessage.success(i18n.global.t(`tip['Friend add succeeded']`));
+    ElMessage({
+      message: i18n.global.t(`tip['Friend add succeeded']`),
+      type: "success",
+      duration: 1000,
+    });
     memberList.value.splice(index, 1);
     // store.dispatch("auth/getGroupList");
     // router.push("/home");
@@ -50,20 +55,14 @@ const saveMember = async (key, index) => {
 // };
 </script>
 <template>
+  <theader>
+    <template v-slot:right>
+      <div class="right dp--center" @click="router.push('/home/inviteOut')">
+        <img :src="inviteOutSvg" alt="" style="width: 30px; height: 30px" />
+      </div>
+    </template>
+  </theader>
   <div class="invite p-5">
-    <theader
-      @clickBack="
-        router.push('/home');
-        store.dispatch('auth/getGroupList');
-      "
-    >
-      <template v-slot:right>
-        <div class="right dp--center" @click="router.push('/inviteOut')">
-          Invite Outside
-          <img :src="inviteOutSvg" alt="" class="img" />
-        </div>
-      </template>
-    </theader>
     <div class="invite-item">
       <el-input
         v-model="searchName"
@@ -98,7 +97,7 @@ const saveMember = async (key, index) => {
 <style scoped lang="scss">
 .invite {
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 55px);
   background: var(--talk-bg-color);
   .invite-item {
     width: 100%;
@@ -128,8 +127,8 @@ const saveMember = async (key, index) => {
   .right {
     cursor: pointer;
     .img {
-      width: 30px;
-      height: 30px;
+      width: 20px;
+      height: 20px;
       margin-left: 10px;
     }
   }

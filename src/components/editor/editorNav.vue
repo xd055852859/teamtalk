@@ -33,25 +33,28 @@ const chooseImg = (e) => {
 </script>
 <template>
   <div class="button dp--center">
-    <el-dropdown>
-      <img :src="dark ? addwSvg : addSvg" alt="" @click="drawer = true" />
-      <template #dropdown>
-        <editor-item :itemObj="{ width: '180px' }" :item-height="35" />
-      </template>
-    </el-dropdown>
-
+    <el-tooltip :content="'add'" placement="top">
+      <el-dropdown>
+        <img :src="dark ? addwSvg : addSvg" alt="" />
+        <template #dropdown>
+          <editor-item :itemObj="{ width: '180px' }" :item-height="35" />
+        </template>
+      </el-dropdown>
+    </el-tooltip>
     <!-- <img :src="leftSvg" alt=""  @click="props.editor.chain().focus()."/>
     <img :src="rightSvg" alt=""  @click="props.editor.chain().focus().joinForward().run()" /> -->
     <el-divider direction="vertical" />
-    <div class="img-box">
-      <img :src="dark ? imgwSvg : imgSvg" alt="" />
-      <input
-        type="file"
-        accept="image/*"
-        @change="chooseImg"
-        class="upload-img"
-      />
-    </div>
+    <el-tooltip :content="'img'" placement="top">
+      <div class="img-box">
+        <img :src="dark ? imgwSvg : imgSvg" alt="" />
+        <input
+          type="file"
+          accept="image/*"
+          @change="chooseImg"
+          class="upload-img"
+        />
+      </div>
+    </el-tooltip>
     <!-- <img
       :src="dark ? delwSvg : delSvg"
       alt=""
@@ -61,16 +64,20 @@ const chooseImg = (e) => {
       "
     /> -->
     <el-divider direction="vertical" />
-    <img
-      :src="dark ? redowSvg : redoSvg"
-      alt=""
-      @click="editorInfo?.chain().focus().undo().run()"
-    />
-    <img
-      :src="dark ? undowSvg : undoSvg"
-      alt=""
-      @click="editorInfo?.chain().focus().redo().run()"
-    />
+    <el-tooltip :content="'redo'" placement="top">
+      <img
+        :src="dark ? redowSvg : redoSvg"
+        alt=""
+        @click="editorInfo?.chain().focus().undo().run()"
+      />
+    </el-tooltip>
+    <el-tooltip :content="'undo'" placement="top">
+      <img
+        :src="dark ? undowSvg : undoSvg"
+        alt=""
+        @click="editorInfo?.chain().focus().redo().run()"
+      />
+    </el-tooltip>
   </div>
   <!-- <el-drawer
     v-model="drawer"

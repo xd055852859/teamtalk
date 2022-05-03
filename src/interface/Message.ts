@@ -4,16 +4,18 @@ export interface Message {
   _key: string;
   cover: null | string;
   creatorInfo: User;
-  hasRead: number;
+  unRead?: number;
   receiverKey: string;
   receiverTitle: null | string;
   receiverType: string;
+  receiverAvatar:  null | string;
   summary: string;
   type?: string;
   title: string;
   refCardInfo?: any;
   commentCount?: number;
   favorite: boolean;
+  atUser?: string;
 }
 export interface Card {
   _key?: string;

@@ -175,7 +175,11 @@ watchEffect(() => {
           }
         }
         console.log("card", msg);
-        if (msg.creatorInfo._key !== user.value?._key) {
+        if (
+          msg.creatorInfo._key !== user.value?._key ||
+          msg.type === "recovery" ||
+          msg.type === "filed"
+        ) {
           store.commit("message/addMessageList", msg);
         }
       });
@@ -220,12 +224,16 @@ watchEffect(() => {
       });
       socket.on("addComment", function (msg) {
         console.log(msg);
-        let obj = { commentCount: msg.commentCount, _key: msg.cardKey };
+        let obj = {
+          ...msg,
+          unRead: 1,
+          commentCount: msg.commentCount - 1,
+          _key: msg.cardKey,
+        };
         // store.commit("message/updateMessageList", msg);
         store.commit("message/updateMessageList", obj);
         if (
-          msg.atUser &&
-          msg.atUser === user.value?._key &&
+          (msg?.atUser === user.value?._key || msg.receiverType === "user") &&
           muteList.value.indexOf(msg.receiverKey) === -1
         ) {
           //@ts-ignore
@@ -277,6 +285,9 @@ watchEffect(() => {
 </template>
 
 <style lang="scss">
+#app {
+  background: var(--talk-bg-color);
+}
 *::-webkit-scrollbar {
   width: 2px;
   height: 2px;

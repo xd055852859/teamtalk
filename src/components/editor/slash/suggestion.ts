@@ -2,58 +2,11 @@ import tippy from "tippy.js";
 import { VueRenderer } from "@tiptap/vue-3";
 import SlashList from "./slashList.vue";
 
-import boldSvg from "@/assets/editor/bold.svg";
-import italicSvg from "@/assets/editor/italic.svg";
-import strikeSvg from "@/assets/editor/strike.svg";
-import underlineSvg from "@/assets/editor/underline.svg";
-import textSvg from "@/assets/editor/text.svg";
-import h1Svg from "@/assets/editor/h1.svg";
-import h2Svg from "@/assets/editor/h2.svg";
-import h3Svg from "@/assets/editor/h3.svg";
-import bulletListSvg from "@/assets/editor/bulletList.svg";
-import dividerSvg from "@/assets/editor/divider.svg";
-import orderListSvg from "@/assets/editor/orderList.svg";
-import taskListSvg from "@/assets/editor/taskList.svg";
-import codeSvg from "@/assets/editor/code.svg";
-import blockquoteSvg from "@/assets/editor/blockquote.svg";
-import codeBlockSvg from "@/assets/editor/codeBlock.svg";
-import imgSvg from "@/assets/editor/img.svg";
-import imgwSvg from "@/assets/editor/imgw.svg";
-import textwSvg from "@/assets/editor/textw.svg";
-import h1wSvg from "@/assets/editor/h1w.svg";
-import h2wSvg from "@/assets/editor/h2w.svg";
-import h3wSvg from "@/assets/editor/h3w.svg";
-import bulletListwSvg from "@/assets/editor/bulletListw.svg";
-import dividerwSvg from "@/assets/editor/dividerw.svg";
-import orderListwSvg from "@/assets/editor/orderListw.svg";
-import taskListwSvg from "@/assets/editor/taskListw.svg";
-import codewSvg from "@/assets/editor/codew.svg";
-import blockquotewSvg from "@/assets/editor/blockquotew.svg";
-import codeBlockwSvg from "@/assets/editor/codeBlockw.svg";
-import boldwSvg from "@/assets/editor/boldw.svg";
-import italicwSvg from "@/assets/editor/italicw.svg";
-import strikewSvg from "@/assets/editor/strikew.svg";
-import underlinewSvg from "@/assets/editor/underlinew.svg";
-const dark = localStorage.getItem("DARK");
-
 export default {
   items: ({ query }) => {
     return [
       {
-        title: "H1",
-        icon: dark ? h1wSvg : h1Svg,
-        command: ({ editor, range }) => {
-          editor
-            .chain()
-            .focus()
-            .deleteRange(range)
-            .setHeading({ level: 1 })
-            .run();
-        },
-      },
-      {
-        title: "H2",
-        icon: dark ? h2wSvg : h2Svg,
+        title: "h1",
         command: ({ editor, range }) => {
           editor
             .chain()
@@ -64,8 +17,7 @@ export default {
         },
       },
       {
-        title: "H3",
-        icon: dark ? h3wSvg : h3Svg,
+        title: "h2",
         command: ({ editor, range }) => {
           editor
             .chain()
@@ -76,14 +28,25 @@ export default {
         },
       },
       {
-        title: "img",
-        icon: dark ? imgwSvg : imgSvg,
-        command: ({ editor, range, props }) => {
+        title: "h3",
+        command: ({ editor, range }) => {
           editor
             .chain()
             .focus()
             .deleteRange(range)
-            .setImage({ src: props.url })
+            .setHeading({ level: 4 })
+            .run();
+        },
+      },
+      {
+        title: "img",
+        command: ({ editor, range, props }) => {
+          console.log(props.props.url)
+          editor
+            .chain()
+            .focus()
+            .deleteRange(range)
+            .setImage({ src: props.props.url })
             .run();
         },
       },
@@ -117,21 +80,18 @@ export default {
       // },
       {
         title: "bulletList",
-        icon: dark ? bulletListwSvg : bulletListSvg,
         command: ({ editor, range }) => {
           editor.chain().focus().deleteRange(range).toggleBulletList().run();
         },
       },
       {
         title: "orderList",
-        icon: dark ? orderListwSvg : orderListSvg,
         command: ({ editor, range }) => {
           editor.chain().focus().deleteRange(range).toggleOrderedList().run();
         },
       },
       {
         title: "taskList",
-        icon: dark ? taskListwSvg : taskListSvg,
         command: ({ editor, range }) => {
           editor.chain().focus().deleteRange(range).toggleTaskList().run();
         },
@@ -145,21 +105,18 @@ export default {
       // },
       {
         title: "code",
-        icon: dark ? codewSvg : codeSvg,
         command: ({ editor, range }) => {
           editor.chain().focus().deleteRange(range).setMark("code").run();
         },
       },
       {
         title: "codeBlock",
-        icon: dark ? codeBlockwSvg : codeBlockSvg,
         command: ({ editor, range }) => {
           editor.chain().focus().deleteRange(range).setNode("codeBlock").run();
         },
       },
       {
         title: "divider",
-        icon: dark ? dividerwSvg : dividerSvg,
         command: ({ editor, range }) => {
           editor.chain().focus().deleteRange(range).setHorizontalRule().run();
         },

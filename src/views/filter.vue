@@ -56,32 +56,29 @@ const changeReceiver = (
         <img :src="dark ? privatewSvg : privateSvg" alt="" class="img" />
         <div class="name">{{ $t(`text.Private`) }}</div>
       </div>
-      <div class="right dp--center">{{ user?.privateMessageCount }}</div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('favorite')">
       <div class="left dp--center">
         <img :src="dark ? favoritewSvg : favoriteSvg" alt="" class="img" />
         <div class="name">{{ $t(`text.Favourite`) }}</div>
       </div>
-      <div class="right dp--center">{{ user?.favoriteMessageCount }}</div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('sent')">
       <div class="left dp--center">
         <img :src="dark ? sendwSvg : sendSvg" alt="" class="img" />
         <div class="name">{{ $t(`text['I send']`) }}</div>
       </div>
-      <div class="right dp--center">{{ user?.sentMessageCount }}</div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('receive')">
       <div class="left dp--center">
         <img :src="dark ? receivedwSvg : receivedSvg" alt="" class="img" />
-        <div class="name">{{  $t(`text['I received']`) }}</div>
+        <div class="name">{{ $t(`text['I received']`) }}</div>
       </div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('notice')">
       <div class="left dp--center">
         <img :src="dark ? noticewSvg : noticeSvg" alt="" class="img" />
-        <div class="name">{{  $t(`text['System messages']`) }}</div>
+        <div class="name">{{ $t(`text['System messages']`) }}</div>
       </div>
     </div>
     <el-divider />

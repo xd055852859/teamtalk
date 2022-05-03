@@ -1,20 +1,18 @@
 <script setup lang="ts">
 import TalkHeader from "./header.vue";
 import TalkContainer from "./container.vue";
-
 </script>
 <template>
-  <div class="home">
-    <talk-header />
-    <talk-container />
+  <div class="home dp-center-center">
+    <router-view></router-view>
   </div>
-  <router-view></router-view>
 </template>
 <style scoped lang="scss">
 .home {
   width: 100%;
   height: 100vh;
   background: var(--talk-bg-color);
+  flex-wrap: wrap;
 }
 .nav {
   width: 100%;

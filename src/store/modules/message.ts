@@ -66,12 +66,39 @@ const mutations: MutationTree<MessageState> = {
     }
   },
   updateMessageList(state, messageItem: any) {
-    state.messageList = state.messageList.map((item: Message) => {
-      if (item._key === messageItem._key) {
-        item = { ...item, ...messageItem };
+    let targetIndex: number = 10000;
+    let targetItem: Message | null = null;
+    state.messageList = state.messageList.map(
+      (item: Message, index: number) => {
+        if (item._key === messageItem._key) {
+          if (messageItem.unRead) {
+            if (!item.unRead) {
+              item.unRead = 0;
+            }
+            item.unRead = item.unRead + messageItem.unRead;
+          } else if (messageItem.unRead === 0) {
+            item.commentCount =
+              (item.commentCount as number) + (item.unRead as number);
+            item.unRead = 0;
+          }
+          item = { ...item, ...messageItem };
+          targetIndex = index;
+          targetItem = { ...item };
+        }
+        return item;
       }
-      return item;
-    });
+    );
+    console.log(messageItem.atUser)
+    if (messageItem.atUser !== undefined) {
+      if (targetIndex === 10000) {
+        console.log(messageItem)
+        state.messageList.unshift(messageItem);
+      } else if (targetItem) {
+        console.log(targetIndex)
+        state.messageList.splice(targetIndex, 1);
+        state.messageList.unshift(targetItem);
+      }
+    }
   },
   delMessageList(state, messageKey: string) {
     state.messageList = state.messageList.filter((item: Message) => {
@@ -90,6 +117,9 @@ const mutations: MutationTree<MessageState> = {
   setEditContent(state, editContent: any) {
     state.editContent = editContent;
   },
+  updateEditContent(state, editItem: any) {
+    state.editContent = { ...state.editContent, ...editItem };
+  },
   setEditKey(state, editKey: string) {
     state.editKey = editKey;
   },
@@ -102,7 +132,7 @@ const actions: ActionTree<MessageState, RootState> = {
   async getMessageList({ commit }, page: number) {
     let obj: any = {
       page: page,
-      limit: 20,
+      limit: 100,
     };
     if (state.receiver && state.receiver.receiverType !== "private") {
       if (state.receiver.receiverType === "group") {

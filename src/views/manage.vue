@@ -8,6 +8,7 @@ import addPersonSvg from "@/assets/svg/addPerson.svg";
 import addMemberSvg from "@/assets/svg/addMember.svg";
 import agreeSvg from "@/assets/svg/agree.svg";
 import rejectSvg from "@/assets/svg/reject.svg";
+import groupSvg from "@/assets/svg/group.svg";
 import delSvg from "@/assets/svg/del.svg";
 import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
@@ -33,6 +34,10 @@ const groupRole = computed(() => store.state.auth.groupRole);
 const dark = computed(() => store.state.common.dark);
 
 const teamName = ref<string>("");
+const avatar = ref<string>("");
+const avatarVisible = ref<boolean>(false);
+const avatarList = ref<any>([]);
+const avatarTotal = ref<number>(0);
 const teamKey = ref<string>("");
 const teamKeyArray = ref<string[]>([]);
 const memberArray = ref<Group[]>([]);
@@ -48,12 +53,17 @@ const allowJoin = ref<boolean>(false);
 const isMute = ref<boolean>(false);
 const isBlock = ref<boolean>(false);
 const filedVisible = ref<boolean>(false);
+const trashVisible = ref<boolean>(false);
 const page = ref<number>(1);
+const avatarPage = ref<number>(1);
 const applyArray = ref<Member[]>([]);
 const filedArray = ref<Message[]>([]);
+const trashArray = ref<Message[]>([]);
 const delItem = ref<{ item: Member; index: number } | null>(null);
 const roleArray = ["Group leader", "Admin", "Edit", "Team member"];
-
+const moreIndex = ref<number>(5);
+const moreVisible = ref<boolean>(true);
+const clearVisible = ref<boolean>(false);
 onMounted(() => {
   teamKey.value = route.params.id as string;
   store.dispatch("auth/getMemberList", teamKey.value);
@@ -66,50 +76,20 @@ const getInfo = async () => {
   })) as ResultProps;
   if (infoRes.msg === "OK") {
     teamName.value = infoRes.data.title;
+    avatar.value = infoRes.data.avatar;
     allowJoin.value = infoRes.data.allowJoin;
     isPublic.value = infoRes.data.isPublic;
     isMute.value = infoRes.data.mute;
     isBlock.value = infoRes.data.block;
   }
 };
-const getFiledInfo = async () => {
-  let infoRes = (await api.request.get("card/filed/list", {
-    receiverKey: teamKey.value,
-    page: page.value,
-    limit: 500,
-  })) as ResultProps;
-  if (infoRes.msg === "OK") {
-    filedArray.value = [...infoRes.data];
-  }
-};
+
 const getApplyList = async () => {
   let applyRes = (await api.request.get("receiver/apply/list", {
     receiverKey: teamKey.value,
   })) as ResultProps;
   if (applyRes.msg === "OK") {
     applyArray.value = applyRes.data;
-  }
-};
-const chooseMember = (item: Group) => {
-  let index = teamKeyArray.value.indexOf(item.toUserKey as string);
-  if (index === -1) {
-    teamKeyArray.value.push(item.toUserKey as string);
-  } else {
-    teamKeyArray.value.splice(index, 1);
-  }
-};
-const delMember = async (item: Member, index: number) => {
-  const delRes = (await api.request.delete("receiver/member", {
-    receiverKey: teamKey.value,
-    memberKey: item._key,
-  })) as ResultProps;
-  if (delRes.msg === "OK") {
-    ElMessage.success(
-      i18n.global.t(`tip['Group members deleted successfully']`)
-    );
-    store.commit("auth/delMemberList", index);
-    delVisible.value = false;
-    delItem.value = null;
   }
 };
 const applyMember = async (key: string, state: boolean, index: number) => {
@@ -119,7 +99,11 @@ const applyMember = async (key: string, state: boolean, index: number) => {
     verifyResult: state,
   })) as ResultProps;
   if (applyRes.msg === "OK") {
-    ElMessage.success(i18n.global.t(`tip['Audit successful']`));
+    ElMessage({
+      message: i18n.global.t(`tip['Audit successful']`),
+      type: "success",
+      duration: 1000,
+    });
     applyArray.value.splice(index, 1);
     if (state) {
       store.dispatch("auth/getMemberList", teamKey.value);
@@ -131,10 +115,15 @@ const saveGroup = async (type, done?: any) => {
   switch (type) {
     case "name":
       if (!teamName.value) {
-        ElMessage.error(i18n.global.t(`input['Enter Team Name']`));
+        ElMessage({
+          message: i18n.global.t(`input['Enter Team Name']`),
+          type: "error",
+          duration: 1000,
+        });
         return;
       }
       config.title = teamName.value;
+      config.avatar = avatar.value;
       break;
     case "member":
       if (teamKey.value.length === 0) {
@@ -155,27 +144,20 @@ const saveGroup = async (type, done?: any) => {
   })) as ResultProps;
   if (groupRes.msg === "OK") {
     if (type === "name") {
-      ElMessage.success(i18n.global.t(`tip['Update group succeeded']`));
+      ElMessage({
+        message: i18n.global.t(`tip['Update group succeeded']`),
+        type: "success",
+        duration: 1000,
+      });
     } else if (type === "member") {
       store.commit("auth/addMemberList", groupRes.data);
     }
+    store.commit("auth/updateGroupList", {
+      _key: teamKey.value,
+      ...config,
+    });
     if (done) {
       done();
-    }
-  }
-};
-const changeConfig = async () => {
-  let infoRes = (await api.request.patch("receiver/status", {
-    receiverKey: teamKey.value,
-    mute: isMute.value,
-    block: isBlock.value,
-  })) as ResultProps;
-  if (infoRes.msg === "OK") {
-    ElMessage.success(i18n.global.t(`tip['Update group succeeded']`));
-    if (!isMute.value) {
-      store.commit("auth/delMuteList", teamKey.value);
-    } else {
-      store.commit("auth/addMuteList", teamKey.value);
     }
   }
 };
@@ -192,14 +174,142 @@ const changeRole = async (item: Member, index: number, role: number) => {
     });
   }
 };
+const chooseMember = (item: Group) => {
+  let index = teamKeyArray.value.indexOf(item.toUserKey as string);
+  if (index === -1) {
+    teamKeyArray.value.push(item.toUserKey as string);
+  } else {
+    teamKeyArray.value.splice(index, 1);
+  }
+};
 const saveMember = async (userKey: string) => {
   const saveRes = (await api.request.post("receiver", {
     receiverType: "user",
     toUserKey: userKey,
   })) as ResultProps;
   if (saveRes.msg === "OK") {
-    ElMessage.success(i18n.global.t(`tip['Successfully added team members']`));
+    ElMessage({
+      message: i18n.global.t(`tip['Successfully added team members']`),
+      type: "success",
+      duration: 1000,
+    });
     store.dispatch("auth/getGroupList");
+  }
+};
+const delMember = async (item: Member, index: number) => {
+  const delRes = (await api.request.delete("receiver/member", {
+    receiverKey: teamKey.value,
+    memberKey: item._key,
+  })) as ResultProps;
+  if (delRes.msg === "OK") {
+    ElMessage({
+      message: i18n.global.t(`tip['Group members deleted successfully']`),
+      type: "success",
+      duration: 1000,
+    });
+    store.commit("auth/delMemberList", index);
+    delVisible.value = false;
+    delItem.value = null;
+  }
+};
+
+const getFiledInfo = async () => {
+  let infoRes = (await api.request.get("card/filed/list", {
+    receiverKey: teamKey.value,
+    page: page.value,
+    limit: 100,
+  })) as ResultProps;
+  if (infoRes.msg === "OK") {
+    filedArray.value = [...infoRes.data];
+  }
+};
+const getTrashInfo = async () => {
+  let infoRes = (await api.request.get("card/trash/list", {
+    receiverKey: teamKey.value,
+    page: page.value,
+    limit: 100,
+  })) as ResultProps;
+  if (infoRes.msg === "OK") {
+    trashArray.value = [...infoRes.data];
+  }
+};
+const flashFiled = (key: string) => {
+  filedArray.value = filedArray.value.filter((item) => {
+    return item._key !== key;
+  });
+};
+const flashTrash = (key: string) => {
+  trashArray.value = trashArray.value.filter((item) => {
+    return item._key !== key;
+  });
+};
+const deleteTrash = async () => {
+  let trashRes = (await api.request.delete("card/trash/clean", {
+    receiverKey: teamKey.value,
+  })) as ResultProps;
+  if (trashRes.msg === "OK") {
+    ElMessage({
+      message: "Clear All Success",
+      type: "success",
+      duration: 1000,
+    });
+    clearVisible.value = false;
+    trashArray.value = [];
+  }
+};
+const changeConfig = async () => {
+  let infoRes = (await api.request.patch("receiver/status", {
+    receiverKey: teamKey.value,
+    mute: isMute.value,
+    block: isBlock.value,
+  })) as ResultProps;
+  if (infoRes.msg === "OK") {
+    ElMessage({
+      message: i18n.global.t(`tip['Update group succeeded']`),
+      type: "error",
+      duration: 1000,
+    });
+    if (!isMute.value) {
+      store.commit("auth/delMuteList", teamKey.value);
+    } else {
+      store.commit("auth/addMuteList", teamKey.value);
+    }
+  }
+};
+const getAvatarList = async () => {
+  let avatarRes = (await api.request.get(
+    "",
+    {
+      page: avatarPage.value,
+      limit: 200,
+      order: "asc",
+      sortField: "createTime",
+    },
+    false,
+    "https://icondata.qingtime.cn/icon"
+  )) as ResultProps;
+  // let res: any = await api.thirdApi.getThirdRandomPng(page);
+  if (avatarRes.msg === "OK") {
+    if (avatarPage.value === 1) {
+      avatarList.value = [];
+    }
+    avatarList.value = [...avatarList.value, ...avatarRes.data.reverse()];
+    avatarTotal.value = avatarRes.totalNum as number;
+  }
+};
+const scrollAvatar = (e: any) => {
+  //文档内容实际高度（包括超出视窗的溢出部分）
+  let scrollHeight = e.target.scrollHeight;
+  //滚动条滚动距离
+  let scrollTop = e.target.scrollTop;
+  //窗口可视范围高度
+  let height = e.target.clientHeight;
+  if (
+    height + scrollTop >= scrollHeight &&
+    avatarList.value.length < avatarTotal.value
+  ) {
+    avatarPage.value = avatarPage.value + 1;
+    getAvatarList();
   }
 };
 const exitGroup = async () => {
@@ -207,7 +317,11 @@ const exitGroup = async () => {
     receiverKey: teamKey.value,
   })) as ResultProps;
   if (exitRes.msg === "OK") {
-    ElMessage.success(i18n.global.t(`tip['Quit the group successfully']`));
+    ElMessage({
+      message: i18n.global.t(`tip['Quit the group successfully']`),
+      type: "success",
+      duration: 1000,
+    });
     store.dispatch("auth/getGroupList", "delete");
     router.back();
   }
@@ -217,15 +331,14 @@ const disbandGroup = async () => {
     receiverKey: teamKey.value,
   })) as ResultProps;
   if (exitRes.msg === "OK") {
-    ElMessage.success("disband Group success");
+    ElMessage({
+      message: "disband Group success",
+      type: "success",
+      duration: 1000,
+    });
     store.dispatch("auth/getGroupList", "delete");
     router.back();
   }
-};
-const flashFiled = (key: string) => {
-  filedArray.value = filedArray.value.filter((item) => {
-    return item._key !== key;
-  });
 };
 watchEffect(() => {
   memberArray.value = [];
@@ -244,30 +357,23 @@ watchEffect(() => {
 });
 </script>
 <template>
-  <div class="manage p-5">
-    <theader
-      @clickBack="
-        $router.back();
-        store.dispatch('auth/getGroupList');
-      "
-    >
-      <template v-slot:title>
-        <el-input
-          v-model="teamName"
-          placeholder="请输入小组名"
-          v-if="groupRole == 0"
-        />
-        <span v-else>{{ teamName }}</span>
-      </template>
-      <template v-slot:right>
+  <theader>
+    <template v-slot:title>
+      {{ teamName }}
+    </template>
+    <template v-slot:right>
+      <div>
         <tbutton
           style="height: 40px; padding: 0px 30px"
           @click="saveGroup('name')"
+          v-if="groupRole < 2"
         >
           {{ $t(`button.Update`) }}
         </tbutton>
-      </template>
-    </theader>
+      </div>
+    </template>
+  </theader>
+  <div class="manage p-5">
     <template v-if="applyArray.length > 0 && groupRole < 2">
       <div class="title dp-space-center">
         {{ $t(`icon.Join`) }}
@@ -310,18 +416,12 @@ watchEffect(() => {
           style="margin-right: 15px; width: 30px; height: 30px"
           @click="memberVisible = true"
         />
-        <img
-          style="width: 25px; height: 25px"
-          :src="dark ? setwSvg : setSvg"
-          alt=""
-          @click="setVisible = true"
-        />
       </div>
     </div>
     <div class="info">
       <div
         class="container dp-space-center manage-item"
-        v-for="(item, index) in memberList"
+        v-for="(item, index) in memberList.slice(0, moreIndex)"
         :key="'manage' + index"
       >
         <div class="left dp--center">
@@ -329,43 +429,59 @@ watchEffect(() => {
           <div class="name">{{ item.userName }}</div>
         </div>
         <div class="right dp--center">
-          <el-dropdown :disabled="groupRole > 1 || item._key === user?._key">
-            <div class="dp--center">
-              <span style="margin-right: 10px">{{
-                $t(`text['${roleArray[item.role]}']`)
-              }}</span>
-              <el-icon v-if="groupRole < 2 && item._key !== user?._key">
-                <arrow-down />
-              </el-icon>
-            </div>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item v-if="groupRole === 0"
-                  >{{ $t(`text['Group leader']`) }}
-                </el-dropdown-item>
-                <el-dropdown-item @click="changeRole(item, index, 1)"
-                  >{{ $t(`text.Admin`) }}
-                </el-dropdown-item>
-                <el-dropdown-item @click="changeRole(item, index, 3)"
-                  >{{ $t(`text.Edit`) }}
-                </el-dropdown-item>
-                <el-dropdown-item @click="changeRole(item, index, 4)"
-                  >{{ $t(`text['Team member']`) }}
-                </el-dropdown-item>
-                <el-divider />
-                <el-dropdown-item
-                  @click="
-                    delItem = {
-                      item: item,
-                      index: index,
-                    };
-                    delVisible = true;
-                  "
-                  >{{ $t(`icon.Delete`) }}
-                </el-dropdown-item>
-              </el-dropdown-menu>
+          <!-- <div class="dp--center">
+            <span style="margin-right: 10px">{{
+              $t(`text['${roleArray[item.role]}']`)
+            }}</span>
+            <el-icon v-if="groupRole < 2 && item._key !== user?._key">
+              <arrow-down />
+            </el-icon>
+          </div> -->
+
+          <el-popover
+            :width="50"
+            ref="popoverRef"
+            trigger="click"
+            :disabled="!(groupRole < 2 && item._key !== user?._key)"
+          >
+            <template #reference>
+              <div class="manage-role dp--center">
+                <span style="margin-right: 10px">{{
+                  $t(`text['${roleArray[item.role]}']`)
+                }}</span>
+                <el-icon v-if="groupRole < 2 && item._key !== user?._key">
+                  <arrow-down />
+                </el-icon>
+              </div>
             </template>
-          </el-dropdown>
+            <div class="role-container">
+              <div class="role-item" v-if="groupRole === 0">
+                {{ $t(`text['Group leader']`) }}
+              </div>
+              <div class="role-item" @click="changeRole(item, index, 1)">
+                {{ $t(`text.Admin`) }}
+              </div>
+              <div class="role-item" @click="changeRole(item, index, 2)">
+                {{ $t(`text.Edit`) }}
+              </div>
+              <div class="role-item" @click="changeRole(item, index, 3)">
+                {{ $t(`text['Team member']`) }}
+              </div>
+              <el-divider />
+              <div
+                class="role-item"
+                @click="
+                  delItem = {
+                    item: item,
+                    index: index,
+                  };
+                  delVisible = true;
+                "
+              >
+                {{ $t(`icon.Delete`) }}
+              </div>
+            </div>
+          </el-popover>
           <div style="width: 20px; height: 20px; margin-left: 10px">
             <el-tooltip
               :content="$t(`icon.Mates`)"
@@ -387,11 +503,115 @@ watchEffect(() => {
         </div>
       </div>
     </div>
+    <div
+      @click="
+        moreVisible = false;
+        moreIndex = memberList.length + 1;
+      "
+      class="more-button icon-point p-5 common-color"
+      v-if="memberList.length > 5 && moreVisible"
+    >
+      {{ $t(`text.More`) }}
+    </div>
+    <el-divider />
+    <template v-if="groupRole < 2">
+      <div class="manage-text dp-space-center">
+        <span>Team Name :</span>
+        <el-input
+          v-model="teamName"
+          placeholder="请输入小组名"
+          style="width: calc(100% - 150px)"
+        />
+      </div>
+      <div
+        class="manage-text dp-space-center icon-point"
+        @click="
+          avatarVisible = true;
+          getAvatarList();
+        "
+      >
+        <span>Avatar :</span>
+        <div class="dp--center">
+          <el-avatar
+            fit="cover"
+            :size="30"
+            :src="avatar ? avatar : groupSvg"
+            class="icon-point"
+          />
+          <el-icon><arrow-right /></el-icon>
+        </div>
+      </div>
+      <div
+        class="manage-text dp-space-center icon-point"
+        @click="
+          filedVisible = true;
+          getFiledInfo();
+        "
+      >
+        <span>{{ $t(`icon.Archive`) }} :</span>
+        <el-icon><arrow-right /></el-icon>
+      </div>
+      <div
+        class="manage-text dp-space-center icon-point"
+        @click="
+          trashVisible = true;
+          getTrashInfo();
+        "
+      >
+        <span>Trash :</span>
+        <el-icon><arrow-right /></el-icon>
+      </div>
+      <div class="manage-text dp-space-center">
+        <span>{{ $t(`text['Public Team']`) }} :</span>
+        <el-switch
+          active-color="#16ab78"
+          v-model="isPublic"
+          @change="saveGroup('public')"
+        />
+      </div>
+      <div class="manage-text dp-space-center">
+        <span>{{ $t(`text['Open  Join']`) }} :</span>
+        <el-switch
+          active-color="#16ab78"
+          v-model="allowJoin"
+          @change="saveGroup('join')"
+        />
+      </div>
+      <el-divider />
+    </template>
+
+    <div class="manage-text dp-space-center">
+      <span>{{ $t(`text.Mute`) }} :</span>
+      <el-switch
+        active-color="#16ab78"
+        v-model="isMute"
+        @change="changeConfig()"
+      />
+    </div>
+    <div class="manage-text dp-space-center">
+      <span> Block :</span>
+      <el-switch
+        active-color="#16ab78"
+        v-model="isBlock"
+        @change="changeConfig()"
+      />
+    </div>
+    <template v-if="groupRole">
+      <el-divider />
+      <div class="manage-text dp-space-center">
+        <span @click="exitVisible = true" class="exit icon-point">Exit</span>
+      </div>
+    </template>
+    <!-- <div class="manage-text dp-space-center p-5" v-else>
+      <span @click="disbandVisible = true" class="exit icon-point">
+        Disband
+      </span>
+    </div> -->
   </div>
   <el-drawer
     v-model="memberVisible"
     direction="rtl"
-    :size="'80%'"
+    :size="350"
     custom-class="p0-drawer"
     :before-close="
       (done) => {
@@ -423,79 +643,57 @@ watchEffect(() => {
     </div>
   </el-drawer>
   <el-drawer
-    v-model="setVisible"
+    v-model="avatarVisible"
     direction="rtl"
-    :title="$t(`text.Setting`)"
-    :size="'80%'"
-    custom-class="p0-drawer"
+    :size="350"
+    :with-header="false"
   >
-    <template v-if="groupRole < 2">
+    <div class="avatar-container" @scroll="scrollAvatar">
       <div
-        class="manage-text dp-space-center p-5 icon-point"
-        style="margin-top: 20px"
-        @click="
-          filedVisible = true;
-          getFiledInfo();
-        "
+        class="avatar-item"
+        v-for="(thirdPngItem, thirdPngIndex) in avatarList"
+        :key="'avatar' + thirdPngIndex"
       >
-        <span>{{ $t(`icon.Archive`) }} :</span>
-        <el-icon><arrow-right /></el-icon>
-      </div>
-      <div class="manage-text dp-space-center p-5">
-        <span>{{ $t(`text['Public Team']`) }} :</span>
-        <el-switch
-          active-color="#16ab78"
-          v-model="isPublic"
-          @change="saveGroup('public')"
+        <img
+          :src="thirdPngItem.url"
+          alt=""
+          @click="
+            avatarVisible = false;
+            avatar = thirdPngItem.url;
+          "
         />
       </div>
-      <div class="manage-text dp-space-center p-5">
-        <span>{{ $t(`text['Open  Join']`) }} :</span>
-        <el-switch
-          active-color="#16ab78"
-          v-model="allowJoin"
-          @change="saveGroup('join')"
-        />
-      </div>
-      <el-divider />
-    </template>
-
-    <div class="manage-text dp-space-center p-5">
-      <span>{{ $t(`text.Mute`) }} :</span>
-      <el-switch
-        active-color="#16ab78"
-        v-model="isMute"
-        @change="changeConfig()"
-      />
-    </div>
-    <div class="manage-text dp-space-center p-5">
-      <span> Block :</span>
-      <el-switch
-        active-color="#16ab78"
-        v-model="isBlock"
-        @change="changeConfig()"
-      />
-    </div>
-
-    <div class="manage-text dp-space-center p-5" v-if="groupRole">
-      <span @click="exitVisible = true" class="exit icon-point">Exit</span>
-    </div>
-    <div class="manage-text dp-space-center p-5" v-else>
-      <span @click="disbandVisible = true" class="exit icon-point">
-        Disband
-      </span>
     </div>
   </el-drawer>
   <el-drawer
     v-model="filedVisible"
     direction="rtl"
-    :size="'80%'"
+    :size="350"
     :title="$t(`icon.Archive`)"
     custom-class="p0-drawer"
   >
     <div class="filed p-5">
-      <template v-for="(item, index) in filedArray" :key="'chat' + index">
+      <template v-for="(item, index) in filedArray" :key="'filed' + index">
         <message-item :item="item" :type="'filed'" @changeItem="flashFiled" />
+      </template>
+    </div>
+  </el-drawer>
+  <el-drawer
+    v-model="trashVisible"
+    direction="rtl"
+    :size="350"
+    :title="$t(`icon.Archive`)"
+    custom-class="p0-drawer"
+  >
+    <div class="filed p-5">
+      <div
+        class="dp--center"
+        style="justify-content: flex-end; margin-top: 10px"
+      >
+        <tbutton @click="clearVisible = true">Dump All</tbutton>
+      </div>
+      <template v-for="(item, index) in trashArray" :key="'trash' + index">
+        <message-item :item="item" :type="'trash'" @changeItem="flashTrash" />
       </template>
     </div>
   </el-drawer>
@@ -529,6 +727,21 @@ watchEffect(() => {
       </span>
     </template>
   </el-dialog>
+  <el-dialog
+    v-model="clearVisible"
+    :title="$t(`dialog['Delete prompt']`)"
+    width="350px"
+  >
+    <span>Clear All</span>
+    <template #footer>
+      <span class="dialog-footer dp-space-center">
+        <tbutton @click="delVisible = false" :disabled="true">{{
+          $t(`button.Cancel`)
+        }}</tbutton>
+        <tbutton @click="deleteTrash">{{ $t(`button.OK`) }}</tbutton>
+      </span>
+    </template>
+  </el-dialog>
   <el-dialog v-model="disbandVisible" title="Tips" width="350px">
     <span>{{ $t(`form.disband`) }}</span>
     <template #footer>
@@ -544,8 +757,9 @@ watchEffect(() => {
 <style scoped lang="scss">
 .manage {
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 55px);
   background: var(--talk-bg-color);
+  overflow: auto;
   .title {
     width: 100%;
     height: 45px;
@@ -560,20 +774,11 @@ watchEffect(() => {
   }
   .info {
     width: 100%;
-    height: calc(100% - 140px);
-    overflow-y: auto;
-    overflow-x: hidden;
     .manage-item {
       .del-button {
         width: 100%;
         height: 100%;
       }
-      // .right {
-      //   display: none;
-      // }
-      // &:hover .right {
-      //   display: flex;
-      // }
     }
   }
 }
@@ -588,6 +793,40 @@ watchEffect(() => {
   width: 100%;
   height: 100%;
   overflow: auto;
+}
+.avatar-container {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-wrap: wrap;
+  .avatar-item {
+    margin-right: 15px;
+    margin-bottom: 15px;
+    img {
+      width: 60px;
+      height: 60px;
+    }
+  }
+}
+.manage-role {
+  color: var(--talk-font-color-2);
+  font-size: 14px;
+}
+.role-container {
+  .role-item {
+    height: 35px;
+    line-height: 35px;
+    &:hover {
+      background-color: var(--talk-hover-color);
+    }
+  }
+}
+.more-button {
+  width: 100%;
+  height: 30px;
+  text-align: right;
+  line-height: 30px;
 }
 </style>
 <style></style>

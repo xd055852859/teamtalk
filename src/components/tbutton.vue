@@ -1,8 +1,13 @@
 <script setup lang="ts">
-const props = defineProps<{ disabled?: boolean }>();
+const props = defineProps<{ disabled?: boolean; loading?: boolean }>();
+const emits = defineEmits(["click"]);
 </script>
 <template>
-  <div class="common-button dp-center-center" :style="props.disabled?{backgroundColor: '#d1dbe5'}:{}">
+  <div
+    class="common-button dp-center-center"
+    @click="!loading ? emits('click') : null"
+    :style="props.disabled || loading ? { backgroundColor: '#d1dbe5' } : {}"
+  >
     <slot></slot>
   </div>
 </template>

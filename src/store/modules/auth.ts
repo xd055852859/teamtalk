@@ -39,6 +39,14 @@ const mutations: MutationTree<AuthState> = {
   setGroupList(state, groupList: Group[]) {
     state.groupList = groupList;
   },
+  updateGroupList(state, groupItem: Group) {
+    state.groupList = state.groupList.map((item) => {
+      if (item._key === groupItem._key) {
+        item = { ...item, ...groupItem };
+      }
+      return item;
+    });
+  },
   setGroupItem(state, groupItem: Group) {
     state.groupItem = groupItem;
   },
@@ -65,14 +73,7 @@ const mutations: MutationTree<AuthState> = {
   addMemberList(state, memberList: Member[]) {
     state.memberList = [...state.memberList, ...memberList];
   },
-  updateGroupList(state, groupItem: Group) {
-    state.groupList = state.groupList.map((item) => {
-      if (item._key === groupItem._key) {
-        item = { ...item, ...groupItem };
-      }
-      return item;
-    });
-  },
+
   addGroupList(state, groupItem: Group) {
     state.groupList.push(groupItem);
   },
@@ -94,7 +95,11 @@ const mutations: MutationTree<AuthState> = {
   setLogout() {
     localStorage.removeItem("token");
     router.push("/");
-    ElMessage.success(i18n.global.t(`tip['LogOut successfully']`));
+    ElMessage({
+      message: i18n.global.t(`tip['LogOut successfully']`),
+      type: "success",
+      duration: 1000,
+    });
   },
 };
 
@@ -121,7 +126,7 @@ const actions: ActionTree<AuthState, RootState> = {
       let muteArray: string[] = [];
       memberRes.data = memberRes.data.map((item) => {
         if (item.receiverType === "group") {
-          item.avatar = groupSvg;
+          item.avatar = item.avatar ? item.avatar : groupSvg;
         }
         if (item.mute) {
           muteArray.push(

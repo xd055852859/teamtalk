@@ -3,11 +3,11 @@ import {
   EditorContent,
   JSONContent,
   useEditor,
-  BubbleMenu,
   FloatingMenu,
 } from "@tiptap/vue-3";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
+import IconFont from "@/components/iconFont.vue";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import TaskList from "@tiptap/extension-task-list";
@@ -22,16 +22,9 @@ import { ResultProps } from "@/interface/Common";
 
 import Slash from "./slash/slashs";
 import slashSuggestion from "./slash/suggestion";
+import { BubbleMenu } from "./bubble-menu/BubbleMenu";
 // import suggestion1 from "./suggestion1";
-import boldSvg from "@/assets/editor/bold.svg";
-import italicSvg from "@/assets/editor/italic.svg";
-import strikeSvg from "@/assets/editor/strike.svg";
-import underlineSvg from "@/assets/editor/underline.svg";
-import boldwSvg from "@/assets/editor/boldw.svg";
-import italicwSvg from "@/assets/editor/italicw.svg";
-import strikewSvg from "@/assets/editor/strikew.svg";
-import underlinewSvg from "@/assets/editor/underlinew.svg";
-import EditorItem from "./editorItem.vue";
+
 const router = useRouter();
 const props = defineProps<{
   initData?: Card | null;
@@ -39,18 +32,18 @@ const props = defineProps<{
   cardKey?: string;
   shake: boolean;
 }>();
-const emits = defineEmits(["changeUpdate"]);
 const store = useStore();
 const dark = computed(() => store.state.common.dark);
 const editKey = computed(() => store.state.message.editKey);
 const editContent = computed(() => store.state.message.editContent);
+const updateState = computed(() => store.state.common.updateState);
 const editor = useEditor({
   content: {
     type: "doc",
     content: [
       {
         type: "heading",
-        attrs: { level: 1 },
+        attrs: { level: 2 },
       },
     ],
   },
@@ -92,30 +85,43 @@ const editor = useEditor({
   ],
   // autofocus: true,
   editable: props.isEdit,
-  onUpdate: () => {
-    emits("changeUpdate", true);
+  onUpdate: ({ editor }) => {
+    if (!updateState.value) {
+      store.commit("common/setUpdateState", true);
+    }
+    if (editContent.value) {
+      console.log(editor.getJSON());
+      store.commit("message/updateEditContent", { detail: editor.getJSON() });
+    }
   },
   onCreate: ({ editor }) => {
     if (props.initData) {
       editor.commands.setContent(props.initData.detail);
       editor.setEditable(props.isEdit);
       editor.commands.focus();
+      countTaskNum(props.initData.detail);
       // store.commit("message/setEditor", editor);
+    } else if (editContent.value) {
+      editor.commands.setContent(editContent.value.detail);
+      editor.setEditable(props.isEdit);
+      editor.commands.focus();
+      countTaskNum(editContent.value.detail);
     } else {
       store.commit("message/setEditor", editor);
     }
   },
 });
-
-watch(
-  () => props.initData,
-  (newData) => {
-    if (newData) {
-      editor.value?.commands.setContent(newData.detail);
-    }
-  },
-  { deep: true }
-);
+const checked = ref<number>(0);
+const total = ref<number>(0);
+// watch(
+//   () => props.initData,
+//   (newData) => {
+//     if (newData) {
+//       editor.value?.commands.setContent(newData.detail);
+//     }
+//   },
+//   { deep: true }
+// );
 watch(
   () => props.isEdit,
   (newVal) => {
@@ -129,31 +135,45 @@ watch(
 //     editor.value?.commands.setContent(editContent.value);
 //   }
 // });
-async function handlePost(
+const handlePost = async (
   key: string,
   callback?: any,
   clear?: boolean,
   noMessage?: boolean
-) {
+) => {
   if (!editor.value) return;
   const json: JSONContent = editor.value.getJSON();
-  if (
-    json.content &&
-    json.content[0] &&
-    json.content[0].content &&
-    json.content[0].content[0]
-  ) {
-    let title = json.content[0].content[0].text;
-    if (!title) {
-      ElMessage.error("Please Enter Title");
-      return;
+  let title: string | undefined = "New Topic";
+  if (json.content) {
+    if (
+      json.content[0] &&
+      json.content[0].content &&
+      json.content[0].content[0]
+    ) {
+      title = json.content[0].content[0].text;
+      if (!title) {
+        // ElMessage.error("Please Enter Title");
+        // return;
+        json.content[0] = {
+          attrs: { level: 2 },
+          content: [{ type: "text", text: "New Topic" }],
+          type: "heading",
+        };
+      } else {
+        json.content[0] = {
+          attrs: { level: 2 },
+          content: [{ type: "text", text: title }],
+          type: "heading",
+        };
+      }
     } else {
-      json.content[0] = {
-        attrs: { level: 1 },
-        content: [{ type: "text", text: title }],
+      json.content.unshift({
+        attrs: { level: 2 },
+        content: [{ type: "text", text: "New Topic" }],
         type: "heading",
-      };
+      });
     }
+    console.log(title);
     let arr = json.content;
     let cover = "";
     for (let i = 0; i < arr.length; i++) {
@@ -165,7 +185,7 @@ async function handlePost(
     }
     const summary = editor.value
       .getText()
-      .replace(title, "")
+      .replace(title as string, "")
       .replace(/\r\n/g, "")
       .replace(/\n/g, "")
       .substring(0, 200);
@@ -181,6 +201,7 @@ async function handlePost(
     // } else {
     // 创建数据
     // store.dispatch("card/addCard", { title, content: json, summary });
+    countTaskNum(json.content);
     let obj = {
       title: title,
       detail: json.content,
@@ -195,7 +216,11 @@ async function handlePost(
       })) as ResultProps;
       if (postRes.msg === "OK") {
         if (!noMessage) {
-          ElMessage.success("UpDate success");
+          ElMessage({
+            message: `Has Saved`,
+            type: "success",
+            duration: 1000,
+          });
         }
         callback(postRes);
       }
@@ -206,7 +231,11 @@ async function handlePost(
       })) as ResultProps;
       if (postRes.msg === "OK") {
         if (!noMessage) {
-          ElMessage.success("Post Success");
+          ElMessage({
+            message: "Post Success",
+            type: "success",
+            duration: 1000,
+          });
         }
         callback(postRes);
       }
@@ -217,14 +246,29 @@ async function handlePost(
       editor.value.commands.focus();
     }
     // }
-  } else {
-    ElMessage.error(i18n.global.t(`Enter title ...`));
-    return;
   }
-}
+};
 const toInfo = () => {
   router.push("/info/create");
   store.commit("message/setEditContent", editor.value?.getJSON().content);
+};
+const countTaskNum = (jsonContent: JSONContent) => {
+  checked.value = 0;
+  total.value = 0;
+  if (!jsonContent) return;
+  jsonContent.forEach((item, index) => {
+    if (item.type === "taskList") {
+      const taskList = item.content || [];
+      taskList.forEach((taskItem) => {
+        if (taskItem.type === "taskItem") {
+          total.value++;
+          if (taskItem.attrs?.checked) {
+            checked.value++;
+          }
+        }
+      });
+    }
+  });
 };
 defineExpose({
   handlePost,
@@ -241,31 +285,27 @@ defineExpose({
   >
     <div
       class="button dp--center"
-      :class="{ 'is-active': editor.isActive('bold') }"
       @click="editor?.chain().focus().toggleBold().run()"
     >
-      <img :src="dark ? boldwSvg : boldSvg" alt="" />
+      <icon-font name="bold" />
     </div>
     <div
       class="button dp--center"
-      :class="{ 'is-active': editor.isActive('bold') }"
       @click="editor?.chain().focus().toggleItalic().run()"
     >
-      <img :src="dark ? italicwSvg : italicSvg" alt="" />
+      <icon-font name="italic" />
     </div>
     <div
       class="button dp--center"
-      :class="{ 'is-active': editor.isActive('bold') }"
       @click="editor?.chain().focus().toggleStrike().run()"
     >
-      <img :src="dark ? strikewSvg : strikeSvg" alt="" />
+      <icon-font name="strike" />
     </div>
     <div
       class="button dp--center"
-      :class="{ 'is-active': editor.isActive('bold') }"
       @click="editor?.chain().focus().toggleUnderline().run()"
     >
-      <img :src="dark ? underlinewSvg : underlineSvg" alt="" />
+      <icon-font name="underline" />
     </div>
   </bubble-menu>
   <!-- <floating-menu
@@ -281,9 +321,9 @@ defineExpose({
     />
   </floating-menu> -->
   <editor-content :editor="editor" />
-  <!-- <div v-if="position === 'bottom' && editor" class="editor-nav dp--center">
-    <editor-nav :editor="editor" />
-  </div> -->
+  <div class="editor-nav" v-if="total > 0">
+    {{ checked }} / {{ total }} 任务
+  </div>
 </template>
 
 <style lang="scss">
@@ -452,22 +492,24 @@ ul[data-type="taskList"] {
   border-radius: 50%;
 }
 .editor-nav {
+  width: 100%;
   height: 30px;
   overflow-x: auto;
   overflow-y: hidden;
-  position: absolute;
-  left: 0px;
-  bottom: 0px;
-  &::-webkit-scrollbar {
-    height: 0px;
-  }
+  text-align: right;
+  font-size: 14px;
+  color: var(--talk-font-color-2);
 }
 .menu {
-  img {
-    width: 15px;
-    height: 15px;
-    margin: 0px 8px;
-    cursor: pointer;
+  background-color: var(--talk-bg-color);
+  .button {
+    margin-right: 5px;
+    img {
+      width: 15px;
+      height: 15px;
+      margin: 0px 8px;
+      cursor: pointer;
+    }
   }
 }
 .nav {

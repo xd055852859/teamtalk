@@ -17,15 +17,9 @@ onMounted(() => {
 });
 
 const login = () => {
-  let redirect = `${window.location.protocol}//${window.location.host}/home`;
+  let redirect = `${window.location.protocol}//${window.location.host}/#/home/`;
   let href: string = `https://account.qingtime.cn?apphigh=50&redirect=${redirect}&logo=https://workfly.qingtime.cn/1650849409262_workingVip.png`;
-  window.open(
-    href,
-    "new",
-    `width=360, height=560, resizable=false, toolbar=no, menubar=no, location=no, status=no, top=${
-      (document.body.clientHeight - 420) / 2
-    }, left=${(document.body.clientWidth - 360) / 2}`
-  );
+  window.open(href, "_self");
 };
 </script>
 <template>

@@ -3,4 +3,5 @@ export interface ResultProps {
   data: any;
   status: number;
   pageNum?: number;
+  totalNum?: number;
 }

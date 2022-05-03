@@ -22,12 +22,13 @@ import archiveSvg from "@/assets/svg/archive.svg";
 import archivewSvg from "@/assets/svg/archivew.svg";
 
 const socket: any = inject("socket");
-
+const props = defineProps<{ cardKey?: string }>();
 const router = useRouter();
 const route = useRoute();
 const user = computed(() => store.state.auth.user);
 const dark = computed(() => store.state.common.dark);
 const memberList = computed(() => store.state.auth.memberList);
+const updateState = computed(() => store.state.common.updateState);
 
 const inputRef = ref(null);
 const editorRef = ref(null);
@@ -38,11 +39,10 @@ const receiverRole = ref<number>(4);
 const store = useStore();
 const replyInput = ref<string>("");
 const replyList = ref<Reply[]>([]);
-const updateState = ref<boolean>(false);
 const shakeState = ref<boolean>(false);
 const atUser = ref<{ [key: string]: string } | null>(null);
 onMounted(() => {
-  infoKey.value = route.params.id as string;
+  infoKey.value = (route.params.id as string) || (props.cardKey as string);
   getInfo();
   socket.on("addComment", function (msg) {
     replyList.value.push(msg);
@@ -70,7 +70,7 @@ const getInfo = async () => {
   }
 };
 const postCard = async () => {
-  if (editorRef.value) {
+  if (editorRef.value && updateState.value) {
     //@ts-ignore
     editorRef.value.handlePost(
       "",
@@ -80,8 +80,10 @@ const postCard = async () => {
           shakeState.value = false;
         }
       },
-      true
+      true,
+      props.cardKey ? true : false
     );
+    store.commit("common/setUpdateState", false);
   }
 };
 const delCard = async () => {
@@ -89,7 +91,11 @@ const delCard = async () => {
     cardKey: infoKey.value,
   })) as ResultProps;
   if (delRes.msg === "OK") {
-    ElMessage.success(i18n.global.t(`tip['Deleted successfully']`));
+    ElMessage({
+      message: i18n.global.t(`tip['Deleted successfully']`),
+      type: "success",
+      duration: 1000,
+    });
     router.push("/home");
     store.commit("message/delMessageList", infoKey.value);
   }
@@ -100,7 +106,11 @@ const filedCard = async () => {
     filed: true,
   })) as ResultProps;
   if (filedRes.msg === "OK") {
-    ElMessage.success(i18n.global.t(`tip['Archived successfully']`));
+    ElMessage({
+      message: i18n.global.t(`tip['Archived successfully']`),
+      type: "success",
+      duration: 1000,
+    });
     router.push("/home");
     store.commit("message/delMessageList", infoKey.value);
   }
@@ -110,7 +120,11 @@ const favoriteCard = async () => {
     cardKey: infoKey.value,
   })) as ResultProps;
   if (postRes.msg === "OK") {
-    ElMessage.success(i18n.global.t(`tip['Set Favourite successfully']`));
+    ElMessage({
+      message: i18n.global.t(`tip['Set Favourite successfully']`),
+      type: "success",
+      duration: 1000,
+    });
     favorite.value = !favorite.value;
   }
 };
@@ -121,7 +135,11 @@ const addReply = async () => {
     atUser: atUser.value,
   })) as ResultProps;
   if (postRes.msg === "OK") {
-    ElMessage.success(i18n.global.t(`tip['Reply succeeded']`));
+    ElMessage({
+      message: i18n.global.t(`tip['Reply succeeded']`),
+      type: "success",
+      duration: 1000,
+    });
     replyInput.value = "";
   }
 };
@@ -130,13 +148,33 @@ const delReply = async (replyKey: string, index: number) => {
     commentKey: replyKey,
   })) as ResultProps;
   if (postRes.msg === "OK") {
-    ElMessage.success("Delete Reply Success");
+    ElMessage({
+      message: `Delete Reply Success`,
+      type: "success",
+      duration: 1000,
+    });
   }
 };
+
+defineExpose({
+  postCard,
+});
 </script>
 <template>
-  <div class="info">
-    <div class="header dp-space-center">
+  <div
+    class="info"
+    v-if="info"
+    :style="
+      cardKey
+        ? {}
+        : {
+            height: '100vh',
+            background: 'var(--talk-bg-color)',
+            paddingBottom: '100px',
+          }
+    "
+  >
+    <div class="header dp-space-center" v-if="!cardKey">
       <div class="left dp--center">
         <span class="title">
           {{
@@ -167,6 +205,7 @@ const delReply = async (replyKey: string, index: number) => {
         }}
       </div>
       <div class="dp--center">
+         <el-tooltip :content="'favorite'">
         <el-icon
           style="margin-right: 10px; margin-left: 10px; cursor: pointer"
           size="20px"
@@ -175,11 +214,14 @@ const delReply = async (replyKey: string, index: number) => {
           <star-filled v-if="favorite" />
           <star v-else />
         </el-icon>
+        </el-tooltip>
         <el-icon
           style="margin-right: 10px; cursor: pointer"
           size="20px"
           @click="
-            router.back()
+            store.commit('message/setEditContent', null);
+            store.commit('message/setEditKey', '');
+            router.back();
             // store.commit('message/setEditContent', null);
           "
           ><close
@@ -190,7 +232,7 @@ const delReply = async (replyKey: string, index: number) => {
     <div class="box">
       <div class="center p-5">
         <editor
-          :init-data="info"
+          :init-data="cardKey ? null : info"
           :isEdit="
             user?._key === info?.creatorInfo?._key ||
             (receiverRole < 3 && info?.receiverInfo?.receiverType === 'group')
@@ -198,10 +240,12 @@ const delReply = async (replyKey: string, index: number) => {
           :cardKey="infoKey"
           :shake="shakeState"
           ref="editorRef"
-          @changeUpdate="updateState = true"
         />
       </div>
-      <div class="button dp-space-center p-5">
+      <div
+        class="button dp-space-center p-5"
+        :style="cardKey ? { position: 'absolute' } : {}"
+      >
         <div class="left dp--center"></div>
         <div class="right dp--center">
           <div
@@ -234,6 +278,7 @@ const delReply = async (replyKey: string, index: number) => {
           </div>
           <div
             class="button-item dp-center-center"
+            :style="cardKey ? { width: '25px', height: '25px' } : {}"
             v-if="
               user?._key === info?.creatorInfo?._key ||
               (receiverRole < 3 && info?.receiverInfo?.receiverType === 'group')
@@ -248,13 +293,18 @@ const delReply = async (replyKey: string, index: number) => {
                 :src="dark ? archivewSvg : archiveSvg"
                 alt=""
                 class="icon-point"
-                style="width: 25px; height: 25px"
+                :style="
+                  cardKey
+                    ? { width: '20px', height: '20px' }
+                    : { width: '25px', height: '25px' }
+                "
                 @click.once="filedCard()"
               />
             </el-tooltip>
           </div>
           <div
             class="button-item dp-center-center"
+            :style="cardKey ? { width: '25px', height: '25px' } : {}"
             v-if="
               user?._key === info?.creatorInfo?._key ||
               (receiverRole < 2 && info?.receiverInfo?.receiverType === 'group')
@@ -269,16 +319,21 @@ const delReply = async (replyKey: string, index: number) => {
                 :src="dark ? infoDelwSvg : infoDelSvg"
                 alt=""
                 class="icon-point"
-                style="width: 25px; height: 25px"
+                :style="
+                  cardKey
+                    ? { width: '20px', height: '20px' }
+                    : { width: '25px', height: '25px' }
+                "
                 @click.once="delCard()"
               />
             </el-tooltip>
           </div>
-          <tbutton @click.once="postCard" v-if="updateState">{{
+          <tbutton @click.once="postCard" v-if="updateState && !cardKey">{{
             $t(`button.Update`)
           }}</tbutton>
         </div>
       </div>
+      <el-divider border-style="dashed" />
       <div
         class="message p-5"
         v-for="(item, index) in replyList"
@@ -316,13 +371,18 @@ const delReply = async (replyKey: string, index: number) => {
           " -->
       </div>
     </div>
-    <div class="footer p-5">
+    <div
+      class="footer p-5"
+      :style="
+        cardKey ? {} : { position: 'fixed', background: 'var(--talk-bg-color)' }
+      "
+    >
       <el-input
         v-model="replyInput"
         size="large"
         :placeholder="`Please Enter Reply`"
         ref="inputRef"
-        @keydown.enter="addReply"
+        @change="addReply"
         style="width: 100%; margin-bottom: 10px; margin-top: 10px"
       >
         <template #prepend v-if="info?.receiverInfo.receiverType === 'group'">
@@ -349,9 +409,6 @@ const delReply = async (replyKey: string, index: number) => {
 <style scoped lang="scss">
 .info {
   width: 100%;
-  height: 100vh;
-  background: var(--talk-bg-color);
-  padding-bottom: 100px;
   box-sizing: border-box;
   .header {
     width: 100%;
@@ -381,6 +438,8 @@ const delReply = async (replyKey: string, index: number) => {
     .button {
       width: 100%;
       height: 40px;
+      right: -15px;
+      top: 0px;
       .left,
       .right {
         height: 100%;
@@ -394,7 +453,7 @@ const delReply = async (replyKey: string, index: number) => {
     .message {
       width: 100%;
       min-height: 100px;
-      background: var(--talk-item-color);
+      // background: var(--talk-item-color);
       .message-header {
         padding: 0px;
         box-sizing: border-box;
@@ -417,12 +476,10 @@ const delReply = async (replyKey: string, index: number) => {
   .footer {
     width: 100%;
     height: 100px;
-    position: fixed;
     z-index: 2;
     left: 0px;
     bottom: 0px;
     box-sizing: border-box;
-    background: var(--talk-item-color);
     .button {
       justify-content: flex-end;
     }

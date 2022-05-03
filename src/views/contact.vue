@@ -6,6 +6,7 @@ import { Group } from "@/interface/User";
 
 import Theader from "@/components/theader.vue";
 const store = useStore();
+const props = defineProps<{ eyeState: boolean }>();
 const emits = defineEmits(["close"]);
 const groupList = computed(() => store.state.auth.groupList);
 const searchList = ref<Group[]>([]);
@@ -20,15 +21,21 @@ const searchName = () => {
     searchList.value = [...groupList.value];
   }
 };
+const chooseTalker = (item: Group) => {
+  store.commit("message/setTalker", item);
+  if (props.eyeState) {
+    store.commit("message/setReceiver", item);
+    store.commit("message/setReceiverType", "receiver");
+    store.dispatch("message/getMessageList", 1);
+  }
+  emits('close')
+};
 watchEffect(() => {
   searchName();
 });
 </script>
 <template>
   <div class="contact p-5">
-    <theader @clickBack="" :noIcon="true">
-      <template v-slot:title>{{ $t(`button['talk to']`) }}</template>
-    </theader>
     <div class="search dp--center">
       <el-input
         v-model="memberName"
@@ -42,14 +49,11 @@ watchEffect(() => {
         class="container dp-space-center contact-item icon-point"
         v-for="(item, index) in searchList"
         :key="'contact' + index"
-        @click="
-          store.commit('message/setTalker', item);
-          emits('close');
-        "
+        @click="chooseTalker(item)"
       >
         <div class="left dp--center">
-          <el-avatar fit="cover" :size="40" :src="item.avatar" />
-          <div class="name">{{ item.title }}</div>
+          <el-avatar fit="cover" :size="30" :src="item.avatar" />
+          <div class="name single-to-long">{{ item.title }}</div>
         </div>
       </div>
     </div>
@@ -58,22 +62,32 @@ watchEffect(() => {
 <style scoped lang="scss">
 .contact {
   width: 100%;
-  height: 100%;
-  background: var(--talk-bg-color);
-  .header {
-    width: 100%;
-    height: 45px;
-    line-height: 45px;
-  }
+  height: 500px;
+  padding: 15px 5%;
+  box-sizing: border-box;
+  // background: var(--talk-bg-color);
   .search {
     width: 100%;
     height: 45px;
   }
   .info {
     width: 100%;
-    height: calc(100% - 120px);
+    height: calc(100% - 45px);
     overflow-y: auto;
     margin-top: 10px;
+    .contact-item {
+      width: 100%;
+      height: 45px;
+
+      .left {
+        width: 100%;
+        .name {
+          width: calc(100% - 60px);
+          margin-left: 5px;
+          font-size: 14px;
+        }
+      }
+    }
   }
   .button {
     width: 100%;

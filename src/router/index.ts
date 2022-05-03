@@ -11,14 +11,47 @@ const routes: Array<RouteRecordRaw> = [
     path: "/home",
     name: "home",
     component: () => import("@/views/home.vue"),
-    children: [],
+    redirect: "/home/topic",
+    children: [
+      {
+        path: "topic",
+        name: "topic",
+        component: () => import("@/views/topic.vue"),
+        children: [],
+      },
+      {
+        path: "partner/:id",
+        name: "partner",
+        component: () => import("@/views/partner.vue"),
+        children: [],
+      },
+      {
+        path: "trash",
+        name: "trash",
+        component: () => import("@/views/trash.vue"),
+        children: [],
+      },
+      {
+        path: "block",
+        name: "block",
+        component: () => import("@/views/block.vue"),
+        children: [],
+      },
+      {
+        path: "invite",
+        name: "invite",
+        component: () => import("@/views/invite.vue"),
+        children: [],
+      },
+      {
+        path: "inviteOut",
+        name: "inviteOut",
+        component: () => import("@/views/inviteOut.vue"),
+        children: [],
+      },
+    ],
   },
-  {
-    path: "/partner",
-    name: "partner",
-    component: () => import("@/views/partner.vue"),
-    children: [],
-  },
+
   {
     path: "/member/:id",
     name: "member",
@@ -38,12 +71,6 @@ const routes: Array<RouteRecordRaw> = [
     children: [],
   },
   {
-    path: "/contact",
-    name: "contact",
-    component: () => import("@/views/contact.vue"),
-    children: [],
-  },
-  {
     path: "/manage/:id",
     name: "manage",
     component: () => import("@/views/manage.vue"),
@@ -55,28 +82,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/info.vue"),
     children: [],
   },
-  {
-    path: "/invite",
-    name: "invite",
-    component: () => import("@/views/invite.vue"),
-    children: [],
-  },
-  {
-    path: "/inviteOut",
-    name: "inviteOut",
-    component: () => import("@/views/inviteOut.vue"),
-    children: [],
-  },
+
   {
     path: "/test",
     name: "test",
     component: () => import("@/views/test.vue"),
-    children: [],
-  },
-  {
-    path: "/block",
-    name: "block",
-    component: () => import("@/views/block.vue"),
     children: [],
   },
 ];
@@ -101,4 +111,5 @@ const router = createRouter({
 //     next();
 //   }
 // });
+// 全局导航守卫
 export default router;

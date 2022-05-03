@@ -19,8 +19,14 @@ import setwSvg from "@/assets/svg/Settingsw.svg";
 import helpwSvg from "@/assets/svg/Helpw.svg";
 import communitywSvg from "@/assets/svg/Communityw.svg";
 import quitwSvg from "@/assets/svg/Quitw.svg";
+import headerPartnerSvg from "../assets/svg/headerPartner.svg";
+import headerPartnerwSvg from "../assets/svg/headerPartnerw.svg";
+import headerFilterSvg from "../assets/svg/headerFilter.svg";
+import headerFilterwSvg from "../assets/svg/headerFilterw.svg";
+import IconFont from "@/components/iconFont.vue";
 
 const store = useStore();
+const emits = defineEmits(["close"]);
 const { proxy } = useCurrentInstance();
 const user = computed(() => store.state.auth.user);
 const locale = computed(() => store.state.common.locale);
@@ -75,7 +81,11 @@ const changeConfig = async () => {
     ...config,
   })) as ResultProps;
   if (configRes.msg === "OK") {
-    ElMessage.success("edit success");
+    ElMessage({
+      message: "edit success",
+      type: "success",
+      duration: 1000,
+    });
     userVisible.value = false;
     store.commit("auth/setUserInfo", { ...user.value, ...config });
   }
@@ -124,37 +134,101 @@ watch(autoValue, (newVal) => {
 });
 </script>
 <template>
-  <div class="userCenter-user" @click="userVisible = true">
-    <el-avatar fit="cover" :src="user?.userAvatar" :size="100" />
-    <div class="center">{{ user?.userName }}</div>
-    <div class="bottom">{{ user?.email }}</div>
-  </div>
-  <div class="userCenter-item dp--center" @click="setVisible = true">
+  <div class="user-center">
+    <div style="width: 100%">
+      <div class="userCenter-user dp-space-center" @click="userVisible = true">
+        <el-avatar fit="cover" :src="user?.userAvatar" :size="50" />
+        <div class="right">
+          <div class="center">{{ user?.userName }}</div>
+          <div class="bottom">{{ user?.email }}</div>
+        </div>
+      </div>
+
+      <div
+        class="userCenter-item dp--center"
+        @click="
+          $router.push('/home/topic');
+          emits('close');
+        "
+      >
+        <icon-font name="note" :size="22" style="margin-right: 18px" />
+        <span>Notes </span>
+      </div>
+      <!-- <div class="userCenter-item dp--center" @click="$router.push('/')">
+    <img
+      :src="dark ? headerFilterwSvg : headerFilterSvg"
+      alt=""
+      class="filter"
+    />
     <img :src="dark ? setwSvg : setSvg" alt="" />
     <span>
-      {{ $t(`text.Setting`) }}
+      {{ $t(`icon.Filter`) }}
     </span>
-  </div>
-  <div class="userCenter-item dp--center">
-    <img :src="dark ? helpwSvg : helpSvg" alt="" />
-    <span>
-      {{ $t(`text.Help`) }}
-    </span>
-  </div>
-  <div class="userCenter-item dp--center">
-    <img :src="dark ? communitywSvg : communitySvg" alt="" />
-    <span>
-      {{ $t(`text.Communication`) }}
-    </span>
-  </div>
-  <div
-    class="userCenter-item dp--center"
-    @click="store.commit('auth/setLogout')"
-  >
-    <img :src="dark ? quitwSvg : quitSvg" alt="" />
-    <span>
-      {{ $t(`text['Sign out']`) }}
-    </span>
+  </div> -->
+      <div
+        class="userCenter-item dp--center"
+        @click="
+          $router.push('/home/partner/user');
+          emits('close');
+        "
+      >
+        <icon-font name="mate" style="margin-right: 20px" />
+        <span>
+          {{ $t(`icon.Mates`) }}
+        </span>
+      </div>
+      <div
+        class="userCenter-item dp--center"
+        @click="
+          $router.push('/home/partner/group');
+          emits('close');
+        "
+      >
+        <icon-font name="partner" :size="24" style="margin-right: 15px" />
+        <span>
+          {{ $t(`icon.Team`) }}
+        </span>
+      </div>
+      <div
+        class="userCenter-item dp--center"
+        @click="
+          $router.push('/home/trash');
+          emits('close');
+        "
+      >
+        <icon-font name="trash" :size="24" style="margin-right: 15px" />
+        <span> Trash </span>
+      </div>
+    </div>
+    <div class="user-set">
+      <div class="userCenter-item dp--center" @click="setVisible = true">
+        <img :src="dark ? setwSvg : setSvg" alt="" />
+        <span>
+          {{ $t(`text.Setting`) }}
+        </span>
+      </div>
+      <div class="userCenter-item dp--center">
+        <img :src="dark ? helpwSvg : helpSvg" alt="" />
+        <span>
+          {{ $t(`text.Help`) }}
+        </span>
+      </div>
+      <div class="userCenter-item dp--center">
+        <img :src="dark ? communitywSvg : communitySvg" alt="" />
+        <span>
+          {{ $t(`text.Communication`) }}
+        </span>
+      </div>
+      <div
+        class="userCenter-item dp--center"
+        @click="store.commit('auth/setLogout')"
+      >
+        <img :src="dark ? quitwSvg : quitSvg" alt="" />
+        <span>
+          {{ $t(`text['Sign out']`) }}
+        </span>
+      </div>
+    </div>
   </div>
   <el-dialog
     v-model="userVisible"
@@ -233,44 +307,74 @@ watch(autoValue, (newVal) => {
   </el-dialog>
 </template>
 <style scoped lang="scss">
-.userCenter-user {
-  margin-bottom: 40px;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  span {
-    margin-right: 0px;
-  }
-  .center {
-    width: 100%;
-    height: 20px;
-    font-size: 20px;
-    margin: 10px 0px;
-    line-height: 20px;
-    text-align: center;
-  }
-  .bottom {
-    width: 100%;
-    height: 20px;
-    font-size: 14px;
-    color: #999999;
-    line-height: 20px;
-    text-align: center;
-  }
-}
-.userCenter-item {
+.user-center {
   width: 100%;
-  height: 35px;
-  margin-bottom: 15px;
-  cursor: pointer;
-  img {
-    width: 25px;
-    height: 25px;
-    margin-right: 15px;
+  height: 100%;
+  display: flex;
+  align-content: space-between;
+  flex-wrap: wrap;
+  .userCenter-user {
+    width: 100%;
+    height: 45px;
+    margin-bottom: 45px;
+    span {
+      margin-right: 0px;
+    }
+    .right {
+      width: calc(100% - 60px);
+      text-align: left;
+      margin-left: 20px;
+      .center {
+        width: 100%;
+        height: 20px;
+        font-size: 16px;
+        margin: 10px 0px;
+        line-height: 20px;
+      }
+      .bottom {
+        width: 100%;
+        height: 20px;
+        font-size: 14px;
+        color: #999999;
+        line-height: 20px;
+      }
+    }
   }
-  span {
-    font-size: 18px;
-    font-weight: 400;
+  .user-set {
+    width: 100%;
+    font-size: 12px;
+    .userCenter-item {
+      height: 20px;
+      margin-bottom: 10px;
+      padding: 8px 0px;
+      img {
+        width: 18px;
+        height: 18px;
+        margin-right: 18px;
+      }
+      span {
+        font-size: 14px;
+      }
+    }
+  }
+  .userCenter-item {
+    width: 100%;
+    height: 25px;
+    margin-bottom: 15px;
+    padding: 10px 0px;
+    cursor: pointer;
+    img {
+      width: 25px;
+      height: 25px;
+      margin-right: 15px;
+    }
+    span {
+      font-size: 18px;
+      font-weight: 400;
+    }
+    &:hover {
+      background-color: var(--talk-hover-color);
+    }
   }
 }
 .user-edit {

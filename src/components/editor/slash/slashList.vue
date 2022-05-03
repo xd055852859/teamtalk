@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { uploadImage } from "@/services/util";
 import { useStore } from "@/store";
+import IconFont from "@/components/iconFont.vue";
 
 const store = useStore();
 const props = defineProps<{
@@ -54,6 +55,7 @@ const chooseImg = (e, index: number) => {
   let mimeType = ["image/png", "image/jpeg"];
   uploadImage(e.target.files[0], uploadToken.value, mimeType, (url: string) => {
     props.items[index].props = { url: url };
+    console.log(props.items[index])
     props.command(props.items[index]);
     // editorInfo.value?.chain().focus().deleteRange(range).setImage({ src: url });
   });
@@ -75,10 +77,14 @@ defineExpose({
       v-for="(item, index) in props.items"
       :key="'tab' + index"
       @click="item.title !== 'img' ? selectItem(index) : ''"
-      :style="selectedIndex === index ? { backgroundColor: '#f0f0f0' } : {}"
+      :style="
+        selectedIndex === index
+          ? { backgroundColor: 'var(--talk-hover-color)' }
+          : ''
+      "
     >
       <template v-if="item.title !== 'img'">
-        <img :src="item.icon" alt="" class="img" />
+        <icon-font :name="item.title" />
         <div class="title">{{ item.title }}</div>
       </template>
       <template v-else>
@@ -92,7 +98,7 @@ defineExpose({
           "
           class="upload-img"
         />
-        <img :src="item.icon" alt="" class="img" />
+        <icon-font name="image" />
         <div class="title">{{ item.title }}</div>
       </template>
     </div>
@@ -103,8 +109,8 @@ defineExpose({
   width: 120px;
   position: relative;
   border-radius: 10px;
-
-  color: rgba(0, 0, 0, 0.8);
+  background-color: var(--talk-bg-color);
+  color: var(--talk-font-color);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0px 10px 20px rgba(0, 0, 0, 0.1);
   flex-wrap: wrap;
 }
@@ -114,7 +120,6 @@ defineExpose({
   height: 40px;
   padding: 0px 10px;
   box-sizing: border-box;
-  background: #fff;
   position: relative;
   z-index: 1;
   .img {
@@ -126,7 +131,7 @@ defineExpose({
     font-size: 14px;
   }
   &:hover {
-    background-color: rgb(200, 196, 196);
+    background-color: val(--talk-hover-color);
   }
   .upload-img {
     width: 100%;

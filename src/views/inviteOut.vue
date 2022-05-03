@@ -40,7 +40,11 @@ watch(
       <tbutton
         @click="
           toClipboard(url);
-          ElMessage.success('Copy Success');
+          ElMessage({
+            message: 'Copy Success',
+            type: 'success',
+            duration: 1000,
+          });
         "
         style="height: 30px"
         >{{ $t(`surface.copy`) }}</tbutton
@@ -58,7 +62,11 @@ watch(
       <tbutton
         @click="
           toClipboard(url);
-          ElMessage.success('Copy Success');
+          ElMessage({
+            message: 'Copy Success',
+            type: 'success',
+            duration: 1000,
+          });
         "
         style="height: 30px"
         >{{ $t(`surface.Download`) }}</tbutton
