@@ -12,11 +12,15 @@ const state: CommonState = {
   loading: false,
   top: 0,
   updateState: false,
+  deviceType: "computer",
 };
 
 const mutations: MutationTree<CommonState> = {
   setLocale(state, data) {
     state.locale = data;
+  },
+  setDeviceType(state, deviceType: string) {
+    state.deviceType = deviceType;
   },
   setDark(state, data) {
     state.dark = data;

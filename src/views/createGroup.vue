@@ -15,10 +15,15 @@ import unchooseSvg from "@/assets/svg/unchoose.svg";
 const router = useRouter();
 const groupList = computed(() => store.state.auth.groupList);
 const user = computed(() => store.state.auth.user);
+const memberArray = computed(() =>
+  groupList.value.filter((item: Group) => {
+    return item.receiverType === "user" && item.toUserKey !== user.value?._key;
+  })
+);
 
 const teamKeyArray = ref<string[]>([]);
 const teamName = ref<string>("");
-const memberArray = ref<Group[]>([]);
+
 const chooseMember = (memberKey: string) => {
   let index = teamKeyArray.value.indexOf(memberKey);
   if (index === -1) {
@@ -54,17 +59,6 @@ const createGroup = async () => {
     store.dispatch("auth/getGroupList");
   }
 };
-watch(
-  groupList,
-  (newVal: Group[]) => {
-    newVal.forEach((item: Group) => {
-      if (item.receiverType === "user" && item.toUserKey !== user.value?._key) {
-        memberArray.value.push(item);
-      }
-    });
-  },
-  { immediate: true }
-);
 </script>
 <template>
   <div class="create p-5">

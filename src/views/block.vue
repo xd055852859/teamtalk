@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Theader from "@/components/theader.vue";
+import IconFont from "@/components/iconFont.vue";
 
 import api from "@/services/api";
 import { ElMessage } from "element-plus";
@@ -8,8 +9,8 @@ import { useStore } from "@/store";
 import { Group } from "@/interface/User";
 import { ResultProps } from "@/interface/Common";
 
-import quitSvg from "@/assets/svg/Quit.svg";
 import groupSvg from "@/assets/svg/group.svg";
+
 const store = useStore();
 const blockArray = ref<Group[]>([]);
 onMounted(() => {
@@ -63,10 +64,9 @@ const outBlock = async (key: string, index: number) => {
           <div class="name">{{ item.title }}</div>
         </div>
         <div class="right dp--center">
-          <img
-            :src="quitSvg"
-            alt=""
-            style="width: 20px; height: 20px"
+          <icon-font
+            name="quit"
+            :size="20"
             class="icon-point"
             @click="outBlock(item._key, index)"
           />

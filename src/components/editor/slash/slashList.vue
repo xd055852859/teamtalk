@@ -55,7 +55,7 @@ const chooseImg = (e, index: number) => {
   let mimeType = ["image/png", "image/jpeg"];
   uploadImage(e.target.files[0], uploadToken.value, mimeType, (url: string) => {
     props.items[index].props = { url: url };
-    console.log(props.items[index])
+    console.log(props.items[index]);
     props.command(props.items[index]);
     // editorInfo.value?.chain().focus().deleteRange(range).setImage({ src: url });
   });
@@ -91,11 +91,7 @@ defineExpose({
         <input
           type="file"
           accept="image/*"
-          @change="
-            (e) => {
-              chooseImg(e, index);
-            }
-          "
+          @change="chooseImg($event, index)"
           class="upload-img"
         />
         <icon-font name="image" />

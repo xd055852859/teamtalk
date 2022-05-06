@@ -6,10 +6,6 @@ import Tbutton from "@/components/tbutton.vue";
 import { useStore } from "@/store";
 import { getSearchParamValue } from "@/services/util";
 
-import unshakeSvg from "@/assets/svg/unshake.svg";
-import unshakewSvg from "@/assets/svg/unshakew.svg";
-import shakeSvg from "@/assets/svg/shake.svg";
-
 const talkKey = computed(() => store.state.message.talkKey);
 const editorInfo = computed(() => store.state.message.editorInfo);
 const dark = computed(() => store.state.common.dark);
@@ -50,19 +46,13 @@ const postContent = async () => {
     <div class="button dp--center">
       <template v-if="userState">
         <el-tooltip :content="$t(`icon.Shake`)">
-          <img
-            :src="shakeSvg"
-            alt=""
-            v-if="shakeState"
+          <icon-font
+            :name="shakeState ? 'shake' : 'unshake'"
             class="icon-point"
-            style="width: 25px; height: 25px; margin-right: 10px"
-          />
-          <img
-            :src="dark ? unshakewSvg : unshakeSvg"
-            alt=""
-            v-else
-            class="icon-point"
-            style="width: 25px; height: 25px; margin-right: 10px"
+            style="margin-right: 10px"
+            :size="25"
+            :color="shakeState ? '#16ab78' : ''"
+            @click="shakeState = true"
           />
         </el-tooltip>
       </template>

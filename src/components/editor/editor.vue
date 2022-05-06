@@ -12,6 +12,7 @@ import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
+import Progress from "@/components/editor/progress";
 import i18n from "@/language/i18n";
 import { Card } from "@/interface/Message";
 import { ElMessage } from "element-plus";
@@ -73,6 +74,7 @@ const editor = useEditor({
     Slash.configure({
       suggestion: slashSuggestion,
     }),
+    Progress
     // Dot.configure({
     //   suggestion: dotSuggestion,
     // }),

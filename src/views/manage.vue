@@ -16,8 +16,6 @@ import { ResultProps } from "@/interface/Common";
 import { ElMessage } from "element-plus";
 import { Group, Member } from "@/interface/User";
 
-
-
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
@@ -26,6 +24,27 @@ const groupList = computed(() => store.state.auth.groupList);
 const user = computed(() => store.state.auth.user);
 const memberList = computed(() => store.state.auth.memberList);
 const groupRole = computed(() => store.state.auth.groupRole);
+const memberArray = computed(() =>
+  groupList.value.filter((item) => {
+    return (
+      item.receiverType === "user" &&
+      memberKeyArray.value.indexOf(item.toUserKey as string) === -1
+    );
+  })
+);
+const groupKeyArray = computed(() =>
+  Array.from(
+    groupList.value.filter((item: Group) => {
+      return item.toUserKey;
+    }),
+    ({ toUserKey }) => toUserKey
+  )
+);
+const memberKeyArray = computed(() =>
+  memberList.value.map((item: Member) => {
+    return item._key;
+  })
+);
 
 const teamName = ref<string>("");
 const avatar = ref<string>("");
@@ -34,12 +53,10 @@ const avatarList = ref<any>([]);
 const avatarTotal = ref<number>(0);
 const teamKey = ref<string>("");
 const teamKeyArray = ref<string[]>([]);
-const memberArray = ref<Group[]>([]);
+
 const exitVisible = ref<boolean>(false);
 const memberVisible = ref<boolean>(false);
 const setVisible = ref<boolean>(false);
-const memberKeyArray = ref<string[]>([]);
-const groupKeyArray = ref<string[]>([]);
 const delVisible = ref<boolean>(false);
 const disbandVisible = ref<boolean>(false);
 const isPublic = ref<boolean>(false);
@@ -47,9 +64,13 @@ const allowJoin = ref<boolean>(false);
 const isMute = ref<boolean>(false);
 const isBlock = ref<boolean>(false);
 const filedVisible = ref<boolean>(false);
+const filedTotal = ref<number>(0);
 const trashVisible = ref<boolean>(false);
+const trashTotal = ref<number>(0);
 const page = ref<number>(1);
 const avatarPage = ref<number>(1);
+const filedPage = ref<number>(1);
+const trashPage = ref<number>(1);
 const applyArray = ref<Member[]>([]);
 const filedArray = ref<Message[]>([]);
 const trashArray = ref<Message[]>([]);
@@ -210,21 +231,60 @@ const delMember = async (item: Member, index: number) => {
 const getFiledInfo = async () => {
   let infoRes = (await api.request.get("card/filed/list", {
     receiverKey: teamKey.value,
-    page: page.value,
-    limit: 100,
+    page: filedPage.value,
+    limit: 5,
   })) as ResultProps;
   if (infoRes.msg === "OK") {
-    filedArray.value = [...infoRes.data];
+    if (filedPage.value === 1) {
+      filedArray.value = [];
+    }
+    filedArray.value = [...filedArray.value, ...infoRes.data];
+    filedTotal.value = infoRes.total as number;
+  }
+};
+const scrollFiled = (e: any) => {
+  //文档内容实际高度（包括超出视窗的溢出部分）
+  let scrollHeight = e.target.scrollHeight;
+  //滚动条滚动距离
+  let scrollTop = e.target.scrollTop;
+  //窗口可视范围高度
+  let height = e.target.clientHeight;
+  if (
+    height + scrollTop >= scrollHeight &&
+    filedArray.value.length < filedTotal.value
+  ) {
+    filedPage.value++;
+    getFiledInfo();
   }
 };
 const getTrashInfo = async () => {
   let infoRes = (await api.request.get("card/trash/list", {
     receiverKey: teamKey.value,
-    page: page.value,
-    limit: 100,
+    page: trashPage.value,
+    limit: 5,
   })) as ResultProps;
   if (infoRes.msg === "OK") {
-    trashArray.value = [...infoRes.data];
+    if (trashPage.value === 1) {
+      trashArray.value = [];
+    }
+    trashArray.value = [...trashArray.value, ...infoRes.data];
+    trashTotal.value = infoRes.total as number;
+  }
+};
+const scrollTrash = (e: any) => {
+  //文档内容实际高度（包括超出视窗的溢出部分）
+  let scrollHeight = e.target.scrollHeight;
+  //滚动条滚动距离
+  let scrollTop = e.target.scrollTop;
+  //窗口可视范围高度
+  let height = e.target.clientHeight;
+  if (
+    height + scrollTop >= scrollHeight &&
+    trashArray.value.length < trashTotal.value
+  ) {
+    trashPage.value++;
+    console.log(trashPage.value);
+    getTrashInfo();
   }
 };
 const flashFiled = (key: string) => {
@@ -260,7 +320,7 @@ const changeConfig = async () => {
   if (infoRes.msg === "OK") {
     ElMessage({
       message: i18n.global.t(`tip['Update group succeeded']`),
-      type: "error",
+      type: "success",
       duration: 1000,
     });
     if (!isMute.value) {
@@ -334,21 +394,6 @@ const disbandGroup = async () => {
     router.back();
   }
 };
-watchEffect(() => {
-  memberArray.value = [];
-  memberKeyArray.value = memberList.value.map((item: Member) => {
-    return item._key;
-  });
-  groupList.value.forEach((item: Group) => {
-    item.toUserKey ? groupKeyArray.value.push(item.toUserKey) : null;
-    if (
-      item.receiverType === "user" &&
-      memberKeyArray.value.indexOf(item.toUserKey as string) === -1
-    ) {
-      memberArray.value.push(item);
-    }
-  });
-});
 </script>
 <template>
   <theader>
@@ -603,6 +648,7 @@ watchEffect(() => {
     :before-close="
       (done) => {
         saveGroup('member', done);
+        teamKeyArray = [];
       }
     "
   >
@@ -659,7 +705,7 @@ watchEffect(() => {
     :title="$t(`icon.Archive`)"
     custom-class="p0-drawer"
   >
-    <div class="filed p-5">
+    <div class="filed p-5" @scroll="scrollFiled">
       <template v-for="(item, index) in filedArray" :key="'filed' + index">
         <message-item :item="item" :type="'filed'" @changeItem="flashFiled" />
       </template>
@@ -672,7 +718,7 @@ watchEffect(() => {
     :title="$t(`icon.Archive`)"
     custom-class="p0-drawer"
   >
-    <div class="filed p-5">
+    <div class="filed p-5" @scroll="scrollTrash">
       <div
         class="dp--center"
         style="justify-content: flex-end; margin-top: 10px"
@@ -730,7 +776,7 @@ watchEffect(() => {
     </template>
   </el-dialog>
   <el-dialog v-model="disbandVisible" title="Tips" width="350px">
-    <span>{{ $t(`form.disband`) }}</span>
+    <span>disband</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
         <tbutton @click="disbandVisible = false" :disabled="true">{{
@@ -779,7 +825,8 @@ watchEffect(() => {
 .filed {
   width: 100%;
   height: 100%;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .avatar-container {
   width: 100%;

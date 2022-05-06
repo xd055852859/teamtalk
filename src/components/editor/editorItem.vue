@@ -13,6 +13,9 @@ const editorInfo = computed(() => store.state.message.editorInfo);
 
 const insertNode = (type) => {
   switch (type) {
+    case "progress":
+      editorInfo.value?.chain().setProgress().focus().run();
+      break;
     case "text":
       editorInfo.value?.chain().focus().run();
       break;
@@ -20,7 +23,7 @@ const insertNode = (type) => {
       editorInfo.value?.chain().setHeading({ level: 2 }).focus().run();
       break;
     case "h2":
-      editorInfo.value?.chain().setHeading({ level: 3}).focus().run();
+      editorInfo.value?.chain().setHeading({ level: 3 }).focus().run();
       break;
     case "h3":
       editorInfo.value?.chain().setHeading({ level: 4 }).focus().run();
@@ -55,6 +58,13 @@ const insertNode = (type) => {
     class="block-item"
     :style="{ ...props.itemObj, height: itemHeight * 11 + 'px' }"
   >
+    <div
+      @click="insertNode('progress')"
+      :style="itemHeight + 'px' ? { height: itemHeight + 'px' } : {}"
+    >
+      <icon-font name="text" />
+      Progress
+    </div>
     <div
       @click="insertNode('text')"
       :style="itemHeight + 'px' ? { height: itemHeight + 'px' } : {}"

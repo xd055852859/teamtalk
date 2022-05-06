@@ -4,5 +4,6 @@ export interface CommonState {
   theme: string;
   loading: boolean;
   top: number;
-  updateState:boolean
+  updateState:boolean;
+  deviceType:string
 }

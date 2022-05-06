@@ -23,12 +23,14 @@ const state: AuthState = {
   memberList: [],
   uploadToken: null,
   groupTitle: "",
+
 };
 
 const mutations: MutationTree<AuthState> = {
   setToken(state, token: string) {
     state.token = token;
   },
+
   setUploadToken(state, uploadToken: string) {
     state.uploadToken = uploadToken;
   },
@@ -133,10 +135,14 @@ const actions: ActionTree<AuthState, RootState> = {
             item.receiverType === "user" ? item.toUserKey : item._key
           );
         }
+        if (item.toUserKey === state.user?._key) {
+          commit("setGroupItem", item);
+        }
         return item;
       });
       commit("setMuteList", muteArray);
       commit("setGroupList", memberRes.data);
+
       // setTalker
       if (!message.state.talker || type === "delete") {
         commit("message/setTalker", memberRes.data[0], { root: true });

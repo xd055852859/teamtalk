@@ -9,18 +9,13 @@ const store = useStore();
 const props = defineProps<{ eyeState: boolean }>();
 const emits = defineEmits(["close"]);
 const groupList = computed(() => store.state.auth.groupList);
-const searchList = ref<Group[]>([]);
+const searchList = computed(() =>
+  groupList.value.filter((item) => {
+    return item.title.indexOf(memberName.value) !== -1;
+  })
+);
 const memberName = ref<string>("");
 
-const searchName = () => {
-  if (memberName.value) {
-    searchList.value = groupList.value.filter((item) => {
-      return item.title.indexOf(memberName.value) !== -1;
-    });
-  } else {
-    searchList.value = [...groupList.value];
-  }
-};
 const chooseTalker = (item: Group) => {
   store.commit("message/setTalker", item);
   if (props.eyeState) {
@@ -28,11 +23,8 @@ const chooseTalker = (item: Group) => {
     store.commit("message/setReceiverType", "receiver");
     store.dispatch("message/getMessageList", 1);
   }
-  emits('close')
+  emits("close");
 };
-watchEffect(() => {
-  searchName();
-});
 </script>
 <template>
   <div class="contact p-5">
@@ -41,7 +33,6 @@ watchEffect(() => {
         v-model="memberName"
         :placeholder="$t(`input['Enter Name']`)"
         :prefix-icon="Search"
-        @input="searchName"
       />
     </div>
     <div class="info">

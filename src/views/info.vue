@@ -12,14 +12,6 @@ import { Card, Reply } from "@/interface/Message";
 import { ResultProps } from "@/interface/Common";
 
 import groupSvg from "@/assets/svg/group.svg";
-import deleteSvg from "@/assets/svg/delete.svg";
-import unshakeSvg from "@/assets/svg/unshake.svg";
-import unshakewSvg from "@/assets/svg/unshakew.svg";
-import shakeSvg from "@/assets/svg/shake.svg";
-import infoDelSvg from "@/assets/svg/infoDel.svg";
-import infoDelwSvg from "@/assets/svg/infoDelw.svg";
-import archiveSvg from "@/assets/svg/archive.svg";
-import archivewSvg from "@/assets/svg/archivew.svg";
 import IconFont from "@/components/iconFont.vue";
 
 const socket: any = inject("socket");
@@ -30,6 +22,7 @@ const user = computed(() => store.state.auth.user);
 const dark = computed(() => store.state.common.dark);
 const memberList = computed(() => store.state.auth.memberList);
 const updateState = computed(() => store.state.common.updateState);
+const deviceType = computed(() => store.state.common.deviceType);
 
 const inputRef = ref(null);
 const editorRef = ref(null);
@@ -97,7 +90,9 @@ const delCard = async () => {
       type: "success",
       duration: 1000,
     });
-    router.push("/home");
+    if (deviceType.value !== "mobile") {
+      router.push("/home");
+    }
     store.commit("message/delMessageList", infoKey.value);
   }
 };
@@ -112,7 +107,9 @@ const filedCard = async () => {
       type: "success",
       duration: 1000,
     });
-    router.push("/home");
+    if (deviceType.value !== "mobile") {
+      router.push("/home");
+    }
     store.commit("message/delMessageList", infoKey.value);
   }
 };
@@ -175,7 +172,10 @@ defineExpose({
           }
     "
   >
-    <div class="header dp-space-center" v-if="!cardKey">
+    <div
+      class="header dp-space-center"
+      v-if="!cardKey && deviceType !== 'mobile'"
+    >
       <div class="left dp--center">
         <span class="title">
           {{
@@ -285,7 +285,7 @@ defineExpose({
             >
               <icon-font
                 name="archive"
-                :size="cardKey ? 20 : 25"
+                :size="cardKey ? 15 : 20"
                 class="icon-point"
                 @click.once="filedCard()"
               />

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Tbutton from "@/components/tbutton.vue";
+import IconFont from "@/components/iconFont.vue";
 
 import i18n from "@/language/i18n";
 import { ElMessage } from "element-plus";
@@ -11,15 +12,7 @@ import api from "@/services/api";
 
 import { ResultProps } from "@/interface/Common";
 
-import setSvg from "@/assets/svg/Settings.svg";
-import helpSvg from "@/assets/svg/Help.svg";
-import communitySvg from "@/assets/svg/Community.svg";
-import quitSvg from "@/assets/svg/Quit.svg";
-import setwSvg from "@/assets/svg/Settingsw.svg";
-import helpwSvg from "@/assets/svg/Helpw.svg";
-import communitywSvg from "@/assets/svg/Communityw.svg";
-import quitwSvg from "@/assets/svg/Quitw.svg";
-import IconFont from "@/components/iconFont.vue";
+
 
 const store = useStore();
 const emits = defineEmits(["close"]);

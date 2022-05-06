@@ -9,6 +9,7 @@ import Tbutton from "@/components/tbutton.vue";
 
 const trashList = ref<Message[]>([]);
 const trashPage = ref<number>(1);
+const pageNumber = ref<number>(0);
 const delVisible = ref<boolean>(false);
 onMounted(() => {
   getTrash();
@@ -16,13 +17,14 @@ onMounted(() => {
 const getTrash = async () => {
   let trashRes = (await api.request.get("card/trash/list", {
     page: trashPage.value,
-    limit: 100,
+    limit: 50,
   })) as ResultProps;
   if (trashRes.msg === "OK") {
     if (trashPage.value === 1) {
       trashList.value = [];
     }
     trashList.value = [...trashList.value, ...trashRes.data];
+    pageNumber.value = trashRes.pageNum as number;
   }
 };
 const flashTrash = (key: string) => {
@@ -46,6 +48,21 @@ const deleteTrash = async () => {
     trashList.value = [];
   }
 };
+const scrollLoading = (e: any) => {
+  //文档内容实际高度（包括超出视窗的溢出部分）
+  let scrollHeight = e.target.scrollHeight;
+  //滚动条滚动距离
+  let scrollTop = e.target.scrollTop;
+  //窗口可视范围高度
+  let clientHeight = e.target.clientHeight;
+  if (
+    clientHeight + scrollTop >= scrollHeight &&
+    trashPage.value < pageNumber.value
+  ) {
+    trashPage.value++;
+    getTrash();
+  }
+};
 </script>
 <template>
   <theader headerIcon="menu" headerTitle="Trash">
@@ -54,7 +71,7 @@ const deleteTrash = async () => {
       ><tbutton @click="delVisible = true">Dump All</tbutton></template
     >
   </theader>
-  <div class="trash-box p-5">
+  <div class="trash-box p-5" @scroll="scrollLoading">
     <div class="trash-container">
       <template v-if="trashList.length > 0">
         <div v-for="(item, index) in trashList" :key="'trash' + index">

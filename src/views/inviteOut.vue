@@ -9,16 +9,9 @@ import Theader from "@/components/theader.vue";
 const { toClipboard } = useClipboard();
 const router = useRouter();
 const user = computed(() => store.state.auth.user);
-
-const url = ref<string>("");
-watch(
-  user,
-  (newVal) => {
-    if (newVal) {
-      url.value = `${window.location.protocol}//${window.location.host}/?inviteKey=${newVal._key}`;
-    }
-  },
-  { immediate: true }
+const url = computed(
+  () =>
+    `${window.location.protocol}//${window.location.host}/?inviteKey=${user.value?._key}`
 );
 </script>
 <template>
@@ -28,7 +21,7 @@ watch(
       <template v-slot:right><div></div> </template>
     </theader>
     <div class="invite-item dp-center-center">
-      <div class="title">{{ $t(`surface.Way2`) }}</div>
+      <div class="title">Way2</div>
       <div class="title">
         你的好友
         <span class="common-color">{{ user?.userName }}</span>
@@ -47,12 +40,12 @@ watch(
           });
         "
         style="height: 30px"
-        >{{ $t(`surface.copy`) }}</tbutton
+        >Copy</tbutton
       >
     </div>
     <el-divider />
     <div class="invite-item dp-center-center" v-if="url">
-      <div class="title">{{ $t(`surface.Way3`) }}</div>
+      <div class="title">Way3</div>
       <div
         class="invite-item dp-center-center"
         style="width: 100%; height: 200px"
@@ -69,7 +62,7 @@ watch(
           });
         "
         style="height: 30px"
-        >{{ $t(`surface.Download`) }}</tbutton
+        >Download</tbutton
       >
     </div>
   </div>

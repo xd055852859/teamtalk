@@ -21,9 +21,9 @@ const route = useRoute();
 const groupList = computed(() => store.state.auth.groupList);
 const dark = computed(() => store.state.common.dark);
 const user = computed(() => store.state.auth.user);
+const partnerType = computed(() =>  route.params.id as string);
 
 const partnerName = ref<string>("");
-const partnerType = ref<string>("");
 const searchList = ref<Group[]>([]);
 const searchMoreList = ref<Search[]>([]);
 const moreVisible = ref<boolean>(false);
@@ -116,13 +116,6 @@ watch(partnerType, () => {
   moreVisible.value = false;
   partnerName.value = "";
 });
-watch(
-  route,
-  (newVal) => {
-    partnerType.value = newVal.params.id as string;
-  },
-  { immediate: true }
-);
 </script>
 <template>
   <theader

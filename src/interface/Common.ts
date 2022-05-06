@@ -4,4 +4,5 @@ export interface ResultProps {
   status: number;
   pageNum?: number;
   totalNum?: number;
+  total?: number;
 }

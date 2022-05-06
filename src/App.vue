@@ -54,9 +54,11 @@ onBeforeMount(() => {
     store.commit("auth/setToken", token);
     if (talkKey) {
       store.commit("message/setTalkKey", talkKey);
+      store.commit("common/setDeviceType", "mobile");
       router.push("/createCard");
     } else if (infoKey) {
       store.commit("message/setInfoKey", infoKey);
+      store.commit("common/setDeviceType", "mobile");
       router.push(`/info/${infoKey}`);
     } else {
       router.push("/home");
@@ -136,9 +138,19 @@ const addMate = async () => {
     store.dispatch("auth/getGroupList");
   }
 };
-watchEffect(() => {
-  if (token.value) {
-    init();
+watch(
+  token,
+  (newVal) => {
+    if (newVal) {
+      init();
+    } else {
+      router.push("/");
+    }
+  },
+  { immediate: true }
+);
+watch(user, (newVal, oldVal) => {
+  if (newVal && !oldVal) {
     if (localStorage.getItem("inviteKey")) {
       addMate();
     } else {
@@ -151,7 +163,7 @@ watchEffect(() => {
       socket.on("card", function (msg) {
         // 1:1卡片
         if (
-          msg.creatorInfo._key !== user.value?._key &&
+          msg.creatorInfo._key !== newVal._key &&
           ((msg.receiverType === "user" &&
             muteList.value.indexOf(msg.creatorInfo._key) === -1) ||
             (msg.receiverType === "group" &&
@@ -176,7 +188,7 @@ watchEffect(() => {
         }
         console.log("card", msg);
         if (
-          msg.creatorInfo._key !== user.value?._key ||
+          msg.creatorInfo._key !== newVal._key ||
           msg.type === "recovery" ||
           msg.type === "filed"
         ) {
@@ -187,7 +199,7 @@ watchEffect(() => {
         // 1:1卡片
         // if (msg.creatorInfo._key !== user.value?._key) {
         if (
-          (msg.creatorInfo._key !== user.value?._key &&
+          (msg.creatorInfo._key !== newVal._key &&
             msg.receiverType === "user" &&
             muteList.value.indexOf(msg.creatorInfo._key) === -1) ||
           (msg.receiverType === "group" &&
@@ -233,7 +245,7 @@ watchEffect(() => {
         // store.commit("message/updateMessageList", msg);
         store.commit("message/updateMessageList", obj);
         if (
-          (msg?.atUser === user.value?._key || msg.receiverType === "user") &&
+          (msg?.atUser === newVal._key || msg.receiverType === "user") &&
           muteList.value.indexOf(msg.receiverKey) === -1
         ) {
           //@ts-ignore
@@ -247,30 +259,21 @@ watchEffect(() => {
         store.commit("message/updateMessageList", obj);
       });
     });
-  } else {
-    router.push("/");
   }
 });
-watchEffect(() => {
-  groupList.value.forEach((item: Group) => {
-    if (item.toUserKey === user.value?._key) {
-      store.commit("auth/setGroupItem", item);
-    }
-  });
-});
-watchEffect(() => {
-  if (user.value && messageList.value.length > 0) {
-    let messageArray: Message[] = [];
-    messageArray = messageList.value.map((item: Message) => {
-      item.type = "other";
-      if (item.creatorInfo._key === user.value?._key) {
-        item.type = "self";
-      }
-      return item;
-    });
-    store.commit("message/replaceMessageList", messageArray);
-  }
-});
+// watchEffect(() => {
+//   if (user.value && messageList.value.length > 0) {
+//     let messageArray: Message[] = [];
+//     messageArray = messageList.value.map((item: Message) => {
+//       item.type = "other";
+//       if (item.creatorInfo._key === user.value?._key) {
+//         item.type = "self";
+//       }
+//       return item;
+//     });
+//     store.commit("message/replaceMessageList", messageArray);
+//   }
+// });
 </script>
 
 <template>
