@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import Tbutton from "@/components/tbutton.vue";
 import Theader from "@/components/theader.vue";
+import IconFont from "@/components/iconFont.vue";
+import { ArrowRight } from "@element-plus/icons-vue";
 
 import i18n from "@/language/i18n";
 import router from "@/router";
@@ -10,11 +12,6 @@ import { useStore } from "@/store";
 
 import { ResultProps } from "@/interface/Common";
 import { Mate } from "@/interface/User";
-
-import muteSvg from "@/assets/svg/mute.svg";
-import blockSvg from "@/assets/svg/block.svg";
-import deleteSvg from "@/assets/svg/delete.svg";
-import IconFont from "@/components/iconFont.vue";
 
 const store = useStore();
 const route = useRoute();
@@ -37,6 +34,9 @@ const getInfo = async () => {
       email: infoRes.data.email,
       userAvatar: infoRes.data.userAvatar,
       userName: infoRes.data.userName,
+      boardNum: infoRes.data.boardNum,
+      topicNum: infoRes.data.topicNum,
+      replyNum: infoRes.data.replyNum,
       _key: memberKey.value,
     };
     if (infoRes.data.receiverKey) {
@@ -137,6 +137,35 @@ const deleteMember = async () => {
     <template v-if="info?.receiverKey">
       <div class="dp-space-center member-item">
         <div class="left dp--center">
+          <icon-font name="boards" :size="30" style="margin-right: 15px" />
+          Boards
+        </div>
+        <div
+          class="dp-space-center"
+          @click="$router.push('/home/mateBoard/' + memberKey)"
+        >
+          <span style="margin-right: 10px">{{ info?.boardNum }}</span>
+          <el-icon><arrow-right /></el-icon>
+        </div>
+      </div>
+      <div class="dp-space-center member-item">
+        <div class="left dp--center">
+          <icon-font name="topic" :size="30" style="margin-right: 15px" />Topics
+        </div>
+        <div class="dp-center-center right">
+          {{ info?.topicNum }}
+        </div>
+      </div>
+      <div class="dp-space-center member-item">
+        <div class="left dp--center">
+          <icon-font name="reply" :size="30" style="margin-right: 15px" />Replys
+        </div>
+        <div class="dp-center-center right">
+          {{ info?.replyNum }}
+        </div>
+      </div>
+      <div class="dp-space-center member-item">
+        <div class="left dp--center">
           <icon-font name="mute" :size="30" style="margin-right: 15px" />{{
             $t(`text.Mute`)
           }}
@@ -164,12 +193,8 @@ const deleteMember = async () => {
         </div>
       </div>
     </template>
-    <div class="button dp-center-center">
-      <tbutton
-        @click="info?.receiverKey ? toUser() : saveMember()"
-        style="width: 120px"
-        >{{ info?.receiverKey ? `Talk to` : `Add` }}</tbutton
-      >
+    <div class="button dp-center-center" v-if="!info?.receiverKey">
+      <tbutton @click="saveMember()" style="width: 120px">{{ `Add` }}</tbutton>
     </div>
   </div>
   <el-dialog
@@ -196,8 +221,7 @@ const deleteMember = async () => {
   align-content: flex-start;
   flex-wrap: wrap;
   .member-user {
-    margin-top: 7vh;
-    margin-bottom: 40px;
+    margin-top: 20px;
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
@@ -223,7 +247,7 @@ const deleteMember = async () => {
   }
   .member-item {
     width: 100%;
-    height: 70px;
+    height: 50px;
     cursor: pointer;
     .left {
       img {
@@ -231,6 +255,10 @@ const deleteMember = async () => {
         height: 30px;
         margin-right: 15px;
       }
+    }
+    .right {
+      width: 40px;
+      height: 100%;
     }
   }
   .button {

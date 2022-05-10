@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import Tbutton from "@/components/tbutton.vue";
 import IconFont from "@/components/iconFont.vue";
-
 import i18n from "@/language/i18n";
 import { ElMessage } from "element-plus";
 import setDark from "@/hooks/dark";
@@ -11,16 +10,13 @@ import useCurrentInstance from "@/hooks/useCurrentInstance";
 import api from "@/services/api";
 
 import { ResultProps } from "@/interface/Common";
-
-
-
+const router = useRouter();
 const store = useStore();
 const emits = defineEmits(["close"]);
 const { proxy } = useCurrentInstance();
 const user = computed(() => store.state.auth.user);
 const locale = computed(() => store.state.common.locale);
 const dark = computed(() => store.state.common.dark);
-const theme = computed(() => store.state.common.theme);
 const uploadToken = computed(() => store.state.auth.uploadToken);
 
 const userVisible = ref<boolean>(false);
@@ -86,6 +82,13 @@ const chooseImg = (e) => {
     avatar.value = url;
   });
 };
+
+const changeReceiver = (type: string, route: string) => {
+  store.commit("message/setReceiver", null);
+  store.commit("message/setReceiverType", type);
+  router.push("/home/" + route);
+  emits("close");
+};
 watch(
   user,
   (newVal) => {
@@ -132,16 +135,12 @@ watch(autoValue, (newVal) => {
           <div class="bottom">{{ user?.email }}</div>
         </div>
       </div>
-
       <div
         class="userCenter-item dp--center"
-        @click="
-          $router.push('/home/topic');
-          emits('close');
-        "
+        @click="changeReceiver('', 'board')"
       >
         <icon-font name="note" :size="22" style="margin-right: 18px" />
-        <span>Notes </span>
+        <span>Board </span>
       </div>
       <!-- <div class="userCenter-item dp--center" @click="$router.push('/')">
     <img
@@ -166,7 +165,7 @@ watch(autoValue, (newVal) => {
           {{ $t(`icon.Mates`) }}
         </span>
       </div>
-      <div
+      <!-- <div
         class="userCenter-item dp--center"
         @click="
           $router.push('/home/partner/group');
@@ -177,8 +176,29 @@ watch(autoValue, (newVal) => {
         <span>
           {{ $t(`icon.Team`) }}
         </span>
+      </div> -->
+      <div
+        class="userCenter-item dp--center"
+        @click="changeReceiver('unRead', 'read')"
+      >
+        <icon-font name="send" :size="24" style="margin-right: 15px" />
+        <span> News </span>
       </div>
       <div
+        class="userCenter-item dp--center"
+        @click="changeReceiver('sent', 'sent')"
+      >
+        <icon-font name="send" :size="24" style="margin-right: 15px" />
+        <span> {{ $t(`text['I send']`) }} </span>
+      </div>
+      <div
+        class="userCenter-item dp--center"
+        @click="changeReceiver('favorite', 'bookmark')"
+      >
+        <icon-font name="favorite" :size="24" style="margin-right: 15px" />
+        <span> BookMark </span>
+      </div>
+      <!-- <div
         class="userCenter-item dp--center"
         @click="
           $router.push('/home/trash');
@@ -187,7 +207,7 @@ watch(autoValue, (newVal) => {
       >
         <icon-font name="trash" :size="24" style="margin-right: 15px" />
         <span> Trash </span>
-      </div>
+      </div> -->
     </div>
     <div class="user-set">
       <div class="userCenter-item dp--center" @click="setVisible = true">
@@ -212,7 +232,7 @@ watch(autoValue, (newVal) => {
         class="userCenter-item dp--center"
         @click="store.commit('auth/setLogout')"
       >
-      <icon-font name="quit" :size="18" style="margin-right: 15px" />
+        <icon-font name="quit" :size="18" style="margin-right: 15px" />
         <span>
           {{ $t(`text['Sign out']`) }}
         </span>
@@ -222,7 +242,7 @@ watch(autoValue, (newVal) => {
   <el-dialog
     v-model="userVisible"
     :title="$t(`dialog['Information tips']`)"
-    :width="320"
+    :width="400"
   >
     <div class="user-edit dp-center-center">
       <div class="avatar">

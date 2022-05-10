@@ -59,13 +59,6 @@ const insertNode = (type) => {
     :style="{ ...props.itemObj, height: itemHeight * 11 + 'px' }"
   >
     <div
-      @click="insertNode('progress')"
-      :style="itemHeight + 'px' ? { height: itemHeight + 'px' } : {}"
-    >
-      <icon-font name="text" />
-      Progress
-    </div>
-    <div
       @click="insertNode('text')"
       :style="itemHeight + 'px' ? { height: itemHeight + 'px' } : {}"
     >
@@ -90,6 +83,13 @@ const insertNode = (type) => {
       :style="itemHeight + 'px' ? { height: itemHeight + 'px' } : {}"
     >
       <icon-font name="h3" />Heading3
+    </div>
+    <div
+      @click="insertNode('progress')"
+      :style="itemHeight + 'px' ? { height: itemHeight + 'px' } : {}"
+    >
+      <icon-font name="progress" />
+      Progress
     </div>
     <!-- <div>Card</div> -->
     <div

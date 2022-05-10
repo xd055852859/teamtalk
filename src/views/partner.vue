@@ -21,7 +21,7 @@ const route = useRoute();
 const groupList = computed(() => store.state.auth.groupList);
 const dark = computed(() => store.state.common.dark);
 const user = computed(() => store.state.auth.user);
-const partnerType = computed(() =>  route.params.id as string);
+const partnerType = computed(() => route.params.id as string);
 
 const partnerName = ref<string>("");
 const searchList = ref<Group[]>([]);
@@ -88,7 +88,8 @@ const saveMember = async (teamKey: string, userKey: string) => {
   })) as ResultProps;
   if (groupRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Successfully applied']`),
+      message: i18n.global.t(`tip['Join the group successfully']`),
+
       type: "success",
       duration: 1000,
     });
@@ -101,7 +102,7 @@ const joinTeam = async (key: string, index: number) => {
   })) as ResultProps;
   if (joinRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Join the group successfully']`),
+      message: i18n.global.t(`tip['Successfully applied']`),
       type: "success",
       duration: 1000,
     });

@@ -11,6 +11,7 @@ export interface MessageState {
   pageNumber: number;
   page: number;
   messageList: Message[];
+  unReadNum: number;
   editContent: any;
   editKey: string;
   editorInfo: Editor | null;

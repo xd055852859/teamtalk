@@ -21,6 +21,7 @@ const state: AuthState = {
   //0:组长 1:管理员 2:编辑 3:组员
   groupRole: 4,
   memberList: [],
+  followList:[],
   uploadToken: null,
   groupTitle: "",
 

@@ -52,7 +52,7 @@ const request = {
       }
     });
   },
-  post(path: string, params: object) {
+  post(path: string, params?: object) {
     return new Promise(async function (resolve, reject) {
       try {
         const response = await axios({
@@ -69,7 +69,7 @@ const request = {
       }
     });
   },
-  patch(path: string, params: object) {
+  patch(path: string, params?: object) {
     return new Promise(async function (resolve, reject) {
       try {
         const response = await axios({
@@ -86,7 +86,7 @@ const request = {
       }
     });
   },
-  delete(path: string, params: object) {
+  delete(path: string, params?: object) {
     return new Promise(async function (resolve, reject) {
       try {
         const response = await axios({

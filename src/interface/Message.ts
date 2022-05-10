@@ -8,7 +8,7 @@ export interface Message {
   receiverKey: string;
   receiverTitle: null | string;
   receiverType: string;
-  receiverAvatar:  null | string;
+  receiverAvatar: null | string;
   summary: string;
   type?: string;
   title: string;
@@ -28,6 +28,7 @@ export interface Card {
     userName: string;
     _key: string;
   };
+  title?: string;
 }
 export interface Reply {
   cardKey: string;
@@ -39,4 +40,11 @@ export interface Reply {
   _key: string;
   atUser: string;
   atUserName?: string;
+}
+export interface Read {
+  hasRead: number;
+  readTime: string;
+  userAvatar: string;
+  userName: string;
+  _key: string;
 }

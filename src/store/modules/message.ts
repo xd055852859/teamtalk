@@ -12,11 +12,12 @@ const state: MessageState = {
   receiver: null,
   talker: null,
   talkKey: "",
-  receiverType: "all",
+  receiverType: localStorage.getItem("receiverType") || "",
   receiverNumber: 0,
   pageNumber: 1,
   page: 1,
   messageList: [],
+  unReadNum: 0,
   editContent: null,
   editorInfo: null,
   editKey: "",
@@ -34,6 +35,7 @@ const mutations: MutationTree<MessageState> = {
   },
   setReceiverType(state, receiverType: string) {
     state.receiverType = receiverType;
+    localStorage.setItem("receiverType", receiverType);
   },
   setMessageList(state, messageList: Message[]) {
     if (state.page === 1) {
@@ -45,24 +47,14 @@ const mutations: MutationTree<MessageState> = {
     state.messageList = [...messageList];
   },
   addMessageList(state, messageItem: Message) {
-    switch (state.receiverType) {
-      case "sent":
-        state.receiverNumber++;
-        break;
-      case "receiver":
-        if (
-          (state.receiver?.receiverType === "user" &&
-            messageItem.creatorInfo._key === state.receiver?.toUserKey) ||
-          (state.receiver?.receiverType === "group" &&
-            messageItem.receiverKey === state.receiver?._key)
-        ) {
-          state.messageList.unshift(messageItem);
-        } else {
-          state.receiverNumber++;
-        }
-        break;
-      default:
-        state.messageList.unshift(messageItem);
+    if (
+      (state.receiver?.receiverType === "user" &&
+        messageItem.creatorInfo._key === state.receiver?.toUserKey) ||
+      (state.receiver?.receiverType === "group" &&
+        messageItem.receiverKey === state.receiver?._key) ||
+      state.receiverType === "unRead"
+    ) {
+      state.messageList.unshift(messageItem);
     }
   },
   updateMessageList(state, messageItem: any) {
@@ -82,22 +74,20 @@ const mutations: MutationTree<MessageState> = {
             item.unRead = 0;
           }
           item = { ...item, ...messageItem };
+          console.log(index);
           targetIndex = index;
           targetItem = { ...item };
         }
         return item;
       }
     );
-    console.log(messageItem.atUser)
-    if (messageItem.atUser !== undefined) {
-      if (targetIndex === 10000) {
-        console.log(messageItem)
-        state.messageList.unshift(messageItem);
-      } else if (targetItem) {
-        console.log(targetIndex)
-        state.messageList.splice(targetIndex, 1);
-        state.messageList.unshift(targetItem);
-      }
+    if (targetIndex === 10000) {
+      console.log(messageItem);
+      state.messageList.unshift(messageItem);
+    } else if (targetItem) {
+      console.log(targetIndex);
+      state.messageList.splice(targetIndex, 1);
+      state.messageList.unshift(targetItem);
     }
   },
   delMessageList(state, messageKey: string) {
@@ -126,13 +116,16 @@ const mutations: MutationTree<MessageState> = {
   setEditor(state, editorInfo: Editor) {
     state.editorInfo = editorInfo;
   },
+  setUnreadNum(state, unReadNum: number) {
+    state.unReadNum = unReadNum;
+  },
 };
 
 const actions: ActionTree<MessageState, RootState> = {
   async getMessageList({ commit }, page: number) {
     let obj: any = {
       page: page,
-      limit: 100,
+      limit: 30,
     };
     if (state.receiver && state.receiver.receiverType !== "private") {
       if (state.receiver.receiverType === "group") {
@@ -140,6 +133,12 @@ const actions: ActionTree<MessageState, RootState> = {
       } else {
         obj.filterUser = state.receiver.toUserKey;
       }
+    } else if (
+      state.receiverType === "read" ||
+      state.receiverType === "unRead"
+    ) {
+      obj.type = "receive";
+      obj.hasRead = state.receiverType === "read" ? 1 : 0;
     } else {
       obj.type = state.receiverType;
     }
@@ -153,6 +152,9 @@ const actions: ActionTree<MessageState, RootState> = {
       commit("setPage", page);
       commit("setPageNumber", messageRes.pageNum as number);
       commit("setMessageList", [...messageRes.data]);
+      if (state.receiverType === "unRead") {
+        commit("setUnreadNum", messageRes.total);
+      }
     }
   },
   // changeLocale({ commit }, locale) {

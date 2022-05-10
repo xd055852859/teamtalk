@@ -1,3 +1,5 @@
+import { Card } from "./Message";
+
 export interface User {
   _key: string;
   userAvatar?: string;
@@ -30,6 +32,9 @@ export interface Member extends User {
 }
 export interface Mate extends User {
   receiverKey?: string;
+  boardNum?: number;
+  topicNum?: number;
+  replyNum?: number;
 }
 export interface Search {
   _key?: string;
@@ -38,4 +43,19 @@ export interface Search {
   title: string;
   allowJoin?: boolean;
   hasApply?: boolean;
+}
+export interface BoardObj{
+  _key: string;
+  avatar: string;
+  block: boolean | null;
+  memberCount: 3;
+  moderator: Member[];
+  mute: boolean | null;
+  newestCard: Card;
+  receiverType: string;
+  title: string;
+  toUserKey: null;
+  unReadNum: 5;
+  role?: number;
+  allowJoin?:boolean
 }

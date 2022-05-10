@@ -1,26 +1,30 @@
 <script setup lang="ts">
 import Editor from "./editor/editor.vue";
+import IconFont from "./iconFont.vue";
 
+import "dayjs/locale/zh-cn";
 import i18n from "@/language/i18n";
 import { OnClickOutside } from "@vueuse/components";
-import { Close, Star, StarFilled, MoreFilled } from "@element-plus/icons-vue";
+import {
+  ArrowUp,
+  Star,
+  StarFilled,
+  MoreFilled,
+  ArrowDown,
+} from "@element-plus/icons-vue";
 import api from "@/services/api";
 import { useStore } from "@/store";
 import { ElMessage } from "element-plus";
 
-import { Message } from "@/interface/Message";
+import { Message, Read } from "@/interface/Message";
 import { ResultProps } from "@/interface/Common";
 
-import commentSvg from "@/assets/svg/comment.svg";
-import commentwSvg from "@/assets/svg/commentw.svg";
 import fullScreenSvg from "../assets/svg/fullScreen.svg";
 import fullScreenwSvg from "../assets/svg/fullScreenw.svg";
-import archiveSvg from "@/assets/svg/archive.svg";
-import archivewSvg from "@/assets/svg/archivew.svg";
 import groupSvg from "@/assets/svg/group.svg";
 import Info from "@/views/info.vue";
-import IconFont from "./iconFont.vue";
 
+const dayjs: any = inject("dayjs");
 const store = useStore();
 const router = useRouter();
 const props = defineProps<{ item: Message; type?: string; overKey?: string }>();
@@ -29,24 +33,47 @@ const user = computed(() => store.state.auth.user);
 const dark = computed(() => store.state.common.dark);
 const editKey = computed(() => store.state.message.editKey);
 const editContent = computed(() => store.state.message.editContent);
+const receiverType = computed(() => store.state.message.receiverType);
 
 const iconRef = ref(null);
 const infoRef = ref(null);
 const receiverRole = ref<number>(4);
-
-const getInfo = async (key) => {
+const readVisible = ref<boolean>(false);
+const unreadVisible = ref<boolean>(false);
+const readList = ref<Read[]>([]);
+const unReadList = ref<Read[]>([]);
+const editState = ref<boolean>(false);
+const getInfo = async () => {
   let infoRes = (await api.request.get("card/detail", {
-    cardKey: key,
+    cardKey: props.item._key,
   })) as ResultProps;
   if (infoRes.msg === "OK") {
-    let obj = { unRead: 0, _key: props.item._key };
-    // store.commit("message/updateMessageList", msg);
-    store.commit("message/updateMessageList", obj);
+    // let obj = { unRead: 0, _key: props.item._key };
+    // // store.commit("message/updateMessageList", msg);
+    // store.commit("message/updateMessageList", obj);
     store.commit("message/setEditContent", infoRes.data);
-    store.commit("message/setEditKey", key);
+    store.commit("message/setEditKey", props.item._key);
     receiverRole.value = infoRes.data.receiverRole;
   }
 };
+const getReadList = async () => {
+  let readRes = (await api.request.get("card/readRecord", {
+    cardKey: props.item._key,
+  })) as ResultProps;
+  if (readRes.msg === "OK") {
+    readList.value = readRes.data.hasRead.map((item) => {
+      item.readTime = dayjs(item.readTime).toNow();
+      console.log(item.readTime);
+      return item;
+    });
+    unReadList.value = readRes.data.unRead.map((item) => {
+      item.readTime = dayjs(item.readTime).toNow();
+      return item;
+    });
+    readVisible.value = true;
+  }
+};
+
 const filedCard = async (key) => {
   const filedRes = (await api.request.patch("card/filed", {
     cardKey: key,
@@ -59,6 +86,8 @@ const filedCard = async (key) => {
       duration: 1000,
     });
     emits("changeItem", key);
+    store.commit("message/setEditContent", null);
+    store.commit("message/setEditKey", "");
   }
 };
 const trashCard = async (key) => {
@@ -72,6 +101,8 @@ const trashCard = async (key) => {
       duration: 1000,
     });
     emits("changeItem", key);
+    store.commit("message/setEditContent", null);
+    store.commit("message/setEditKey", "");
   }
 };
 
@@ -79,8 +110,19 @@ const postCard = async () => {
   if (infoRef.value) {
     //@ts-ignore
     infoRef.value.postCard();
+    // store.commit("message/setEditContent", null);
+    // store.commit("message/setEditKey", "");
   }
 };
+const rePostCard = async () => {
+  if (infoRef.value) {
+    //@ts-ignore
+    infoRef.value.rePostCard();
+    store.commit("message/setEditContent", null);
+    store.commit("message/setEditKey", "");
+  }
+};
+
 const delMessage = async () => {
   const delRes = (await api.request.delete("message", {
     cardKey: props.item._key,
@@ -115,6 +157,8 @@ const saveUpdate = () => {
         editContent.value?.receiverInfo?.receiverType === "group"))
   ) {
     postCard();
+    // store.commit("message/setEditContent", null);
+    // store.commit("message/setEditKey", "");
   }
 };
 const favoriteCard = async (key, favorite) => {
@@ -135,27 +179,18 @@ const toInfo = () => {
 };
 </script>
 <template>
-  <div></div>
   <div
     class="item"
-    :style="{
-      border: item.type === 'self' ? '1px solid #e1e1e1' : '0px',
-    }"
     @click="
       editKey !== item._key && type !== 'filed' && type !== 'trash'
-        ? getInfo(item._key)
+        ? getInfo()
         : null
     "
   >
-    <!-- <div
-      class="del-button icon-point"
-      @click="delMessage"
-      v-if="item.creatorInfo._key !== user?._key"
+    <div
+      class="footer-subtitle dp--center"
+      v-if="item.receiverTitle && receiverType"
     >
-      <el-icon><close /></el-icon>
-    </div> -->
-    <!-- @click.stop="$router.push(`/manage/` + item.receiverKey)" -->
-    <div class="footer-subtitle dp--center" v-if="item.receiverTitle">
       <el-avatar
         fit="cover"
         :size="25"
@@ -167,7 +202,8 @@ const toInfo = () => {
     <template v-if="editKey === item._key">
       <OnClickOutside @trigger="saveUpdate">
         <Info :cardKey="item._key" ref="infoRef" />
-        <!-- <div style="margin-top: 30px">
+      </OnClickOutside>
+      <!-- <div style="margin-top: 30px">
           <Editor
             :init-data="editContent"
             :isEdit="
@@ -181,7 +217,6 @@ const toInfo = () => {
             @changeUpdate="updateState = true"
           />
         </div> -->
-      </OnClickOutside>
     </template>
     <div v-else>
       <div
@@ -244,7 +279,7 @@ const toInfo = () => {
         <div class="dp--center" v-if="props.type === 'filed'">
           <icon-font
             name="archive"
-            :size="24"
+            :size="18"
             class="icon-point"
             @click.stop="filedCard(item._key)"
           />
@@ -252,7 +287,7 @@ const toInfo = () => {
         <div class="dp--center" v-if="props.type === 'trash'">
           <icon-font
             name="recover"
-            :size="24"
+            :size="18"
             class="icon-point"
             @click.stop="trashCard(item._key)"
           />
@@ -309,17 +344,25 @@ const toInfo = () => {
                     >打开</el-dropdown-item
                   >
                   <el-dropdown-item
-                    @click.stop="favoriteCard(item._key, item.favorite)"
-                    >收藏</el-dropdown-item
-                  >
-                  <el-dropdown-item
-                    @click="
+                    @click.stop="
                       item.creatorInfo._key !== user?._key
                         ? delMessage()
                         : delSelfMessage()
                     "
                     >删除</el-dropdown-item
                   >
+                  <el-dropdown-item @click.stop="getReadList"
+                    >已读列表</el-dropdown-item
+                  >
+                  <el-dropdown-item
+                    @click.stop="rePostCard"
+                    v-if="receiverRole < 3"
+                    >重新发布</el-dropdown-item
+                  >
+                  <!-- <el-dropdown-item
+                    @click.stop="favoriteCard(item._key, item.favorite)"
+                    >收藏</el-dropdown-item
+                  > -->
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -327,6 +370,59 @@ const toInfo = () => {
         </div>
       </div>
     </div>
+    <el-drawer
+      v-model="readVisible"
+      direction="rtl"
+      :size="350"
+      custom-class="p0-drawer"
+      :append-to-body="true"
+      title="Readed"
+    >
+      <div class="read-box">
+        <div
+          class="read-item dp-space-center"
+          v-for="(item, index) in readList"
+          :key="'read' + index"
+        >
+          <div class="left dp--center">
+            <el-avatar
+              fit="cover"
+              :size="25"
+              :src="item.userAvatar"
+              class="icon-point"
+            />
+            {{ item.userName }}
+          </div>
+          <div class="right dp--center">{{ item.readTime }}</div>
+        </div>
+        <div
+          class="read-title dp--center icon-point"
+          @click="unreadVisible = !unreadVisible"
+        >
+          <span style="margin-right: 10px">Unread</span>
+          <el-icon
+            ><arrow-up v-if="unreadVisible" /><arrow-down v-else
+          /></el-icon>
+        </div>
+        <template v-if="unreadVisible">
+          <div
+            class="read-item dp--center"
+            v-for="(item, index) in unReadList"
+            :key="'unRead' + index"
+          >
+            <div class="left dp--center">
+              <el-avatar
+                fit="cover"
+                :size="25"
+                :src="item.userAvatar"
+                class="icon-point"
+              />
+              {{ item.userName }}
+            </div>
+          </div>
+        </template>
+      </div>
+    </el-drawer>
   </div>
 </template>
 <style scoped lang="scss">
@@ -446,6 +542,23 @@ const toInfo = () => {
         margin-right: 5px;
       }
     }
+  }
+}
+.read-box {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 15px 5%;
+  box-sizing: border-box;
+  .read-item {
+    width: 100%;
+    height: 35px;
+  }
+  .read-title {
+    height: 35px;
+    margin: 10px 0px;
+    justify-content: flex-end;
   }
 }
 </style>

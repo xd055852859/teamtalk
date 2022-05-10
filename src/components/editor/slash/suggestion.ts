@@ -41,7 +41,7 @@ export default {
       {
         title: "img",
         command: ({ editor, range, props }) => {
-          console.log(props.props.url)
+          console.log(props.props.url);
           editor
             .chain()
             .focus()
@@ -71,13 +71,12 @@ export default {
       //     editor.chain().focus().deleteRange(range).toggleStrike().run();
       //   },
       // },
-      // {
-      //   title: "underline",
-      //   icon: dark ? underlinewSvg : underlineSvg,
-      //   command: ({ editor, range }) => {
-      //     editor.chain().focus().deleteRange(range).toggleUnderline().run();
-      //   },
-      // },
+      {
+        title: "progress",
+        command: ({ editor, range }) => {
+          editor.chain().focus().deleteRange(range).setProgress().run();
+        },
+      },
       {
         title: "bulletList",
         command: ({ editor, range }) => {

@@ -1,6 +1,10 @@
 <script setup lang="ts">
 // This starter template is using Vue 3 <script setup> SFCs
 import { useStore } from "@/store";
+import "dayjs/locale/zh-cn";
+import "dayjs/locale/en";
+import "dayjs/locale/zh-hk";
+import "dayjs/locale/ja";
 import useCurrentInstance from "@/hooks/useCurrentInstance";
 import setDark from "@/hooks/dark";
 import setTheme from "@/hooks/theme";
@@ -16,18 +20,19 @@ import { Group } from "./interface/User";
 import { Message } from "./interface/Message";
 const { proxy } = useCurrentInstance();
 const socket: any = inject("socket");
+const dayjs: any = inject("dayjs");
 const store = useStore();
 const router = useRouter();
 
 const user = computed(() => store.state.auth.user);
-const groupList = computed(() => store.state.auth.groupList);
+const locale = computed(() => store.state.common.locale);
 const muteList = computed(() => store.state.auth.muteList);
 
 const musicRef = ref(null);
 const dark = computed(() => store.state.common.dark);
 const theme = computed(() => store.state.common.theme);
 const token = computed(() => store.state.auth.token);
-const messageList = computed(() => store.state.message.messageList);
+const editKey = computed(() => store.state.message.editKey);
 
 let talkKey = "";
 let infoKey = "";
@@ -157,7 +162,7 @@ watch(user, (newVal, oldVal) => {
       store.dispatch("auth/getGroupList");
     }
     store.dispatch("auth/getUptoken");
-    store.dispatch("message/getMessageList", 1);
+    // store.dispatch("message/getMessageList", 1);
     socket.on("connect", () => {
       socket.emit("login", token.value);
       socket.on("card", function (msg) {
@@ -224,7 +229,11 @@ watch(user, (newVal, oldVal) => {
         }
         // }
         console.log("card", msg);
-        store.commit("message/updateMessageList", msg);
+        console.log(msg._key);
+        console.log(editKey.value);
+        if (msg._key !== editKey.value) {
+          store.commit("message/updateMessageList", msg);
+        }
       });
       socket.on("deleteCard", function (msg) {
         console.log(msg);
@@ -261,6 +270,26 @@ watch(user, (newVal, oldVal) => {
     });
   }
 });
+watch(
+  locale,
+  (newVal) => {
+    switch (newVal) {
+      case "zh":
+        dayjs.locale("zh-cn");
+        break;
+      case "en":
+        dayjs.locale("en");
+        break;
+      case "jp":
+        dayjs.locale("ja");
+        break;
+      case "tc":
+        dayjs.locale("zh-hk");
+        break;
+    }
+  },
+  { immediate: true }
+);
 // watchEffect(() => {
 //   if (user.value && messageList.value.length > 0) {
 //     let messageArray: Message[] = [];

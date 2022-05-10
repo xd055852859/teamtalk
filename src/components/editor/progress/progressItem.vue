@@ -46,13 +46,14 @@ const moveProgress = useDebounceFn((e) => {
       @mousemove="moveState ? moveProgress($event) : null"
       @mousedown="moveState = true"
       @mouseup="moveState = false"
+      @mouseClick="moveProgress($event)"
     >
       <div class="progress" ref="progressRef">
         <el-progress
           :percentage="percent"
           :text-inside="true"
           :stroke-width="16"
-          :duration="0"
+          :color="'#16ab78'"
         />
         <!-- <div
         class="progress-box"
@@ -67,12 +68,12 @@ const moveProgress = useDebounceFn((e) => {
 <style scoped lang="scss">
 .progress-container {
   width: 100%;
-  height: 40px;
+  height: 20px;
   position: relative;
   z-index: 1;
   margin-top: 30px;
   cursor: pointer;
-  padding: 0px 10px;
+  padding-right: 10px;
   box-sizing: border-box;
 }
 </style>

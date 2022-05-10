@@ -6,6 +6,7 @@ export interface AuthState {
   muteList: string[];
   groupItem: Group | null;
   memberList: Member[];
+  followList: Member[];
   token: string;
   uploadToken: string | null;
   groupTitle: string;

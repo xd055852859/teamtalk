@@ -23,6 +23,7 @@ const dark = computed(() => store.state.common.dark);
 const memberList = computed(() => store.state.auth.memberList);
 const updateState = computed(() => store.state.common.updateState);
 const deviceType = computed(() => store.state.common.deviceType);
+const receiver = computed(() => store.state.message.receiver);
 
 const inputRef = ref(null);
 const editorRef = ref(null);
@@ -35,8 +36,13 @@ const replyInput = ref<string>("");
 const replyList = ref<Reply[]>([]);
 const shakeState = ref<boolean>(false);
 const atUser = ref<{ [key: string]: string } | null>(null);
+const delVisible = ref<boolean>(false);
 onMounted(() => {
-  infoKey.value = (route.params.id as string) || (props.cardKey as string);
+  console.log(route.name);
+  infoKey.value =
+    route.name === "info"
+      ? (route.params.id as string)
+      : (props.cardKey as string);
   getInfo();
   socket.on("addComment", function (msg) {
     replyList.value.push(msg);
@@ -80,6 +86,23 @@ const postCard = async () => {
     store.commit("common/setUpdateState", false);
   }
 };
+const rePostCard = async () => {
+  if (editorRef.value) {
+    //@ts-ignore
+    editorRef.value.handlePost(
+      "",
+      (res) => {
+        if (res.data.receiverType === "user") {
+          store.commit("message/updateMessageList", res.data);
+          shakeState.value = false;
+        }
+      },
+      true,
+      props.cardKey ? true : false,
+      true
+    );
+  }
+};
 const delCard = async () => {
   const delRes = (await api.request.delete("card", {
     cardKey: infoKey.value,
@@ -90,29 +113,33 @@ const delCard = async () => {
       type: "success",
       duration: 1000,
     });
-    if (deviceType.value !== "mobile") {
-      router.push("/home");
+    if (!props.cardKey && deviceType.value !== "mobile") {
+      router.push("/home/topic/" + receiver.value?._key);
     }
     store.commit("message/delMessageList", infoKey.value);
+    store.commit("message/setEditContent", null);
+    store.commit("message/setEditKey", "");
   }
 };
-const filedCard = async () => {
-  const filedRes = (await api.request.patch("card/filed", {
-    cardKey: infoKey.value,
-    filed: true,
-  })) as ResultProps;
-  if (filedRes.msg === "OK") {
-    ElMessage({
-      message: i18n.global.t(`tip['Archived successfully']`),
-      type: "success",
-      duration: 1000,
-    });
-    if (deviceType.value !== "mobile") {
-      router.push("/home");
-    }
-    store.commit("message/delMessageList", infoKey.value);
-  }
-};
+// const filedCard = async () => {
+//   const filedRes = (await api.request.patch("card/filed", {
+//     cardKey: infoKey.value,
+//     filed: true,
+//   })) as ResultProps;
+//   if (filedRes.msg === "OK") {
+//     ElMessage({
+//       message: i18n.global.t(`tip['Archived successfully']`),
+//       type: "success",
+//       duration: 1000,
+//     });
+//     if (!props.cardKey && deviceType.value !== "mobile") {
+//       router.push("/home");
+//     }
+//     store.commit("message/delMessageList", infoKey.value);
+//     store.commit("message/setEditContent", null);
+//     store.commit("message/setEditKey", "");
+//   }
+// };
 const favoriteCard = async () => {
   const postRes = (await api.request.patch("card/favorite", {
     cardKey: infoKey.value,
@@ -156,6 +183,7 @@ const delReply = async (replyKey: string, index: number) => {
 
 defineExpose({
   postCard,
+  rePostCard
 });
 </script>
 <template>
@@ -270,7 +298,7 @@ defineExpose({
               />
             </el-tooltip>
           </div>
-          <div
+          <!-- <div
             class="button-item dp-center-center"
             :style="cardKey ? { width: '25px', height: '25px' } : {}"
             v-if="
@@ -285,12 +313,12 @@ defineExpose({
             >
               <icon-font
                 name="archive"
-                :size="cardKey ? 15 : 20"
+                :size="cardKey ? 15 : 17"
                 class="icon-point"
                 @click.once="filedCard()"
               />
             </el-tooltip>
-          </div>
+          </div> -->
           <div
             class="button-item dp-center-center"
             :style="cardKey ? { width: '25px', height: '25px' } : {}"
@@ -308,7 +336,7 @@ defineExpose({
                 name="delete"
                 :size="cardKey ? 20 : 25"
                 class="icon-point"
-                @click.once="delCard()"
+                @click="delVisible = true"
               />
             </el-tooltip>
           </div>
@@ -387,6 +415,22 @@ defineExpose({
       </div>
     </div>
   </div>
+  <el-dialog
+    v-model="delVisible"
+    :title="$t(`dialog['Delete prompt']`)"
+    :width="300"
+    :append-to-body="true"
+  >
+    <span>{{ $t(`dialog['Delete card']`) }}</span>
+    <template #footer>
+      <span class="dialog-footer dp-space-center">
+        <tbutton @click="delVisible = false" :disabled="true">{{
+          $t(`button.Cancel`)
+        }}</tbutton>
+        <tbutton @click="delCard()">{{ $t(`button.OK`) }}</tbutton>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 <style scoped lang="scss">
 .info {

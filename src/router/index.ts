@@ -11,14 +11,33 @@ const routes: Array<RouteRecordRaw> = [
     path: "/home",
     name: "home",
     component: () => import("@/views/home.vue"),
-    redirect: "/home/topic",
+    redirect: "/home/board",
     children: [
       {
-        path: "topic",
+        path: "board",
+        name: "board",
+        component: () => import("@/views/board.vue"),
+        children: [],
+      },
+      {
+        path: "mateBoard/:id",
+        name: "mateBoard",
+        component: () => import("@/views/mateBoard.vue"),
+        children: [],
+      },
+      {
+        path: "topic/:id",
         name: "topic",
         component: () => import("@/views/topic.vue"),
         children: [],
       },
+      {
+        path: "viewTeam/:id",
+        name: "viewTeam",
+        component: () => import("@/views/viewTeam.vue"),
+        children: [],
+      },
+      
       {
         path: "partner/:id",
         name: "partner",
@@ -26,9 +45,21 @@ const routes: Array<RouteRecordRaw> = [
         children: [],
       },
       {
-        path: "trash",
-        name: "trash",
-        component: () => import("@/views/trash.vue"),
+        path: "read",
+        name: "read",
+        component: () => import("@/views/read.vue"),
+        children: [],
+      },
+      {
+        path: "sent",
+        name: "sent",
+        component: () => import("@/views/sent.vue"),
+        children: [],
+      },
+      {
+        path: "bookmark",
+        name: "bookmark",
+        component: () => import("@/views/bookmark.vue"),
         children: [],
       },
       {

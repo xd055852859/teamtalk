@@ -24,6 +24,7 @@ import { ResultProps } from "@/interface/Common";
 import Slash from "./slash/slashs";
 import slashSuggestion from "./slash/suggestion";
 import { BubbleMenu } from "./bubble-menu/BubbleMenu";
+import { isArray } from "@vue/shared";
 // import suggestion1 from "./suggestion1";
 
 const router = useRouter();
@@ -74,7 +75,7 @@ const editor = useEditor({
     Slash.configure({
       suggestion: slashSuggestion,
     }),
-    Progress
+    Progress,
     // Dot.configure({
     //   suggestion: dotSuggestion,
     // }),
@@ -109,6 +110,16 @@ const editor = useEditor({
       editor.commands.focus();
       countTaskNum(editContent.value.detail);
     } else {
+      editor.commands.clearContent();
+      editor.commands.setContent({
+        type: "doc",
+        content: [
+          {
+            type: "heading",
+            attrs: { level: 2 },
+          },
+        ],
+      });
       store.commit("message/setEditor", editor);
     }
   },
@@ -141,7 +152,8 @@ const handlePost = async (
   key: string,
   callback?: any,
   clear?: boolean,
-  noMessage?: boolean
+  noMessage?: boolean,
+  rePost?: boolean
 ) => {
   if (!editor.value) return;
   const json: JSONContent = editor.value.getJSON();
@@ -204,13 +216,16 @@ const handlePost = async (
     // 创建数据
     // store.dispatch("card/addCard", { title, content: json, summary });
     countTaskNum(json.content);
-    let obj = {
+    let obj: any = {
       title: title,
       detail: json.content,
       summary: summary,
       cover: cover,
       shake: props.shake,
     };
+    if (rePost) {
+      obj.forcePost = 1;
+    }
     if (props.cardKey) {
       const postRes = (await api.request.patch("card", {
         cardKey: props.cardKey,
@@ -258,19 +273,21 @@ const countTaskNum = (jsonContent: JSONContent) => {
   checked.value = 0;
   total.value = 0;
   if (!jsonContent) return;
-  jsonContent.forEach((item, index) => {
-    if (item.type === "taskList") {
-      const taskList = item.content || [];
-      taskList.forEach((taskItem) => {
-        if (taskItem.type === "taskItem") {
-          total.value++;
-          if (taskItem.attrs?.checked) {
-            checked.value++;
+  if (isArray(jsonContent)) {
+    jsonContent.forEach((item, index) => {
+      if (item.type === "taskList") {
+        const taskList = item.content || [];
+        taskList.forEach((taskItem) => {
+          if (taskItem.type === "taskItem") {
+            total.value++;
+            if (taskItem.attrs?.checked) {
+              checked.value++;
+            }
           }
-        }
-      });
-    }
-  });
+        });
+      }
+    });
+  }
 };
 defineExpose({
   handlePost,

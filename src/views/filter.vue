@@ -4,19 +4,6 @@ import { useStore } from "@/store";
 import { Group } from "@/interface/User";
 import IconFont from "@/components/iconFont.vue";
 
-import allSvg from "../assets/svg/all.svg";
-import privateSvg from "../assets/svg/private.svg";
-import favoriteSvg from "../assets/svg/favorite.svg";
-import sendSvg from "../assets/svg/send.svg";
-import receivedSvg from "../assets/svg/received.svg";
-import noticeSvg from "../assets/svg/notice.svg";
-import allwSvg from "../assets/svg/allw.svg";
-import privatewSvg from "../assets/svg/privatew.svg";
-import favoritewSvg from "../assets/svg/favoritew.svg";
-import sendwSvg from "../assets/svg/sendw.svg";
-import receivedwSvg from "../assets/svg/receivedw.svg";
-import noticewSvg from "../assets/svg/noticew.svg";
-
 const store = useStore();
 const emits = defineEmits(["close"]);
 const user = computed(() => store.state.auth.user);

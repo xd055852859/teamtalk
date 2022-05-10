@@ -22,8 +22,7 @@ const store = useStore();
 
 const groupList = computed(() => store.state.auth.groupList);
 const user = computed(() => store.state.auth.user);
-const memberList = computed(() => store.state.auth.memberList);
-const groupRole = computed(() => store.state.auth.groupRole);
+
 const memberArray = computed(() =>
   groupList.value.filter((item) => {
     return (
@@ -50,13 +49,16 @@ const teamName = ref<string>("");
 const avatar = ref<string>("");
 const avatarVisible = ref<boolean>(false);
 const avatarList = ref<any>([]);
+const memberList = ref<Member[]>([]);
+const followList = ref<Member[]>([]);
+const groupRole = ref<number>(0);
 const avatarTotal = ref<number>(0);
 const teamKey = ref<string>("");
 const teamKeyArray = ref<string[]>([]);
 
 const exitVisible = ref<boolean>(false);
 const memberVisible = ref<boolean>(false);
-const setVisible = ref<boolean>(false);
+const followVisible = ref<boolean>(false);
 const delVisible = ref<boolean>(false);
 const disbandVisible = ref<boolean>(false);
 const isPublic = ref<boolean>(false);
@@ -67,23 +69,21 @@ const filedVisible = ref<boolean>(false);
 const filedTotal = ref<number>(0);
 const trashVisible = ref<boolean>(false);
 const trashTotal = ref<number>(0);
-const page = ref<number>(1);
+const followerCount = ref<number>(0);
 const avatarPage = ref<number>(1);
 const filedPage = ref<number>(1);
 const trashPage = ref<number>(1);
 const applyArray = ref<Member[]>([]);
 const filedArray = ref<Message[]>([]);
 const trashArray = ref<Message[]>([]);
-const delItem = ref<{ item: Member; index: number } | null>(null);
-const roleArray = ["Group leader", "Admin", "Edit", "Team member"];
+const delItem = ref<{ item: Member; index: number; type: string } | null>(null);
+const roleArray = ["Owner", "Admin", "Editer", "writer", "Follower"];
 const moreIndex = ref<number>(5);
 const moreVisible = ref<boolean>(true);
 const clearVisible = ref<boolean>(false);
 onMounted(() => {
   teamKey.value = route.params.id as string;
-  store.dispatch("auth/getMemberList", teamKey.value);
   getInfo();
-  getApplyList();
 });
 const getInfo = async () => {
   let infoRes = (await api.request.get("receiver/info", {
@@ -96,15 +96,20 @@ const getInfo = async () => {
     isPublic.value = infoRes.data.isPublic;
     isMute.value = infoRes.data.mute;
     isBlock.value = infoRes.data.block;
+    memberList.value = infoRes.data.moderator;
+    applyArray.value = infoRes.data.applyList;
+    followerCount.value = infoRes.data.followerCount;
+    groupRole.value = infoRes.data.role;
   }
 };
 
-const getApplyList = async () => {
-  let applyRes = (await api.request.get("receiver/apply/list", {
+const getFollowInfo = async () => {
+  let infoRes = (await api.request.get("receiver/member/list", {
     receiverKey: teamKey.value,
+    follower: 1,
   })) as ResultProps;
-  if (applyRes.msg === "OK") {
-    applyArray.value = applyRes.data;
+  if (infoRes.msg === "OK") {
+    followList.value = infoRes.data.memberList;
   }
 };
 const applyMember = async (key: string, state: boolean, index: number) => {
@@ -165,7 +170,8 @@ const saveGroup = async (type, done?: any) => {
         duration: 1000,
       });
     } else if (type === "member") {
-      store.commit("auth/addMemberList", groupRes.data);
+      followList.value = [...followList.value, ...groupRes.data];
+      followerCount.value++;
     }
     store.commit("auth/updateGroupList", {
       _key: teamKey.value,
@@ -176,17 +182,33 @@ const saveGroup = async (type, done?: any) => {
     }
   }
 };
-const changeRole = async (item: Member, index: number, role: number) => {
+const changeRole = async (
+  item: Member,
+  index: number,
+  role: number,
+  type?: string
+) => {
   let roleRes = (await api.request.patch("receiver/member/role", {
     receiverKey: teamKey.value,
     memberKey: item._key,
     role: role,
   })) as ResultProps;
   if (roleRes.msg === "OK") {
-    store.commit("auth/updateMemberList", {
-      ...memberList.value[index],
-      role: role,
-    });
+    if (type) {
+      item.role = role;
+      memberList.value.push(item);
+      followList.value.splice(index, 1);
+      followerCount.value--;
+    } else {
+      if (role < 4) {
+        memberList.value[index].role = role;
+      } else {
+        item.role = role;
+        followList.value.push(item);
+        memberList.value.splice(index, 1);
+        followerCount.value++;
+      }
+    }
   }
 };
 const chooseMember = (item: Group) => {
@@ -211,7 +233,7 @@ const saveMember = async (userKey: string) => {
     store.dispatch("auth/getGroupList");
   }
 };
-const delMember = async (item: Member, index: number) => {
+const delMember = async (item: Member, index: number, type: string) => {
   const delRes = (await api.request.delete("receiver/member", {
     receiverKey: teamKey.value,
     memberKey: item._key,
@@ -222,41 +244,46 @@ const delMember = async (item: Member, index: number) => {
       type: "success",
       duration: 1000,
     });
-    store.commit("auth/delMemberList", index);
+    if (type === "member") {
+      memberList.value.splice(index, 1);
+    } else {
+      followList.value.splice(index, 1);
+      followerCount.value--;
+    }
     delVisible.value = false;
     delItem.value = null;
   }
 };
 
-const getFiledInfo = async () => {
-  let infoRes = (await api.request.get("card/filed/list", {
-    receiverKey: teamKey.value,
-    page: filedPage.value,
-    limit: 5,
-  })) as ResultProps;
-  if (infoRes.msg === "OK") {
-    if (filedPage.value === 1) {
-      filedArray.value = [];
-    }
-    filedArray.value = [...filedArray.value, ...infoRes.data];
-    filedTotal.value = infoRes.total as number;
-  }
-};
-const scrollFiled = (e: any) => {
-  //文档内容实际高度（包括超出视窗的溢出部分）
-  let scrollHeight = e.target.scrollHeight;
-  //滚动条滚动距离
-  let scrollTop = e.target.scrollTop;
-  //窗口可视范围高度
-  let height = e.target.clientHeight;
-  if (
-    height + scrollTop >= scrollHeight &&
-    filedArray.value.length < filedTotal.value
-  ) {
-    filedPage.value++;
-    getFiledInfo();
-  }
-};
+// const getFiledInfo = async () => {
+//   let infoRes = (await api.request.get("card/filed/list", {
+//     receiverKey: teamKey.value,
+//     page: filedPage.value,
+//     limit: 5,
+//   })) as ResultProps;
+//   if (infoRes.msg === "OK") {
+//     if (filedPage.value === 1) {
+//       filedArray.value = [];
+//     }
+//     filedArray.value = [...filedArray.value, ...infoRes.data];
+//     filedTotal.value = infoRes.total as number;
+//   }
+// };
+// const scrollFiled = (e: any) => {
+//   //文档内容实际高度（包括超出视窗的溢出部分）
+//   let scrollHeight = e.target.scrollHeight;
+//   //滚动条滚动距离
+//   let scrollTop = e.target.scrollTop;
+//   //窗口可视范围高度
+//   let height = e.target.clientHeight;
+//   if (
+//     height + scrollTop >= scrollHeight &&
+//     filedArray.value.length < filedTotal.value
+//   ) {
+//     filedPage.value++;
+//     getFiledInfo();
+//   }
+// };
 const getTrashInfo = async () => {
   let infoRes = (await api.request.get("card/trash/list", {
     receiverKey: teamKey.value,
@@ -287,11 +314,11 @@ const scrollTrash = (e: any) => {
     getTrashInfo();
   }
 };
-const flashFiled = (key: string) => {
-  filedArray.value = filedArray.value.filter((item) => {
-    return item._key !== key;
-  });
-};
+// const flashFiled = (key: string) => {
+//   filedArray.value = filedArray.value.filter((item) => {
+//     return item._key !== key;
+//   });
+// };
 const flashTrash = (key: string) => {
   trashArray.value = trashArray.value.filter((item) => {
     return item._key !== key;
@@ -413,7 +440,7 @@ const disbandGroup = async () => {
     </template>
   </theader>
   <div class="manage p-5">
-    <template v-if="applyArray.length > 0 && groupRole < 2">
+    <template v-if="applyArray && applyArray.length > 0 && groupRole < 2">
       <div class="title dp-space-center">
         {{ $t(`icon.Join`) }}
       </div>
@@ -446,7 +473,7 @@ const disbandGroup = async () => {
       </div>
     </template>
     <div class="title dp-space-center">
-      {{ $t(`text['Team members']`) }} {{ ` ( ${memberList.length} ) ` }}
+      Moderator {{ ` ( ${memberList.length} ) ` }}
       <div class="dp--center icon-point">
         <icon-font name="addmember" :size="25" @click="memberVisible = true" />
       </div>
@@ -454,7 +481,7 @@ const disbandGroup = async () => {
     <div class="info">
       <div
         class="container dp-space-center manage-item"
-        v-for="(item, index) in memberList.slice(0, moreIndex)"
+        v-for="(item, index) in memberList"
         :key="'manage' + index"
       >
         <div class="left dp--center">
@@ -479,18 +506,16 @@ const disbandGroup = async () => {
           >
             <template #reference>
               <div class="manage-role dp--center">
-                <span style="margin-right: 10px">{{
-                  $t(`text['${roleArray[item.role]}']`)
-                }}</span>
+                <span style="margin-right: 10px">
+                  {{ roleArray[item.role] }}
+                </span>
                 <el-icon v-if="groupRole < 2 && item._key !== user?._key">
                   <arrow-down />
                 </el-icon>
               </div>
             </template>
             <div class="role-container">
-              <div class="role-item" v-if="groupRole === 0">
-                {{ $t(`text['Group leader']`) }}
-              </div>
+              <div class="role-item" v-if="groupRole === 0">Owner</div>
               <div class="role-item" @click="changeRole(item, index, 1)">
                 {{ $t(`text.Admin`) }}
               </div>
@@ -498,7 +523,10 @@ const disbandGroup = async () => {
                 {{ $t(`text.Edit`) }}
               </div>
               <div class="role-item" @click="changeRole(item, index, 3)">
-                {{ $t(`text['Team member']`) }}
+                Writer
+              </div>
+              <div class="role-item" @click="changeRole(item, index, 4)">
+                Follower
               </div>
               <el-divider />
               <div
@@ -507,6 +535,7 @@ const disbandGroup = async () => {
                   delItem = {
                     item: item,
                     index: index,
+                    type: 'member',
                   };
                   delVisible = true;
                 "
@@ -535,7 +564,7 @@ const disbandGroup = async () => {
         </div>
       </div>
     </div>
-    <div
+    <!-- <div
       @click="
         moreVisible = false;
         moreIndex = memberList.length + 1;
@@ -544,6 +573,16 @@ const disbandGroup = async () => {
       v-if="memberList.length > 5 && moreVisible"
     >
       {{ $t(`text.More`) }}
+    </div> -->
+    <div
+      class="title dp-space-center"
+      @click="
+        followVisible = true;
+        getFollowInfo();
+      "
+    >
+      <span>Follower {{ ` ( ${followerCount} ) ` }}</span>
+      <el-icon><arrow-right /></el-icon>
     </div>
     <el-divider />
     <template v-if="groupRole < 2">
@@ -555,7 +594,7 @@ const disbandGroup = async () => {
           style="width: calc(100% - 150px)"
         />
       </div>
-      <div
+      <!-- <div
         class="manage-text dp-space-center icon-point"
         @click="
           avatarVisible = true;
@@ -572,8 +611,8 @@ const disbandGroup = async () => {
           />
           <el-icon><arrow-right /></el-icon>
         </div>
-      </div>
-      <div
+      </div> -->
+      <!-- <div
         class="manage-text dp-space-center icon-point"
         @click="
           filedVisible = true;
@@ -582,7 +621,7 @@ const disbandGroup = async () => {
       >
         <span>{{ $t(`icon.Archive`) }} :</span>
         <el-icon><arrow-right /></el-icon>
-      </div>
+      </div> -->
       <div
         class="manage-text dp-space-center icon-point"
         @click="
@@ -628,18 +667,117 @@ const disbandGroup = async () => {
         @change="changeConfig()"
       />
     </div>
-    <template v-if="groupRole">
-      <el-divider />
-      <div class="manage-text dp-space-center">
-        <span @click="exitVisible = true" class="exit icon-point">Exit</span>
-      </div>
-    </template>
+
+    <div class="button dp-center-center" v-if="groupRole">
+      <tbutton @click="exitVisible = true" style="width: 120px">{{
+        groupRole === 4 ? "Unscribe" : "Exit"
+      }}</tbutton>
+    </div>
     <!-- <div class="manage-text dp-space-center p-5" v-else>
       <span @click="disbandVisible = true" class="exit icon-point">
         Disband
       </span>
     </div> -->
   </div>
+  <el-drawer
+    v-model="followVisible"
+    direction="rtl"
+    :size="350"
+    custom-class="p0-drawer"
+  >
+    <div class="info">
+      <div
+        class="container dp-space-center manage-item"
+        v-for="(item, index) in followList"
+        :key="'manage' + index"
+      >
+        <div class="left dp--center">
+          <el-avatar fit="cover" :size="40" :src="item.userAvatar" />
+          <div class="name">{{ item.userName }}</div>
+        </div>
+        <div class="right dp--center">
+          <!-- <div class="dp--center">
+            <span style="margin-right: 10px">{{
+              $t(`text['${roleArray[item.role]}']`)
+            }}</span>
+            <el-icon v-if="groupRole < 2 && item._key !== user?._key">
+              <arrow-down />
+            </el-icon>
+          </div> -->
+
+          <el-popover
+            :width="50"
+            ref="popoverRef"
+            trigger="click"
+            :disabled="!(groupRole < 2 && item._key !== user?._key)"
+          >
+            <template #reference>
+              <div class="manage-role dp--center">
+                <span style="margin-right: 10px">
+                  {{ roleArray[item.role] }}
+                </span>
+                <el-icon v-if="groupRole < 2 && item._key !== user?._key">
+                  <arrow-down />
+                </el-icon>
+              </div>
+            </template>
+            <div class="role-container">
+              <div class="role-item" v-if="groupRole === 0">Owner</div>
+              <div
+                class="role-item"
+                @click="changeRole(item, index, 1, 'follow')"
+              >
+                {{ $t(`text.Admin`) }}
+              </div>
+              <div
+                class="role-item"
+                @click="changeRole(item, index, 2, 'follow')"
+              >
+                {{ $t(`text.Edit`) }}
+              </div>
+              <div
+                class="role-item"
+                @click="changeRole(item, index, 3, 'follow')"
+              >
+                Writer
+              </div>
+              <el-divider />
+              <div
+                class="role-item"
+                @click="
+                  delItem = {
+                    item: item,
+                    index: index,
+                    type: 'follow',
+                  };
+                  delVisible = true;
+                "
+              >
+                {{ $t(`icon.Delete`) }}
+              </div>
+            </div>
+          </el-popover>
+          <div style="width: 20px; height: 20px; margin-left: 10px">
+            <el-tooltip
+              :content="$t(`icon.Mates`)"
+              placement="top"
+              v-if="
+                groupKeyArray.indexOf(item._key) === -1 &&
+                item._key !== user?._key
+              "
+            >
+              <icon-font
+                class="icon-point del-button"
+                name="addmate"
+                :size="20"
+                @click="saveMember(item._key)"
+              />
+            </el-tooltip>
+          </div>
+        </div>
+      </div>
+    </div>
+  </el-drawer>
   <el-drawer
     v-model="memberVisible"
     direction="rtl"
@@ -698,7 +836,7 @@ const disbandGroup = async () => {
       </div>
     </div>
   </el-drawer>
-  <el-drawer
+  <!-- <el-drawer
     v-model="filedVisible"
     direction="rtl"
     :size="350"
@@ -710,7 +848,7 @@ const disbandGroup = async () => {
         <message-item :item="item" :type="'filed'" @changeItem="flashFiled" />
       </template>
     </div>
-  </el-drawer>
+  </el-drawer> -->
   <el-drawer
     v-model="trashVisible"
     direction="rtl"
@@ -754,7 +892,11 @@ const disbandGroup = async () => {
           $t(`button.Cancel`)
         }}</tbutton>
         <tbutton
-          @click="delItem ? delMember(delItem.item, delItem.index) : null"
+          @click="
+            delItem
+              ? delMember(delItem.item, delItem.index, delItem.type)
+              : null
+          "
           >{{ $t(`button.OK`) }}</tbutton
         >
       </span>
@@ -813,6 +955,11 @@ const disbandGroup = async () => {
         height: 100%;
       }
     }
+  }
+  .button {
+    width: 100%;
+    height: 40px;
+    margin-bottom: 20px;
   }
 }
 .add-member {

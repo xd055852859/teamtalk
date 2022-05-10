@@ -11,38 +11,62 @@ import { useStore } from "@/store";
 import toTopSvg from "../assets/svg/toTop.svg";
 import Theader from "@/components/theader.vue";
 import IconFont from "@/components/iconFont.vue";
+import api from "@/services/api";
+import { ResultProps } from "@/interface/Common";
+import { Member } from "@/interface/User";
 
 const store = useStore();
+const route = useRoute();
 
 const talker = computed(() => store.state.message.talker);
+const receiver = computed(() => store.state.message.receiver);
+const receiverType = computed(() => store.state.message.receiverType);
+const groupRole = computed(() => store.state.auth.groupRole);
 const messageList = computed(() => store.state.message.messageList);
 const pageNumber = computed(() => store.state.message.pageNumber);
 const editorInfo = computed(() => store.state.message.editorInfo);
 const page = computed(() => store.state.message.page);
-const dark = computed(() => store.state.common.dark);
-const top = computed(() => store.state.common.top);
 const user = computed(() => store.state.auth.user);
 
+const teamKey = ref<string>("");
 const talkRef = ref(null);
 const editorRef = ref(null);
-const contactRef = ref(null);
+const avatarRef = ref(null);
 
-const talkVisible = ref<boolean>(false);
 const topVisible = ref<boolean>(false);
 const shakeState = ref<boolean>(false);
-const eyeState = ref<boolean>(false);
 const overKey = ref<string>("");
 const loading = ref<boolean>(false);
+const memberList = ref<Member[]>([]);
 onMounted(() => {
+  teamKey.value = route.params.id as string;
+  if (teamKey.value) {
+    getInfo();
+    store.dispatch("auth/getMemberList", teamKey.value);
+  }
+  store.commit("message/setEditContent", null);
+  store.commit("message/setEditKey", "");
   //@ts-ignore
-  talkRef.value.scrollTop = top.value;
+  // talkRef.value.scrollTop = top.value;
 });
+const getInfo = async () => {
+  let infoRes = (await api.request.get("receiver/info", {
+    receiverKey: teamKey.value,
+  })) as ResultProps;
+  if (infoRes.msg === "OK") {
+    store.commit("message/setReceiver", infoRes.data);
+    store.commit("message/setReceiverType", "");
+    store.dispatch("message/getMessageList", 1);
+    memberList.value = infoRes.data.moderator;
+  }
+};
 const postContent = async () => {
-  if (talker.value && editorRef.value) {
+  if (receiver.value && editorRef.value) {
     loading.value = true;
-    console.log(loading.value);
+    store.commit("message/setEditContent", null);
+    store.commit("message/setEditKey", "");
     //@ts-ignore
-    editorRef.value.handlePost(talker.value._key, (res) => {
+    editorRef.value.handlePost(receiver.value._key, (res) => {
       if (res.data.creatorInfo._key === user.value?._key) {
         res.data.type = "self";
         store.commit("message/addMessageList", res.data);
@@ -62,7 +86,7 @@ const scrollLoading = (e: any) => {
   //窗口可视范围高度
   let clientHeight = e.target.clientHeight;
   topVisible.value = scrollTop > clientHeight ? true : false;
-  store.commit("common/setTop", scrollTop);
+  // store.commit("common/setTop", scrollTop);
   if (
     clientHeight + scrollTop >= scrollHeight &&
     page.value < pageNumber.value
@@ -71,13 +95,6 @@ const scrollLoading = (e: any) => {
     store.commit("message/setPage", newPage);
     store.dispatch("message/getMessageList", newPage);
   }
-};
-// changeReceiver('receiver', item)"
-const changeReceiver = (state: boolean) => {
-  eyeState.value = state;
-  store.commit("message/setReceiver", state ? talker.value : null);
-  store.commit("message/setReceiverType", state ? "receiver" : "all");
-  store.dispatch("message/getMessageList", 1);
 };
 const toTop = () => {
   topVisible.value = false;
@@ -90,101 +107,100 @@ const toTop = () => {
     }
   }, 30);
 };
+const moveAvatar = (e) => {
+  //@ts-ignore
+  avatarRef.value.scrollLeft += e.deltaY;
+};
+watch(
+  receiverType,
+  (newVal) => {
+    if (newVal) {
+      store.dispatch("message/getMessageList", 1);
+    }
+  },
+  { immediate: true }
+);
 </script>
 <template>
-  <theader headerIcon="menu" headerTitle="Notes">
-    <template v-slot:title></template>
-    <template v-slot:right><div></div></template>
+  <theader v-if="!receiverType">
+    <template v-slot:title>{{ receiver?.title }}</template>
+    <template v-slot:right>
+      <icon-font
+        name="set"
+        @click="
+          receiver
+            ? receiver.receiverType === 'user'
+              ? $router.push(`/member/${receiver.toUserKey}`)
+              : $router.push(`/manage/${receiver._key}`)
+            : null
+        "
+      />
+    </template>
   </theader>
   <div
     class="talk-box p-5 dp-center-center"
     @scroll="scrollLoading"
     ref="talkRef"
   >
-    <div class="talk-container">
-      <div class="talk-edit">
-        <div class="top dp-space-center">
-          <div class="left dp--center icon-point" @click="talkVisible = true">
-            <span>To : </span>
-            <el-dropdown :max-height="500" trigger="click" ref="contactRef">
-              <div class="dp--center">
-                <el-avatar
-                  fit="cover"
-                  :size="25"
-                  :src="talker.avatar"
-                  v-if="talker"
-                  :style="{ marginLeft: '5px' }"
-                />
-                <span class="m-right-10">{{ talker?.title }}</span>
-                <el-icon>
-                  <arrow-down />
-                </el-icon>
-              </div>
-
-              <template #dropdown>
-                <contact :eyeState="eyeState"></contact>
-              </template>
-            </el-dropdown>
-          </div>
-          <div class="right">
-            <el-tooltip :content="'show'" placement="top" v-if="eyeState">
-              <icon-font
-                name="eyeshow"
-                style="margin-right: 5px"
-                @click="changeReceiver(false)"
-              />
-            </el-tooltip>
-            <el-tooltip :content="'hide'" v-else>
-              <icon-font
-                name="eyehide"
-                style="margin-right: 5px"
-                @click="changeReceiver(true)"
-            /></el-tooltip>
-            <el-tooltip :content="$t(`text.Setting`)">
-              <icon-font
-                name="set"
-                @click="
-                  talker
-                    ? talker.receiverType === 'user'
-                      ? $router.push(`/member/${talker.toUserKey}`)
-                      : $router.push(`/manage/${talker._key}`)
-                    : null
-                "
-              />
-            </el-tooltip>
-          </div>
+    <div
+      class="talk-container"
+      :style="{
+        height:
+          receiverType && receiverType !== 'favorite'
+            ? 'calc(100vh - 95px)'
+            : 'calc(100vh - 55px)',
+      }"
+    >
+      <div class="talk-edit" v-if="!receiverType && groupRole <= 3">
+        <div class="editor">
+          <editor
+            :init-data="null"
+            ref="editorRef"
+            :isEdit="true"
+            :shake="shakeState"
+          />
         </div>
-        <div class="center">
-          <div class="editor">
-            <editor
-              :init-data="null"
-              ref="editorRef"
-              :isEdit="true"
-              :shake="shakeState"
-            />
-          </div>
-          <div class="bottom dp-space-center">
-            <editor-nav :editor="editorInfo" v-if="editorInfo" />
-            <div class="bottom dp--center">
-              <template v-if="talker?.receiverType === 'user'">
-                <el-tooltip :content="$t(`icon.Shake`)">
-                  <icon-font
-                    :name="shakeState ? 'shake' : 'unshake'"
-                    class="icon-point"
-                    style="margin-right: 10px"
-                    :size="25"
-                    :color="shakeState ? '#16ab78' : ''"
-                    @click="shakeState = true"
-                  />
-                </el-tooltip>
-              </template>
-              <tbutton @click="postContent" @loading="loading">{{
-                $t(`button.Send`)
-              }}</tbutton>
-            </div>
+        <div class="bottom dp-space-center">
+          <editor-nav :editor="editorInfo" v-if="editorInfo" />
+          <div class="bottom dp--center">
+            <template v-if="talker?.receiverType === 'user'">
+              <el-tooltip :content="$t(`icon.Shake`)">
+                <icon-font
+                  :name="shakeState ? 'shake' : 'unshake'"
+                  class="icon-point"
+                  style="margin-right: 10px"
+                  :size="25"
+                  :color="shakeState ? '#16ab78' : ''"
+                  @click="shakeState = true"
+                />
+              </el-tooltip>
+            </template>
+            <tbutton @click="postContent" @loading="loading">{{
+              $t(`button.Send`)
+            }}</tbutton>
           </div>
         </div>
       </div>
+      <template v-if="!receiverType">
+        <div class="avatar-title">Moderator:</div>
+        <div
+          class="avatar dp--center"
+          @wheel.prevent.stop="moveAvatar"
+          ref="avatarRef"
+        >
+          <template v-if="receiver?.receiverType === 'group'">
+            <div
+              v-for="(avatarItem, avatarIndex) in memberList"
+              :key="'avatar' + avatarIndex"
+              class="icon-point avatar-item"
+              :style="
+                avatarItem.role === 0 ? { border: '2px solid #16ab78' } : {}
+              "
+            >
+              <img :src="avatarItem.userAvatar" alt="" />
+            </div>
+          </template></div
+      ></template>
       <div
         v-for="(item, index) in messageList"
         :key="'chat' + index"
@@ -219,7 +235,6 @@ const toTop = () => {
   z-index: 1;
   .talk-container {
     width: 100%;
-    height: calc(100vh - 55px);
     max-width: 960px;
 
     .talk-edit {
@@ -230,41 +245,56 @@ const toTop = () => {
       border-radius: 8px;
       padding: 10px 22px;
       box-sizing: border-box;
-      .top {
+      .editor {
         width: 100%;
-        height: 30px;
-        .left {
-          height: 100%;
-        }
-        .right {
-          height: 100%;
-        }
-      }
-      .center {
-        width: 100%;
-        min-height: 220px;
+        min-height: 185px;
+        overflow: auto;
         position: relative;
         z-index: 1;
-        overflow: hidden;
-        .editor {
-          width: 100%;
-          min-height: 185px;
-          overflow: auto;
-          position: relative;
-          z-index: 1;
-          padding: 0px 5px;
-          box-sizing: border-box;
-        }
-        .bottom {
-          height: 30px;
-          .button {
-            img {
-              width: 20px;
-              height: 20px;
-              margin-right: 15px;
-            }
+        padding: 0px 5px;
+        box-sizing: border-box;
+      }
+      .bottom {
+        height: 30px;
+        .button {
+          img {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
           }
         }
+      }
+    }
+    .avatar-title {
+      height: 30px;
+      font-size: 18px;
+      line-height: 30px;
+      margin: 10px 0px;
+    }
+    .avatar {
+      min-width: 100%;
+      height: 45px;
+      overflow-x: auto;
+      overflow-y: hidden;
+
+      .avatar-item {
+        width: 40px;
+        height: 40px;
+        margin-right: 8px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        overflow: hidden;
+        img {
+          user-select: none;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          -webkit-user-drag: none;
+        }
+      }
+      &::-webkit-scrollbar {
+        width: 0px;
+        height: 0px;
       }
     }
     .toTop {
