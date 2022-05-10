@@ -23,6 +23,7 @@ onMounted(() => {
 const getInfo = async () => {
   let infoRes = (await api.request.get("receiver/info", {
     receiverKey: teamKey.value,
+    returnCardNum: 1,
   })) as ResultProps;
   if (infoRes.msg === "OK") {
     teamInfo.value = infoRes.data;
@@ -57,7 +58,7 @@ const joinTeam = async () => {
 </script>
 <template>
   <theader>
-    <template v-slot:title>Mate's boards</template>
+    <template v-slot:title>{{ teamInfo?.title }}</template>
   </theader>
   <div class="mateBoard p-5">
     <div>Moderator :</div>
@@ -66,9 +67,12 @@ const joinTeam = async () => {
         v-for="(avatarItem, avatarIndex) in teamInfo?.moderator"
         :key="'avatar' + avatarIndex"
         style="margin-bottom: 10px"
-        class="mateBoard-avatar-item"
+        class="mateBoard-user-item dp-center-center"
       >
-        <img alt="" :src="avatarItem.userAvatar" />
+        <div class="mateBoard-avatar-item">
+          <img alt="" :src="avatarItem.userAvatar" />
+        </div>
+        <div>{{ avatarItem.userName }}</div>
       </div>
     </div>
     <div class="dp-space-center mateBoard-item">
@@ -79,13 +83,13 @@ const joinTeam = async () => {
           style="margin-right: 15px"
         />Subscribers
       </div>
-      99
+      {{ teamInfo?.followerCount }}
     </div>
     <div class="dp-space-center mateBoard-item">
       <div class="left dp--center">
         <icon-font name="note" :size="30" style="margin-right: 15px" />Notes
       </div>
-      99
+      {{ teamInfo?.cardNum }}
     </div>
   </div>
   <div class="button dp-center-center">
@@ -100,24 +104,32 @@ const joinTeam = async () => {
 <style scoped lang="scss">
 .mateBoard {
   width: 100%;
-  height: calc(100vh - 55px);
+  height: calc(100vh - 95px);
   //   align-content: center;
   align-content: flex-start;
   flex-wrap: wrap;
+  overflow-y: auto;
+  overflow-x: hidden;
+
   .mateBoard-avatar {
     width: 100%;
     margin: 15px 0px;
     flex-wrap: wrap;
-    .mateBoard-avatar-item {
+    .mateBoard-user-item {
       width: 120px;
-      height: 120px;
-      overflow: hidden;
-      border-radius: 50%;
+      flex-wrap: wrap;
       margin-right: 20px;
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+      .mateBoard-avatar-item {
+        width: 120px;
+        height: 120px;
+        overflow: hidden;
+        border-radius: 50%;
+        margin-bottom: 10px;
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
       }
     }
   }

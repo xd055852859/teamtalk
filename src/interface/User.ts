@@ -57,5 +57,7 @@ export interface BoardObj{
   toUserKey: null;
   unReadNum: 5;
   role?: number;
-  allowJoin?:boolean
+  allowJoin?:boolean;
+  followerCount?:boolean;
+  cardNum?:boolean;
 }

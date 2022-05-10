@@ -52,6 +52,9 @@ const moveAvatar = (e) => {
         >
           <img :src="avatarItem.userAvatar" alt="" />
         </div>
+        <div style="color: #9c9c9c; font-size: 1px">
+          等 {{ item.memberCount }} 人
+        </div>
       </template>
       <template v-else>
         <div class="icon-point avatar-item">
@@ -64,7 +67,7 @@ const moveAvatar = (e) => {
       最新消息:
       <div class="newCard single-to-long">{{ item.newestCard.title }}</div>
     </div>
-    <div
+    <!-- <div
       class="icon-box dp--center"
       ref="iconRef"
       v-if="item.receiverType === 'group' || type === 'member'"
@@ -73,7 +76,7 @@ const moveAvatar = (e) => {
         <icon-font name="partner" :size="15" style="margin-right: 5px" />
         <span>{{ item.memberCount }}</span>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 <style scoped lang="scss">
@@ -83,7 +86,7 @@ const moveAvatar = (e) => {
   // box-shadow: 0px 2px 9px 0px rgba(178, 178, 178, 0.5);
   position: relative;
   z-index: 1;
-  margin-top: 18px;
+  margin-bottom: 18px;
   padding: 15px;
   box-sizing: border-box;
   background-color: var(--talk-item-color);

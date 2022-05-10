@@ -13,6 +13,7 @@ import TalkContainer from "./container.vue";
   height: 100vh;
   background: var(--talk-bg-color);
   flex-wrap: wrap;
+  align-content: flex-start;
 }
 .nav {
   width: 100%;

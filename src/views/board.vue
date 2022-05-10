@@ -29,12 +29,12 @@ onMounted(() => {
 const getInfo = async () => {
   let infoRes = (await api.request.get("receiver/board")) as ResultProps;
   if (infoRes.msg === "OK") {
-    // infoRes.data = infoRes.data.map((item) => {
-    //   if (item.moderator) {
-    //     item.moderator = item.moderator.filter((item) => item.role < 3);
-    //   }
-    //   return item;
-    // });
+    infoRes.data = infoRes.data.map((item) => {
+      if (item.moderator) {
+        item.moderator = item.moderator.filter((item) => item.role < 3);
+      }
+      return item;
+    });
     boardList.value = [...boardList.value, ...infoRes.data];
   }
 };
@@ -57,15 +57,14 @@ const getInfo = async () => {
 </script>
 <template>
   <theader headerIcon="menu" headerTitle="Boards">
-    <template v-slot:title>
-      <el-input
-        v-if="searchVisible"
-        v-model="searchInput"
-        :placeholder="$t(`input['Enter Team Name']`)"
-        style="width: 100%"
-    /></template>
     <template v-slot:right>
-      <div>
+      <div class="dp--center">
+        <el-input
+          v-if="searchVisible"
+          v-model="searchInput"
+          :placeholder="$t(`input['Enter Team Name']`)"
+          style="width: 50vw; margin-right: 10px"
+        />
         <icon-font
           name="search"
           class="icon-point"
@@ -73,7 +72,7 @@ const getInfo = async () => {
           @click="searchVisible = !searchVisible"
         />
         <icon-font
-          name="add"
+          name="boardAdd"
           class="icon-point"
           @click="$router.push('/createGroup')"
         />
@@ -88,7 +87,7 @@ const getInfo = async () => {
         :key="'chat' + index"
         @mouseenter="overKey = item._key"
       >
-        <board-item :item="item" :overKey="overKey"/>
+        <board-item :item="item" :overKey="overKey" />
       </div>
     </div>
     <el-empty :description="'No More'" v-else />

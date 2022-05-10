@@ -18,7 +18,6 @@ import { Member } from "@/interface/User";
 const store = useStore();
 const route = useRoute();
 
-const talker = computed(() => store.state.message.talker);
 const receiver = computed(() => store.state.message.receiver);
 const receiverType = computed(() => store.state.message.receiverType);
 const groupRole = computed(() => store.state.auth.groupRole);
@@ -27,6 +26,7 @@ const pageNumber = computed(() => store.state.message.pageNumber);
 const editorInfo = computed(() => store.state.message.editorInfo);
 const page = computed(() => store.state.message.page);
 const user = computed(() => store.state.auth.user);
+const applyList = computed(() => store.state.auth.applyList);
 
 const teamKey = ref<string>("");
 const talkRef = ref(null);
@@ -122,7 +122,10 @@ watch(
 );
 </script>
 <template>
-  <theader v-if="!receiverType">
+  <theader
+    v-if="!receiverType"
+    @iconClick="api.request.patch('message', { receiverKey: teamKey })"
+  >
     <template v-slot:title>{{ receiver?.title }}</template>
     <template v-slot:right>
       <icon-font
@@ -135,6 +138,13 @@ watch(
             : null
         "
       />
+      <el-badge
+        :value="applyList.length"
+        :max="99"
+        style="margin-top: -10px"
+        v-if="applyList?.length > 0 && groupRole < 2"
+      >
+      </el-badge>
     </template>
   </theader>
   <div
@@ -151,7 +161,14 @@ watch(
             : 'calc(100vh - 55px)',
       }"
     >
-      <div class="talk-edit" v-if="!receiverType && groupRole <= 3">
+      <div
+        class="talk-edit"
+        v-if="
+          !receiverType &&
+          ((receiver?.receiverType === 'group' && groupRole <= 3) ||
+            receiver?.receiverType === 'user')
+        "
+      >
         <div class="editor">
           <editor
             :init-data="null"
@@ -163,7 +180,7 @@ watch(
         <div class="bottom dp-space-center">
           <editor-nav :editor="editorInfo" v-if="editorInfo" />
           <div class="bottom dp--center">
-            <template v-if="talker?.receiverType === 'user'">
+            <template v-if="receiver?.receiverType === 'user'">
               <el-tooltip :content="$t(`icon.Shake`)">
                 <icon-font
                   :name="shakeState ? 'shake' : 'unshake'"
@@ -181,7 +198,7 @@ watch(
           </div>
         </div>
       </div>
-      <template v-if="!receiverType">
+      <template v-if="!receiverType && receiver?.receiverType !== 'user'">
         <div class="avatar-title">Moderator:</div>
         <div
           class="avatar dp--center"
@@ -201,12 +218,16 @@ watch(
             </div>
           </template></div
       ></template>
+      <el-divider border-style="dashed" />
       <div
         v-for="(item, index) in messageList"
         :key="'chat' + index"
         @mouseenter="overKey = item._key"
       >
-        <message-item :item="item" :overKey="overKey" />
+        <div class="notice dp-center-center single-to-long" v-if="item.type === 'notice'">
+          {{ item.title }}
+        </div>
+        <message-item :item="item" :overKey="overKey" v-else />
       </div>
       <div class="toTop icon-point" v-if="topVisible" @click="toTop">
         <img :src="toTopSvg" alt="" style="width: 50px; height: 50px" />
@@ -296,6 +317,13 @@ watch(
         width: 0px;
         height: 0px;
       }
+    }
+    .notice {
+      width: 100%;
+      height: 40px;
+      margin: 10px 0px;
+      color: var(--talk-font-color-2);
+      font-size: 14px;
     }
     .toTop {
       position: fixed;

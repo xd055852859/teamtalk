@@ -80,8 +80,7 @@ const postCard = async () => {
           shakeState.value = false;
         }
       },
-      true,
-      props.cardKey ? true : false
+      true
     );
     store.commit("common/setUpdateState", false);
   }
@@ -183,7 +182,7 @@ const delReply = async (replyKey: string, index: number) => {
 
 defineExpose({
   postCard,
-  rePostCard
+  rePostCard,
 });
 </script>
 <template>
@@ -292,7 +291,7 @@ defineExpose({
               <icon-font
                 :name="shakeState ? 'shake' : 'unshake'"
                 class="icon-point"
-                :size="25"
+                :size="cardKey ? 20 : 25"
                 :color="shakeState ? '#16ab78' : ''"
                 @click="shakeState = true"
               />
@@ -372,9 +371,7 @@ defineExpose({
           </div>
         </div>
         <div class="title">
-          <span class="common-color" v-if="item.atUserName">{{
-            `@ ${item.atUserName}`
-          }}</span>
+          <span v-if="item.atUserName">{{ `@ ${item.atUserName}` }}</span>
           {{ item.content }}
         </div>
         <!--  
@@ -392,7 +389,6 @@ defineExpose({
         size="large"
         :placeholder="`Please Enter Reply`"
         ref="inputRef"
-        @change="addReply"
         style="width: 100%; margin-bottom: 10px; margin-top: 10px"
       >
         <template #prepend v-if="info?.receiverInfo.receiverType === 'group'">
@@ -411,7 +407,9 @@ defineExpose({
         </template>
       </el-input>
       <div class="button dp--center">
-        <tbutton @click="addReply">{{ $t(`button.Reply`) }}</tbutton>
+        <tbutton @click="addReply" :disabled="!replyInput">{{
+          $t(`button.Reply`)
+        }}</tbutton>
       </div>
     </div>
   </div>
@@ -457,15 +455,15 @@ defineExpose({
     position: relative;
     z-index: 1;
     .center {
-      margin-bottom: 40px;
+      margin-bottom: 20px;
       position: relative;
       z-index: 1;
     }
     .button {
       width: 100%;
       height: 40px;
-      right: -15px;
-      top: 0px;
+      right: -25px;
+      top: -10px;
       .left,
       .right {
         height: 100%;

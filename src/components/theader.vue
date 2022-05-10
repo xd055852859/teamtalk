@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ArrowLeft } from "@element-plus/icons-vue";
 import UserCenter from "@/views/userCenter.vue";
 import IconFont from "./iconFont.vue";
 const router = useRouter();
@@ -8,12 +7,15 @@ const props = defineProps<{
   headerIcon?: string;
   headerTitle?: string;
 }>();
+const emits = defineEmits(["iconClick"]);
+
 const themeVisible = ref<boolean>(false);
 const menuVisible = ref<boolean>(true);
 
 const back = () => {
   router.back();
   menuVisible.value = false;
+  emits("iconClick");
 };
 </script>
 <template>
@@ -52,7 +54,7 @@ const back = () => {
       <icon-font
         :name="'close'"
         @click="back()"
-        style="cursor: pointer; margin-left: 5px"
+        style="cursor: pointer; margin-left: 10px"
         v-if="!headerIcon"
       />
     </div>
@@ -71,12 +73,12 @@ const back = () => {
   width: 100%;
   height: 55px;
   text-align: center;
-  padding: 0px 10px;
+  padding: 0px 5% 0px 10px;
   box-sizing: border-box;
   position: relative;
   z-index: 1;
   .title {
-    width: 100%;
+    width: calc(100% - 200px);
     font-size: 18px;
     font-weight: 600;
   }
@@ -91,7 +93,7 @@ const back = () => {
     left: 10px;
   }
   .right {
-    right: 15px;
+    right: 5%;
   }
 }
 </style>

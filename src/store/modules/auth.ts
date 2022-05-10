@@ -21,10 +21,10 @@ const state: AuthState = {
   //0:组长 1:管理员 2:编辑 3:组员
   groupRole: 4,
   memberList: [],
-  followList:[],
+  followList: [],
+  applyList: [],
   uploadToken: null,
   groupTitle: "",
-
 };
 
 const mutations: MutationTree<AuthState> = {
@@ -61,6 +61,12 @@ const mutations: MutationTree<AuthState> = {
   },
   setMemberList(state, memberList: Member[]) {
     state.memberList = memberList;
+  },
+  setFollowList(state, followList: Member[]) {
+    state.followList = followList;
+  },
+  setApplyList(state, applyList: Member[]) {
+    state.applyList = applyList;
   },
   delMemberList(state, index: number) {
     state.memberList.splice(index, 1);
@@ -143,11 +149,6 @@ const actions: ActionTree<AuthState, RootState> = {
       });
       commit("setMuteList", muteArray);
       commit("setGroupList", memberRes.data);
-
-      // setTalker
-      if (!message.state.talker || type === "delete") {
-        commit("message/setTalker", memberRes.data[0], { root: true });
-      }
     }
   },
   async getMemberList({ commit }, key: string) {
@@ -159,6 +160,8 @@ const actions: ActionTree<AuthState, RootState> = {
       let arr = [...memberRes.data.memberList];
       commit("setGroupRole", memberRes.data.role);
       commit("setMemberList", arr);
+      commit("setFollowList", memberRes.data.followList);
+      commit("setApplyList", memberRes.data.applyList);
     }
   },
 };

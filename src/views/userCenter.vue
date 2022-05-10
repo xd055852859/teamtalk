@@ -139,7 +139,7 @@ watch(autoValue, (newVal) => {
         class="userCenter-item dp--center"
         @click="changeReceiver('', 'board')"
       >
-        <icon-font name="note" :size="22" style="margin-right: 18px" />
+        <icon-font name="board" :size="22" style="margin-right: 18px" />
         <span>Board </span>
       </div>
       <!-- <div class="userCenter-item dp--center" @click="$router.push('/')">
@@ -181,21 +181,21 @@ watch(autoValue, (newVal) => {
         class="userCenter-item dp--center"
         @click="changeReceiver('unRead', 'read')"
       >
-        <icon-font name="send" :size="24" style="margin-right: 15px" />
+        <icon-font name="news" :size="24" style="margin-right: 15px" />
         <span> News </span>
       </div>
       <div
         class="userCenter-item dp--center"
         @click="changeReceiver('sent', 'sent')"
       >
-        <icon-font name="send" :size="24" style="margin-right: 15px" />
+        <icon-font name="send" :size="24" style="margin-right: 15px" color="#7e7e7e"/>
         <span> {{ $t(`text['I send']`) }} </span>
       </div>
       <div
         class="userCenter-item dp--center"
         @click="changeReceiver('favorite', 'bookmark')"
       >
-        <icon-font name="favorite" :size="24" style="margin-right: 15px" />
+        <icon-font name="bookmark" :size="24" style="margin-right: 15px" />
         <span> BookMark </span>
       </div>
       <!-- <div

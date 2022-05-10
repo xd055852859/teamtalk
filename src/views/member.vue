@@ -135,15 +135,15 @@ const deleteMember = async () => {
       <div class="bottom">{{ info?.email }}</div>
     </div>
     <template v-if="info?.receiverKey">
-      <div class="dp-space-center member-item">
+      <div
+        class="dp-space-center member-item icon-point"
+        @click="$router.push('/home/mateBoard/' + memberKey)"
+      >
         <div class="left dp--center">
           <icon-font name="boards" :size="30" style="margin-right: 15px" />
           Boards
         </div>
-        <div
-          class="dp-space-center"
-          @click="$router.push('/home/mateBoard/' + memberKey)"
-        >
+        <div class="dp-space-center">
           <span style="margin-right: 10px">{{ info?.boardNum }}</span>
           <el-icon><arrow-right /></el-icon>
         </div>
@@ -186,7 +186,7 @@ const deleteMember = async () => {
           @change="changeConfig"
         />
       </div>
-      <div class="dp-space-center member-item" @click="delVisible = true">
+      <div class="dp-space-center member-item icon-point" @click="delVisible = true">
         <div class="left dp--center">
           <icon-font name="delete" :size="30" style="margin-right: 15px" />
           {{ $t(`icon.Delete`) }}
@@ -248,7 +248,6 @@ const deleteMember = async () => {
   .member-item {
     width: 100%;
     height: 50px;
-    cursor: pointer;
     .left {
       img {
         width: 30px;

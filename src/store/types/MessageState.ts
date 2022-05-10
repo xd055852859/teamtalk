@@ -4,7 +4,6 @@ import { Editor } from "@tiptap/vue-3";
 
 export interface MessageState {
   receiver: Group | null;
-  talker: Group | null;
   talkKey: string;
   receiverType: string;
   receiverNumber: number;

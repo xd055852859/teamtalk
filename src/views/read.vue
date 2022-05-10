@@ -32,13 +32,12 @@ const clearRead = async () => {
 <template>
   <theader headerIcon="menu" headerTitle="News">
     <template v-slot:right>
-      <div
-        class="dp--center icon-point"
-        v-if="receiverType === 'unRead'"
-        @click="clearVisible = true"
-      >
+      <!-- <div class="dp--center icon-point">
         <icon-font name="clear" :size="26" style="margin-right: 15px" />
-      </div>
+      </div> -->
+      <tbutton v-if="receiverType === 'unRead'" @click="clearVisible = true">
+        Set Readed
+      </tbutton>
     </template>
   </theader>
   <div class="dp-center-center icon-point">

@@ -42,7 +42,7 @@ const readVisible = ref<boolean>(false);
 const unreadVisible = ref<boolean>(false);
 const readList = ref<Read[]>([]);
 const unReadList = ref<Read[]>([]);
-const editState = ref<boolean>(false);
+
 const getInfo = async () => {
   let infoRes = (await api.request.get("card/detail", {
     cardKey: props.item._key,
@@ -54,6 +54,10 @@ const getInfo = async () => {
     store.commit("message/setEditContent", infoRes.data);
     store.commit("message/setEditKey", props.item._key);
     receiverRole.value = infoRes.data.receiverRole;
+    store.commit("message/updateMessageList", {
+      _key: props.item._key,
+      hasRead: 1,
+    });
   }
 };
 const getReadList = async () => {
@@ -369,6 +373,8 @@ const toInfo = () => {
           </el-tooltip>
         </div>
       </div>
+      <div v-if="!item.hasRead && !receiverType" class="read-point"></div>
+      <div v-if="receiverType" class="message-time">{{ item.createTime }}</div>
     </div>
     <el-drawer
       v-model="readVisible"
@@ -543,6 +549,21 @@ const toInfo = () => {
       }
     }
   }
+}
+.read-point {
+  width: 12px;
+  height: 12px;
+  background-color: #f56c6c;
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  border-radius: 50%;
+}
+.message-time {
+  height: 20px;
+  position: absolute;
+  top: 18px;
+  right: 5%;
 }
 .read-box {
   width: 100%;

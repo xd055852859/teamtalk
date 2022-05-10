@@ -16,6 +16,8 @@ export interface Message {
   commentCount?: number;
   favorite: boolean;
   atUser?: string;
+  hasRead?: number;
+  createTime?: string;
 }
 export interface Card {
   _key?: string;

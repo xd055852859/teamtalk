@@ -7,10 +7,10 @@ import api from "@/services/api";
 import auth from "./auth";
 import { ResultProps } from "@/interface/Common";
 import { Editor } from "@tiptap/vue-3";
+import dayjs from "dayjs";
 
 const state: MessageState = {
   receiver: null,
-  talker: null,
   talkKey: "",
   receiverType: localStorage.getItem("receiverType") || "",
   receiverNumber: 0,
@@ -26,9 +26,6 @@ const state: MessageState = {
 const mutations: MutationTree<MessageState> = {
   setReceiver(state, receiver: Group) {
     state.receiver = receiver;
-  },
-  setTalker(state, talker: Group) {
-    state.talker = talker;
   },
   setTalkKey(state, talkKey: string) {
     state.talkKey = talkKey;
@@ -47,13 +44,16 @@ const mutations: MutationTree<MessageState> = {
     state.messageList = [...messageList];
   },
   addMessageList(state, messageItem: Message) {
+    console.log(messageItem.creatorInfo._key, state.receiver?.toUserKey);
     if (
       (state.receiver?.receiverType === "user" &&
-        messageItem.creatorInfo._key === state.receiver?.toUserKey) ||
+        (messageItem.creatorInfo._key === state.receiver?.toUserKey ||
+          messageItem.creatorInfo._key === auth.state.user?._key)) ||
       (state.receiver?.receiverType === "group" &&
         messageItem.receiverKey === state.receiver?._key) ||
       state.receiverType === "unRead"
     ) {
+      messageItem.hasRead = 0;
       state.messageList.unshift(messageItem);
     }
   },
@@ -151,6 +151,10 @@ const actions: ActionTree<MessageState, RootState> = {
     if (messageRes.msg === "OK") {
       commit("setPage", page);
       commit("setPageNumber", messageRes.pageNum as number);
+      messageRes.data = messageRes.data.map((item) => {
+        item.createTime = dayjs(item.createTime).toNow();
+        return item;
+      });
       commit("setMessageList", [...messageRes.data]);
       if (state.receiverType === "unRead") {
         commit("setUnreadNum", messageRes.total);

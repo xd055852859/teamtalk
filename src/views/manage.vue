@@ -143,7 +143,6 @@ const saveGroup = async (type, done?: any) => {
         return;
       }
       config.title = teamName.value;
-      config.avatar = avatar.value;
       break;
     case "member":
       if (teamKey.value.length === 0) {
@@ -427,17 +426,6 @@ const disbandGroup = async () => {
     <template v-slot:title>
       {{ teamName }}
     </template>
-    <template v-slot:right>
-      <div>
-        <tbutton
-          style="height: 40px; padding: 0px 30px"
-          @click="saveGroup('name')"
-          v-if="groupRole < 2"
-        >
-          {{ $t(`button.Update`) }}
-        </tbutton>
-      </div>
-    </template>
   </theader>
   <div class="manage p-5">
     <template v-if="applyArray && applyArray.length > 0 && groupRole < 2">
@@ -459,6 +447,7 @@ const disbandGroup = async () => {
               class="icon-point"
               name="allow"
               :size="22"
+              color="#16ab78"
               style="margin-right: 10px"
               @click="applyMember(item._key, true, index)"
             />
@@ -466,6 +455,7 @@ const disbandGroup = async () => {
               class="icon-point"
               name="reject"
               :size="22"
+              color="#F56C6C"
               @click="applyMember(item._key, false, index)"
             />
           </div>
@@ -474,14 +464,17 @@ const disbandGroup = async () => {
     </template>
     <div class="title dp-space-center">
       Moderator {{ ` ( ${memberList.length} ) ` }}
-      <div class="dp--center icon-point">
+      <!-- <div class="dp--center icon-point">
         <icon-font name="addmember" :size="25" @click="memberVisible = true" />
-      </div>
+      </div> -->
+      <tbutton @click="memberVisible = true" style="height: 30px">
+        Add Member
+      </tbutton>
     </div>
     <div class="info">
       <div
         class="container dp-space-center manage-item"
-        v-for="(item, index) in memberList"
+        v-for="(item, index) in memberList.slice(0, moreIndex)"
         :key="'manage' + index"
       >
         <div class="left dp--center">
@@ -564,7 +557,7 @@ const disbandGroup = async () => {
         </div>
       </div>
     </div>
-    <!-- <div
+    <div
       @click="
         moreVisible = false;
         moreIndex = memberList.length + 1;
@@ -573,7 +566,7 @@ const disbandGroup = async () => {
       v-if="memberList.length > 5 && moreVisible"
     >
       {{ $t(`text.More`) }}
-    </div> -->
+    </div>
     <div
       class="title dp-space-center"
       @click="
@@ -592,6 +585,7 @@ const disbandGroup = async () => {
           v-model="teamName"
           placeholder="请输入小组名"
           style="width: calc(100% - 150px)"
+          @change="saveGroup('name')"
         />
       </div>
       <!-- <div

@@ -518,6 +518,7 @@ ul[data-type="taskList"] {
   text-align: right;
   font-size: 14px;
   color: var(--talk-font-color-2);
+  margin-top:35px;
 }
 .menu {
   background-color: var(--talk-bg-color);
