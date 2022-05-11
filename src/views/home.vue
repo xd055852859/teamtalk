@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import TalkHeader from "./header.vue";
-import TalkContainer from "./container.vue";
 </script>
 <template>
   <div class="home dp-center-center">

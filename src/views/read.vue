@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { useStore } from "@/store";
-import Theader from "@/components/theader.vue";
 import Topic from "./topic.vue";
-import Tbutton from "@/components/tbutton.vue";
-import IconFont from "@/components/iconFont.vue";
 import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
 import { ElMessage } from "element-plus";
@@ -46,8 +43,9 @@ const clearRead = async () => {
         receiverType === 'unRead' ? { borderBottom: `3px solid #16ab78` } : {}
       "
       @click="store.commit('message/setReceiverType', 'unRead')"
+      class="tab-nav"
     >
-      unRead {{ `( ${unReadNum} )` }}
+      unread {{ `( ${unReadNum} )` }}
     </div>
     <el-divider direction="vertical" />
     <div
@@ -55,8 +53,9 @@ const clearRead = async () => {
         receiverType === 'read' ? { borderBottom: `3px solid #16ab78` } : {}
       "
       @click="store.commit('message/setReceiverType', 'read')"
+       class="tab-nav"
     >
-      Read
+      Readed
     </div>
   </div>
   <Topic />
@@ -69,7 +68,7 @@ const clearRead = async () => {
     <span>Clear UnRead</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
-        <tbutton @click="clearVisible = false" :disabled="true">{{
+        <tbutton @click="clearVisible = false"  bgColor="#d1dbe5">{{
           $t(`button.Cancel`)
         }}</tbutton>
         <tbutton @click="clearRead()">{{ $t(`button.OK`) }}</tbutton>

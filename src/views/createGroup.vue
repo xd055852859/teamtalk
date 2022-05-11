@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import Theader from "@/components/theader.vue";
-import Tbutton from "@/components/tbutton.vue";
-
 import i18n from "@/language/i18n";
 import api from "@/services/api";
 import { ElMessage } from "element-plus";
@@ -56,18 +53,13 @@ const createGroup = async () => {
       duration: 1000,
     });
     router.push("/home");
-    store.dispatch("auth/getGroupList");
+    store.commit("auth/addGroupList", [groupRes.data]);
   }
 };
 </script>
 <template>
   <div class="create p-5">
-    <theader
-      @clickBack="
-        router.back();
-        store.dispatch('auth/getGroupList');
-      "
-    >
+    <theader @clickBack="router.back()">
       <template v-slot:title>{{ $t(`button['New Team']`) }}</template>
       <template v-slot:right><div></div></template>
     </theader>

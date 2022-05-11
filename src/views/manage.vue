@@ -866,7 +866,7 @@ const disbandGroup = async () => {
     <span>out Group</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
-        <tbutton @click="exitVisible = false" :disabled="true">{{
+        <tbutton @click="exitVisible = false" bgColor="#d1dbe5">{{
           $t(`button.Cancel`)
         }}</tbutton>
         <tbutton @click="exitGroup()">{{ $t(`button.OK`) }}</tbutton>
@@ -882,7 +882,7 @@ const disbandGroup = async () => {
     <span>{{ $t(`dialog['Delete team members']`) }}</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
-        <tbutton @click="delVisible = false" :disabled="true">{{
+        <tbutton @click="delVisible = false"  bgColor="#d1dbe5">{{
           $t(`button.Cancel`)
         }}</tbutton>
         <tbutton
@@ -915,7 +915,7 @@ const disbandGroup = async () => {
     <span>disband</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
-        <tbutton @click="disbandVisible = false" :disabled="true">{{
+        <tbutton @click="disbandVisible = false"  bgColor="#d1dbe5">{{
           $t(`button.Cancel`)
         }}</tbutton>
         <tbutton @click="disbandGroup()">{{ $t(`button.OK`) }}</tbutton>

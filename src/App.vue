@@ -16,8 +16,6 @@ import strongestMusic from "@/assets/audio/strongest.mp3";
 import strongMusic from "@/assets/audio/strong.mp3";
 import middleMusic from "@/assets/audio/middle.mp3";
 
-import { Group } from "./interface/User";
-import { Message } from "./interface/Message";
 const { proxy } = useCurrentInstance();
 const socket: any = inject("socket");
 const dayjs: any = inject("dayjs");
@@ -231,9 +229,7 @@ watch(user, (newVal, oldVal) => {
         console.log("card", msg);
         console.log(msg._key);
         console.log(editKey.value);
-        if (msg._key !== editKey.value) {
-          store.commit("message/updateMessageList", msg);
-        }
+        store.commit("message/updateMessageList", msg);
       });
       socket.on("deleteCard", function (msg) {
         console.log(msg);

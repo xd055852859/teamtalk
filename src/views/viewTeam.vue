@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import api from "@/services/api";
-import Theader from "@/components/theader.vue";
-import Tbutton from "@/components/tbutton.vue";
-import IconFont from "@/components/iconFont.vue";
 import { useStore } from "@/store";
 import { ElMessage } from "element-plus";
 import i18n from "@/language/i18n";
@@ -97,14 +94,14 @@ const joinTeam = async () => {
       style="width: 120px"
       @click="teamInfo?.allowJoin ? saveMember() : joinTeam()"
     >
-      {{ teamInfo?.allowJoin ? "Join" : "Ask To Join" }}
+      {{ teamInfo?.allowJoin ? "Enter" : "Ask For Join" }}
     </tbutton>
   </div>
 </template>
 <style scoped lang="scss">
 .mateBoard {
   width: 100%;
-  height: calc(100vh - 95px);
+  height: calc(100vh - 145px);
   //   align-content: center;
   align-content: flex-start;
   flex-wrap: wrap;
@@ -156,7 +153,7 @@ const joinTeam = async () => {
   position: fixed;
   z-index: 5;
   left: 0px;
-  bottom: 20px;
+  bottom: 50px;
 }
 </style>
 <style></style>

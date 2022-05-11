@@ -1,19 +1,13 @@
 <script setup lang="ts">
 import Editor from "@/components/editor/editor.vue";
-import Tbutton from "@/components/tbutton.vue";
 import EditorNav from "@/components/editor/editorNav.vue";
 import MessageItem from "@/components/messageItem.vue";
-import Contact from "./contact.vue";
-
-import { ArrowDown } from "@element-plus/icons-vue";
-import { useStore } from "@/store";
-
-import toTopSvg from "../assets/svg/toTop.svg";
-import Theader from "@/components/theader.vue";
-import IconFont from "@/components/iconFont.vue";
 import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
 import { Member } from "@/interface/User";
+import { useStore } from "@/store";
+
+import toTopSvg from "../assets/svg/toTop.svg";
 
 const store = useStore();
 const route = useRoute();
@@ -224,7 +218,10 @@ watch(
         :key="'chat' + index"
         @mouseenter="overKey = item._key"
       >
-        <div class="notice dp-center-center single-to-long" v-if="item.type === 'notice'">
+        <div
+          class="notice dp-center-center single-to-long"
+          v-if="item.type === 'notice'"
+        >
           {{ item.title }}
         </div>
         <message-item :item="item" :overKey="overKey" v-else />

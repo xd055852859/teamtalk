@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import Theader from "@/components/theader.vue";
-import IconFont from "@/components/iconFont.vue";
-
 import api from "@/services/api";
 import { ElMessage } from "element-plus";
 import { useStore } from "@/store";
@@ -46,7 +43,6 @@ const outBlock = async (key: string, index: number) => {
     <template v-slot:title>
       <div class="dp-center-center">{{ $t(`text.BlockList`) }}</div>
     </template>
-    <template v-slot:right><div></div></template>
   </theader>
   <div class="block p-5">
     <div class="info">

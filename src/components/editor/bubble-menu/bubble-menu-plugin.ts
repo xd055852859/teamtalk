@@ -147,7 +147,7 @@ export class BubbleMenuView {
       content: this.element,
       interactive: true,
       trigger: "manual",
-      placement: "top",
+      placement: "bottom",
       hideOnClick: "toggle",
       ...this.tippyOptions,
     });

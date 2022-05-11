@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { ElMessage } from "element-plus";
-import Theader from "@/components/theader.vue";
 import { ResultProps } from "@/interface/Common";
 import { Message } from "@/interface/Message";
 import api from "@/services/api";
 import MessageItem from "@/components/messageItem.vue";
-import Tbutton from "@/components/tbutton.vue";
+
 
 const trashList = ref<Message[]>([]);
 const trashPage = ref<number>(1);
@@ -89,7 +88,7 @@ const scrollLoading = (e: any) => {
     <span>Clear All</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
-        <tbutton @click="delVisible = false" :disabled="true">{{
+        <tbutton @click="delVisible = false"  bgColor="#d1dbe5">{{
           $t(`button.Cancel`)
         }}</tbutton>
         <tbutton @click="deleteTrash()">{{ $t(`button.OK`) }}</tbutton>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import Editor from "../components/editor/editor.vue";
-import Tbutton from "@/components/tbutton.vue";
 
 import api from "@/services/api";
 import i18n from "@/language/i18n";
@@ -320,7 +319,7 @@ defineExpose({
           </div> -->
           <div
             class="button-item dp-center-center"
-            :style="cardKey ? { width: '25px', height: '25px' } : {}"
+            :style="cardKey ? { width: '35px', height: '35px' } : {}"
             v-if="
               user?._key === info?.creatorInfo?._key ||
               (receiverRole < 2 && info?.receiverInfo?.receiverType === 'group')
@@ -336,6 +335,7 @@ defineExpose({
                 :size="cardKey ? 20 : 25"
                 class="icon-point"
                 @click="delVisible = true"
+                :hover="true"
               />
             </el-tooltip>
           </div>
@@ -407,9 +407,12 @@ defineExpose({
         </template>
       </el-input>
       <div class="button dp--center">
-        <tbutton @click="addReply" :disabled="!replyInput">{{
-          $t(`button.Reply`)
-        }}</tbutton>
+        <tbutton
+          @click="addReply"
+          :disabled="!replyInput"
+          :bgColor="replyInput ? '' : '#d1dbe5'"
+          >{{ $t(`button.Reply`) }}</tbutton
+        >
       </div>
     </div>
   </div>
@@ -422,7 +425,7 @@ defineExpose({
     <span>{{ $t(`dialog['Delete card']`) }}</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
-        <tbutton @click="delVisible = false" :disabled="true">{{
+        <tbutton @click="delVisible = false" bgColor="#d1dbe5">{{
           $t(`button.Cancel`)
         }}</tbutton>
         <tbutton @click="delCard()">{{ $t(`button.OK`) }}</tbutton>
@@ -458,12 +461,15 @@ defineExpose({
       margin-bottom: 20px;
       position: relative;
       z-index: 1;
+      padding-top:20px;
+      box-sizing: border-box;
     }
     .button {
-      width: 100%;
+      // width: 100%;
       height: 40px;
       right: -25px;
-      top: -10px;
+      top: 5px;
+      z-index: 10;
       .left,
       .right {
         height: 100%;

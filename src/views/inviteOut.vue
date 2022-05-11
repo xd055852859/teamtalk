@@ -4,8 +4,6 @@ import { ElMessage } from "element-plus";
 import useClipboard from "vue-clipboard3";
 import QrcodeVue from "qrcode.vue";
 import { store } from "@/store";
-import Tbutton from "@/components/tbutton.vue";
-import Theader from "@/components/theader.vue";
 const { toClipboard } = useClipboard();
 const router = useRouter();
 const user = computed(() => store.state.auth.user);

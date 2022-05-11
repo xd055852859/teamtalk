@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useStore } from "@/store";
-import Theader from "@/components/theader.vue";
 import Topic from "./topic.vue";
 const store = useStore();
 const receiverType = computed(() => store.state.message.receiverType);
@@ -13,6 +12,7 @@ const receiverType = computed(() => store.state.message.receiverType);
         receiverType === 'sent' ? { borderBottom: `3px solid #16ab78` } : {}
       "
       @click="store.commit('message/setReceiverType', 'sent')"
+      class="tab-nav"
     >
       {{ $t(`text['I send']`) }}
     </div>
@@ -22,6 +22,7 @@ const receiverType = computed(() => store.state.message.receiverType);
         receiverType === 'reply' ? { borderBottom: `3px solid #16ab78` } : {}
       "
       @click="store.commit('message/setReceiverType', 'reply')"
+      class="tab-nav"
     >
       I reply
     </div>

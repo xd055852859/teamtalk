@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { useStore } from "@/store";
-import Theader from "@/components/theader.vue";
 import BoardItem from "@/components/boardItem.vue";
-import IconFont from "@/components/iconFont.vue";
 import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
 import { BoardObj } from "@/interface/User";
@@ -57,7 +55,7 @@ const getInfo = async () => {
 </script>
 <template>
   <theader headerIcon="menu" headerTitle="Boards">
-    <template v-slot:right>
+    <template #right>
       <div class="dp--center">
         <el-input
           v-if="searchVisible"
@@ -68,7 +66,7 @@ const getInfo = async () => {
         <icon-font
           name="search"
           class="icon-point"
-          style="margin-right: 10px"
+          style="margin-right: 15px"
           @click="searchVisible = !searchVisible"
         />
         <icon-font

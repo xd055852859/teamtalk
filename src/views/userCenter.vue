@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import Tbutton from "@/components/tbutton.vue";
-import IconFont from "@/components/iconFont.vue";
 import i18n from "@/language/i18n";
 import { ElMessage } from "element-plus";
 import setDark from "@/hooks/dark";
@@ -128,19 +126,27 @@ watch(autoValue, (newVal) => {
 <template>
   <div class="user-center">
     <div style="width: 100%">
-      <div class="userCenter-user dp-space-center" @click="userVisible = true">
+      <div class="userCenter-user dp-space-center">
         <el-avatar fit="cover" :src="user?.userAvatar" :size="50" />
         <div class="right">
           <div class="center">{{ user?.userName }}</div>
           <div class="bottom">{{ user?.email }}</div>
         </div>
+        <icon-font
+          name="edit"
+          :size="14"
+          style="margin-right: 18px"
+          class="userCenter-user-edit icon-point"
+          :hover="true"
+          @click="userVisible = true"
+        />
       </div>
       <div
         class="userCenter-item dp--center"
         @click="changeReceiver('', 'board')"
       >
         <icon-font name="board" :size="22" style="margin-right: 18px" />
-        <span>Board </span>
+        <span>Boards </span>
       </div>
       <!-- <div class="userCenter-item dp--center" @click="$router.push('/')">
     <img
@@ -188,7 +194,12 @@ watch(autoValue, (newVal) => {
         class="userCenter-item dp--center"
         @click="changeReceiver('sent', 'sent')"
       >
-        <icon-font name="send" :size="24" style="margin-right: 15px" color="#7e7e7e"/>
+        <icon-font
+          name="send"
+          :size="24"
+          style="margin-right: 15px"
+          color="#7e7e7e"
+        />
         <span> {{ $t(`text['I send']`) }} </span>
       </div>
       <div
@@ -196,7 +207,7 @@ watch(autoValue, (newVal) => {
         @click="changeReceiver('favorite', 'bookmark')"
       >
         <icon-font name="bookmark" :size="24" style="margin-right: 15px" />
-        <span> BookMark </span>
+        <span> Bookmark </span>
       </div>
       <!-- <div
         class="userCenter-item dp--center"
@@ -326,6 +337,8 @@ watch(autoValue, (newVal) => {
     width: 100%;
     height: 45px;
     margin-bottom: 45px;
+    position: relative;
+    z-index: 1;
     span {
       margin-right: 0px;
     }
@@ -347,6 +360,11 @@ watch(autoValue, (newVal) => {
         color: #999999;
         line-height: 20px;
       }
+    }
+    .userCenter-user-edit {
+      position: absolute;
+      top: -5px;
+      right: -20px;
     }
   }
   .user-set {

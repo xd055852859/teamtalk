@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import EditorNav from "@/components/editor/editorNav.vue";
 import Editor from "../components/editor/editor.vue";
-import Tbutton from "@/components/tbutton.vue";
 
 import { useStore } from "@/store";
 import { getSearchParamValue } from "@/services/util";

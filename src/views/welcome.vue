@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import Tbutton from "@/components/tbutton.vue";
-
 import { useStore } from "@/store";
 
 import logoSvg from "../assets/svg/logo.svg";

@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { Search } from "@element-plus/icons-vue";
 import { useStore } from "@/store";
-
 import { Group } from "@/interface/User";
 
-import Theader from "@/components/theader.vue";
 const store = useStore();
 const props = defineProps<{ eyeState: boolean }>();
 const emits = defineEmits(["close"]);

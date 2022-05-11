@@ -42,6 +42,9 @@ const mutations: MutationTree<AuthState> = {
   setGroupList(state, groupList: Group[]) {
     state.groupList = groupList;
   },
+  addGroupList(state, groupList: Group[]) {
+    state.groupList = [...state.groupList, ...groupList];
+  },
   updateGroupList(state, groupItem: Group) {
     state.groupList = state.groupList.map((item) => {
       if (item._key === groupItem._key) {
@@ -81,10 +84,6 @@ const mutations: MutationTree<AuthState> = {
   },
   addMemberList(state, memberList: Member[]) {
     state.memberList = [...state.memberList, ...memberList];
-  },
-
-  addGroupList(state, groupItem: Group) {
-    state.groupList.push(groupItem);
   },
   setMuteList(state, muteList: string[]) {
     state.muteList = [...muteList];

@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import Theader from "@/components/theader.vue";
-import Tbutton from "@/components/tbutton.vue";
-
 import i18n from "@/language/i18n";
 import api from "@/services/api";
 import { store } from "@/store";
@@ -121,7 +118,7 @@ watch(partnerType, () => {
 <template>
   <theader
     headerIcon="menu"
-    :headerTitle="route.params.id === 'user' ? 'Mate' : 'Team'"
+    :headerTitle="route.params.id === 'user' ? 'Mates' : 'Team'"
   >
     <template v-slot:title></template>
     <template v-slot:right><div></div></template>

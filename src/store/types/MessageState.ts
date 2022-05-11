@@ -10,6 +10,7 @@ export interface MessageState {
   pageNumber: number;
   page: number;
   messageList: Message[];
+  messageTitle: string;
   unReadNum: number;
   editContent: any;
   editKey: string;

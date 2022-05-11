@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ElMessage } from "element-plus";
-import Theader from "@/components/theader.vue";
 import BoardItem from "@/components/boardItem.vue";
 import api from "@/services/api";
 import { BoardObj } from "@/interface/User";

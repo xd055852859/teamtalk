@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import Tbutton from "@/components/tbutton.vue";
-import Theader from "@/components/theader.vue";
-import IconFont from "@/components/iconFont.vue";
 import { ArrowRight } from "@element-plus/icons-vue";
 
 import i18n from "@/language/i18n";
@@ -205,7 +202,7 @@ const deleteMember = async () => {
     <span>{{ $t(`dialog['Delete friends']`) }}</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
-        <tbutton @click="delVisible = false" :disabled="true">{{
+        <tbutton @click="delVisible = false"  bgColor="#d1dbe5">{{
           $t(`button.Cancel`)
         }}</tbutton>
         <tbutton @click="deleteMember()">{{ $t(`button.OK`) }}</tbutton>

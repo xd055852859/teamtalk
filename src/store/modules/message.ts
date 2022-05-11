@@ -17,6 +17,7 @@ const state: MessageState = {
   pageNumber: 1,
   page: 1,
   messageList: [],
+  messageTitle: "",
   unReadNum: 0,
   editContent: null,
   editorInfo: null,
@@ -58,36 +59,45 @@ const mutations: MutationTree<MessageState> = {
     }
   },
   updateMessageList(state, messageItem: any) {
-    let targetIndex: number = 10000;
-    let targetItem: Message | null = null;
-    state.messageList = state.messageList.map(
-      (item: Message, index: number) => {
-        if (item._key === messageItem._key) {
-          if (messageItem.unRead) {
-            if (!item.unRead) {
+    if (
+      (state.receiver?.receiverType === "user" &&
+        (messageItem.creatorInfo._key === state.receiver?.toUserKey ||
+          messageItem.creatorInfo._key === auth.state.user?._key)) ||
+      (state.receiver?.receiverType === "group" &&
+        messageItem.receiverKey === state.receiver?._key)
+    ) {
+      let targetIndex: number = 10000;
+      let targetItem: Message | null = null;
+      state.messageList = state.messageList.map(
+        (item: Message, index: number) => {
+          if (item._key === messageItem._key) {
+            if (messageItem.unRead) {
+              if (!item.unRead) {
+                item.unRead = 0;
+              }
+              item.unRead = item.unRead + messageItem.unRead;
+            } else if (messageItem.unRead === 0) {
+              item.commentCount =
+                (item.commentCount as number) + (item.unRead as number);
               item.unRead = 0;
             }
-            item.unRead = item.unRead + messageItem.unRead;
-          } else if (messageItem.unRead === 0) {
-            item.commentCount =
-              (item.commentCount as number) + (item.unRead as number);
-            item.unRead = 0;
+            item = { ...item, ...messageItem };
+            console.log(index);
+            targetIndex = index;
+            targetItem = { ...item };
           }
-          item = { ...item, ...messageItem };
-          console.log(index);
-          targetIndex = index;
-          targetItem = { ...item };
+          return item;
         }
-        return item;
+      );
+      if (targetIndex === 10000) {
+        console.log(messageItem);
+        state.messageList.unshift(messageItem);
+      } else if (targetItem) {
+        // console.log(targetIndex);
+        //@ts-ignore
+        state.messageList[targetIndex] = targetItem;
+        // state.messageList.unshift(targetItem);
       }
-    );
-    if (targetIndex === 10000) {
-      console.log(messageItem);
-      state.messageList.unshift(messageItem);
-    } else if (targetItem) {
-      console.log(targetIndex);
-      state.messageList.splice(targetIndex, 1);
-      state.messageList.unshift(targetItem);
     }
   },
   delMessageList(state, messageKey: string) {
@@ -127,11 +137,14 @@ const actions: ActionTree<MessageState, RootState> = {
       page: page,
       limit: 30,
     };
-    if (state.receiver && state.receiver.receiverType !== "private") {
+    if (state.receiver) {
       if (state.receiver.receiverType === "group") {
         obj.receiverKey = state.receiver._key;
       } else {
         obj.filterUser = state.receiver.toUserKey;
+      }
+      if (state.messageTitle) {
+        obj.title = state.messageTitle;
       }
     } else if (
       state.receiverType === "read" ||

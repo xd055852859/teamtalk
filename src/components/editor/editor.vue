@@ -289,6 +289,67 @@ const countTaskNum = (jsonContent: JSONContent) => {
     });
   }
 };
+const insertNode = (type) => {
+  switch (type) {
+    case "bold":
+      editor.value?.chain().toggleBold().focus().run();
+      break;
+    case "italic":
+      editor.value?.chain().toggleItalic().focus().run();
+      break;
+    case "strike":
+      editor.value?.chain().toggleStrike().focus().run();
+      break;
+    case "underline":
+      editor.value?.chain().toggleUnderline().focus().run();
+      break;
+    case "text":
+      editor.value?.chain().focus().run();
+      break;
+    case "h1":
+      editor.value?.chain().setHeading({ level: 2 }).focus().run();
+      break;
+    case "h2":
+      editor.value?.chain().setHeading({ level: 3 }).focus().run();
+      break;
+    case "progress":
+      editor.value?.chain().setProgress().focus().run();
+      break;
+    case "text":
+      editor.value?.chain().focus().run();
+      break;
+    case "h1":
+      editor.value?.chain().setHeading({ level: 2 }).focus().run();
+      break;
+    case "h2":
+      editor.value?.chain().setHeading({ level: 3 }).focus().run();
+      break;
+    case "h3":
+      editor.value?.chain().setHeading({ level: 4 }).focus().run();
+      break;
+    case "divider":
+      editor.value?.chain().setHorizontalRule().focus().run();
+      break;
+    case "bulletList":
+      editor.value?.chain().toggleBulletList().focus().run();
+      break;
+    case "orderList":
+      editor.value?.chain().toggleOrderedList().focus().run();
+      break;
+    case "taskList":
+      editor.value?.chain().toggleTaskList().focus().run();
+      break;
+    case "blockquote":
+      editor.value?.chain().setBlockquote().focus().run();
+      break;
+    case "code":
+      editor.value?.chain().setCode().focus().run();
+      break;
+    case "codeBlock":
+      editor.value?.chain().setCodeBlock().focus().run();
+      break;
+  }
+};
 defineExpose({
   handlePost,
   toInfo,
@@ -302,29 +363,53 @@ defineExpose({
     v-if="editor"
     class="menu dp--center"
   >
-    <div
-      class="button dp--center"
-      @click="editor?.chain().focus().toggleBold().run()"
-    >
+    <div class="button dp--center" @click="insertNode('bold')">
       <icon-font name="bold" />
     </div>
-    <div
-      class="button dp--center"
-      @click="editor?.chain().focus().toggleItalic().run()"
-    >
+    <div class="button dp--center" @click="insertNode('italic')">
       <icon-font name="italic" />
     </div>
-    <div
-      class="button dp--center"
-      @click="editor?.chain().focus().toggleStrike().run()"
-    >
+    <div class="button dp--center" @click="insertNode('strike')">
       <icon-font name="strike" />
     </div>
-    <div
-      class="button dp--center"
-      @click="editor?.chain().focus().toggleUnderline().run()"
-    >
+    <div class="button dp--center" @click="insertNode('underline')">
       <icon-font name="underline" />
+    </div>
+    <div @click="insertNode('text')" class="button dp--center">
+      <icon-font name="text" />
+    </div>
+    <div @click="insertNode('h1')" class="button dp--center">
+      <icon-font name="h1" />
+    </div>
+    <div @click="insertNode('h2')" class="button dp--center">
+      <icon-font name="h2" />
+    </div>
+    <div @click="insertNode('h3')" class="button dp--center">
+      <icon-font name="h3" />
+    </div>
+    <div @click="insertNode('progress')" class="button dp--center">
+      <icon-font name="progress" />
+    </div>
+    <div @click="insertNode('bulletList')" class="button dp--center">
+      <icon-font name="bulletList" />
+    </div>
+    <div @click="insertNode('orderList')" class="button dp--center">
+      <icon-font name="orderList" />
+    </div>
+    <div @click="insertNode('taskList')" class="button dp--center">
+      <icon-font name="taskList" />
+    </div>
+    <div @click="insertNode('divider')" class="button dp--center">
+      <icon-font name="divider" />
+    </div>
+    <div @click="insertNode('blockquote')" class="button dp--center">
+      <icon-font name="blockquote" />
+    </div>
+    <div @click="insertNode('code')" class="button dp--center">
+      <icon-font name="code" />
+    </div>
+    <div @click="insertNode('codeBlock')" class="button dp--center">
+      <icon-font name="codeBlock" />
     </div>
   </bubble-menu>
   <!-- <floating-menu
@@ -518,12 +603,13 @@ ul[data-type="taskList"] {
   text-align: right;
   font-size: 14px;
   color: var(--talk-font-color-2);
-  margin-top:35px;
+  margin-top: 35px;
 }
 .menu {
   background-color: var(--talk-bg-color);
   .button {
     margin-right: 5px;
+    cursor: pointer;
     img {
       width: 15px;
       height: 15px;
