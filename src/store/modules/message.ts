@@ -54,11 +54,13 @@ const mutations: MutationTree<MessageState> = {
         messageItem.receiverKey === state.receiver?._key) ||
       state.receiverType === "unRead"
     ) {
-      messageItem.hasRead = 0;
+      messageItem.hasRead =
+        messageItem.creatorInfo._key === auth.state.user?._key ? 1 : 0;
       state.messageList.unshift(messageItem);
     }
   },
   updateMessageList(state, messageItem: any) {
+    console.log(messageItem);
     if (
       (state.receiver?.receiverType === "user" &&
         (messageItem.creatorInfo._key === state.receiver?.toUserKey ||

@@ -36,6 +36,7 @@ let talkKey = "";
 let infoKey = "";
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 onBeforeMount(() => {
+  window.addEventListener("message", handle, false);
   let url = window.location.href;
   //自动切换为https
   if (url.indexOf("http://localhost") === -1 && url.indexOf("https") < 0) {
@@ -96,7 +97,6 @@ onMounted(() => {
   }
   proxy.$i18n.locale = localStorage.getItem("LANGUAGE");
   setTheme(theme.value);
-  window.addEventListener("message", handle, false);
 });
 onUnmounted(() => {
   window.removeEventListener("message", handle, false);
@@ -189,7 +189,7 @@ watch(user, (newVal, oldVal) => {
             musicRef.value.play();
           }
         }
-        console.log("card", msg);
+        console.log("addCard", msg);
         if (
           msg.creatorInfo._key !== newVal._key ||
           msg.type === "recovery" ||
@@ -226,21 +226,19 @@ watch(user, (newVal, oldVal) => {
           }
         }
         // }
-        console.log("card", msg);
-        console.log(msg._key);
-        console.log(editKey.value);
+        console.log("updateCard", msg);
         store.commit("message/updateMessageList", msg);
       });
       socket.on("deleteCard", function (msg) {
-        console.log(msg);
+        console.log("delCard", msg);
         store.commit("message/delMessageList", msg._key);
       });
-      socket.on("fileCard", function (msg) {
-        console.log(msg);
-        store.commit("message/delMessageList", msg._key);
-      });
+      // socket.on("fileCard", function (msg) {
+      //   console.log(msg);
+      //   store.commit("message/delMessageList", msg._key);
+      // });
       socket.on("addComment", function (msg) {
-        console.log(msg);
+        console.log("addComment", msg);
         let obj = {
           ...msg,
           unRead: 1,
@@ -260,6 +258,7 @@ watch(user, (newVal, oldVal) => {
         }
       });
       socket.on("deleteComment", function (msg) {
+        console.log("delComment", msg);
         let obj = { commentCount: msg.commentCount, _key: msg.cardKey };
         store.commit("message/updateMessageList", obj);
       });

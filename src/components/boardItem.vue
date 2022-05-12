@@ -64,7 +64,7 @@ const moveAvatar = (e) => {
     </div>
 
     <div class="bottom dp--center" v-if="item?.newestCard?.title">
-      最新消息:
+      <div class="newCard-title">{{ item.newestCard.creatorInfo?.userName }} 发布:</div>
       <div class="newCard single-to-long">{{ item.newestCard.title }}</div>
     </div>
     <!-- <div
@@ -138,8 +138,11 @@ const moveAvatar = (e) => {
     height: calc(100% - 38px);
     color: #9c9c9c;
     font-size: 14px;
+    .newCard-title {
+      max-width: 90px;
+    }
     .newCard {
-      width: calc(100% - 80px);
+      max-width: calc(100% - 100px);
       margin-left: 10px;
     }
   }

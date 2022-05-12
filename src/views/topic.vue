@@ -207,6 +207,11 @@ watch(
               :style="
                 avatarItem.role === 0 ? { border: '2px solid #16ab78' } : {}
               "
+              @click.stop="
+                avatarItem._key !== user?._key
+                  ? $router.push(`/member/` + avatarItem._key)
+                  : null
+              "
             >
               <img :src="avatarItem.userAvatar" alt="" />
             </div>

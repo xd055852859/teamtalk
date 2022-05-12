@@ -45,6 +45,7 @@ const saveMember = async (key, index) => {
       duration: 1000,
     });
     memberList.value.splice(index, 1);
+    store.commit("auth/addGroupList",[saveRes.data]);
     // store.dispatch("auth/getGroupList");
     // router.push("/home");
   }

@@ -18,8 +18,6 @@ import "element-plus/dist/index.css";
 
 const app = createApp(App);
 dayjs.extend(relativeTime);
-
-app.config.globalProperties.$dayjs = dayjs;
 app.provide("dayjs", dayjs);
 
 app

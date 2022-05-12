@@ -34,7 +34,7 @@ const dark = computed(() => store.state.common.dark);
 const editKey = computed(() => store.state.message.editKey);
 const editContent = computed(() => store.state.message.editContent);
 const receiverType = computed(() => store.state.message.receiverType);
-
+const receiver = computed(() => store.state.message.receiver);
 const iconRef = ref(null);
 const infoRef = ref(null);
 const receiverRole = ref<number>(4);
@@ -57,6 +57,7 @@ const getInfo = async () => {
     store.commit("message/updateMessageList", {
       _key: props.item._key,
       hasRead: 1,
+      receiverKey: receiver.value?._key,
     });
   }
 };
@@ -373,7 +374,12 @@ const toInfo = () => {
           </el-tooltip>
         </div>
       </div>
-      <div v-if="!item.hasRead && !receiverType" class="read-point"></div>
+      <div
+        v-if="
+          !item.hasRead && !receiverType && item.creatorInfo._key !== user?._key
+        "
+        class="read-point"
+      ></div>
       <div v-if="receiverType" class="message-time">{{ item.createTime }}</div>
     </div>
     <el-drawer

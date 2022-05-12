@@ -66,6 +66,11 @@ const getInfo = async () => {
     if (info.value?.receiverInfo.receiverType === "group") {
       store.dispatch("auth/getMemberList", info.value?.receiverInfo._key);
     }
+    store.commit("message/updateMessageList", {
+      _key: infoKey.value,
+      hasRead: 1,
+      receiverKey: receiver.value?._key,
+    });
   }
 };
 const postCard = async () => {
@@ -461,7 +466,7 @@ defineExpose({
       margin-bottom: 20px;
       position: relative;
       z-index: 1;
-      padding-top:20px;
+      padding-top: 20px;
       box-sizing: border-box;
     }
     .button {

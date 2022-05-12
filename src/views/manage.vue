@@ -3,10 +3,7 @@ import { ArrowDown, ArrowRight } from "@element-plus/icons-vue";
 import { useStore } from "@/store";
 import { Message } from "@/interface/Message";
 import MessageItem from "@/components/messageItem.vue";
-import Theader from "@/components/theader.vue";
-import Tbutton from "@/components/tbutton.vue";
 import i18n from "@/language/i18n";
-import IconFont from "@/components/iconFont.vue";
 
 import chooseSvg from "@/assets/svg/choose.svg";
 import unchooseSvg from "@/assets/svg/unchoose.svg";
@@ -187,6 +184,14 @@ const changeRole = async (
   role: number,
   type?: string
 ) => {
+  if (item.role < groupRole.value) {
+    ElMessage({
+      message: "Error Role",
+      type: "error",
+      duration: 1000,
+    });
+    return;
+  }
   let roleRes = (await api.request.patch("receiver/member/role", {
     receiverKey: teamKey.value,
     memberKey: item._key,
@@ -403,7 +408,7 @@ const exitGroup = async () => {
       duration: 1000,
     });
     store.dispatch("auth/getGroupList", "delete");
-    router.back();
+    router.push("/home");
   }
 };
 const disbandGroup = async () => {
@@ -417,7 +422,7 @@ const disbandGroup = async () => {
       duration: 1000,
     });
     store.dispatch("auth/getGroupList", "delete");
-    router.back();
+    router.push("/home");
   }
 };
 </script>
@@ -667,11 +672,9 @@ const disbandGroup = async () => {
         groupRole === 4 ? "Unscribe" : "Exit"
       }}</tbutton>
     </div>
-    <!-- <div class="manage-text dp-space-center p-5" v-else>
-      <span @click="disbandVisible = true" class="exit icon-point">
-        Disband
-      </span>
-    </div> -->
+    <!-- <tbutton @click="disbandVisible = true" style="width: 120px">
+      Disband
+    </tbutton> -->
   </div>
   <el-drawer
     v-model="followVisible"
@@ -882,7 +885,7 @@ const disbandGroup = async () => {
     <span>{{ $t(`dialog['Delete team members']`) }}</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
-        <tbutton @click="delVisible = false"  bgColor="#d1dbe5">{{
+        <tbutton @click="delVisible = false" bgColor="#d1dbe5">{{
           $t(`button.Cancel`)
         }}</tbutton>
         <tbutton
@@ -915,7 +918,7 @@ const disbandGroup = async () => {
     <span>disband</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
-        <tbutton @click="disbandVisible = false"  bgColor="#d1dbe5">{{
+        <tbutton @click="disbandVisible = false" bgColor="#d1dbe5">{{
           $t(`button.Cancel`)
         }}</tbutton>
         <tbutton @click="disbandGroup()">{{ $t(`button.OK`) }}</tbutton>

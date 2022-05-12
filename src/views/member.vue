@@ -57,7 +57,6 @@ const toUser = () => {
   store.commit("message/setReceiver", obj);
   store.commit("message/setReceiverType", "receiver");
   store.dispatch("message/getMessageList", 1);
-  store.commit("message/setTalker", obj);
   router.push("/home");
 };
 const changeConfig = async () => {
@@ -98,7 +97,6 @@ const saveMember = async () => {
       info.value.receiverKey = saveRes.data._key;
       toUser();
     }
-
     //
   }
 };
@@ -115,8 +113,8 @@ const deleteMember = async () => {
     delVisible.value = false;
     store.commit("message/setReceiver", null);
     store.commit("message/setReceiverType", "all");
-    store.dispatch("auth/getGroupList");
-    router.push("/home");
+    store.commit("auth/delGroupList", info.value?.receiverKey);
+    router.back();
   }
 };
 </script>
@@ -183,7 +181,10 @@ const deleteMember = async () => {
           @change="changeConfig"
         />
       </div>
-      <div class="dp-space-center member-item icon-point" @click="delVisible = true">
+      <div
+        class="dp-space-center member-item icon-point"
+        @click="delVisible = true"
+      >
         <div class="left dp--center">
           <icon-font name="delete" :size="30" style="margin-right: 15px" />
           {{ $t(`icon.Delete`) }}
@@ -202,7 +203,7 @@ const deleteMember = async () => {
     <span>{{ $t(`dialog['Delete friends']`) }}</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
-        <tbutton @click="delVisible = false"  bgColor="#d1dbe5">{{
+        <tbutton @click="delVisible = false" bgColor="#d1dbe5">{{
           $t(`button.Cancel`)
         }}</tbutton>
         <tbutton @click="deleteMember()">{{ $t(`button.OK`) }}</tbutton>
