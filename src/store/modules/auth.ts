@@ -13,7 +13,7 @@ import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
 
 const state: AuthState = {
-  token: localStorage.getItem("token") || "",
+  token: localStorage.getItem("token") ?? "",
   user: null,
   groupList: [],
   muteList: [],
@@ -46,9 +46,7 @@ const mutations: MutationTree<AuthState> = {
     state.groupList = [...groupList, ...state.groupList];
   },
   delGroupList(state, groupKey: string) {
-    state.groupList = state.groupList.filter(
-      (item) => item._key !== groupKey
-    );
+    state.groupList = state.groupList.filter((item) => item._key !== groupKey);
   },
   updateGroupList(state, groupItem: Group) {
     state.groupList = state.groupList.map((item) => {

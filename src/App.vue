@@ -268,8 +268,10 @@ watch(user, (newVal, oldVal) => {
 watch(
   locale,
   (newVal) => {
+    console.log(newVal);
     switch (newVal) {
       case "zh":
+        console.log("111");
         dayjs.locale("zh-cn");
         break;
       case "en":

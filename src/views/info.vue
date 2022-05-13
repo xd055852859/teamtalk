@@ -5,15 +5,22 @@ import api from "@/services/api";
 import i18n from "@/language/i18n";
 import { useStore } from "@/store";
 import { ElMessage } from "element-plus";
-import { Close, Star, StarFilled } from "@element-plus/icons-vue";
+import {
+  MoreFilled,
+  Star,
+  StarFilled,
+  ArrowDown,
+  ArrowUp,
+} from "@element-plus/icons-vue";
 
-import { Card, Reply } from "@/interface/Message";
+import { Card, Read, Reply } from "@/interface/Message";
 import { ResultProps } from "@/interface/Common";
 
 import groupSvg from "@/assets/svg/group.svg";
 import IconFont from "@/components/iconFont.vue";
 
 const socket: any = inject("socket");
+const dayjs: any = inject("dayjs");
 const props = defineProps<{ cardKey?: string }>();
 const router = useRouter();
 const route = useRoute();
@@ -36,6 +43,11 @@ const replyList = ref<Reply[]>([]);
 const shakeState = ref<boolean>(false);
 const atUser = ref<{ [key: string]: string } | null>(null);
 const delVisible = ref<boolean>(false);
+const readVisible = ref<boolean>(false);
+const unreadVisible = ref<boolean>(false);
+const readList = ref<Read[]>([]);
+const unReadList = ref<Read[]>([]);
+
 onMounted(() => {
   console.log(route.name);
   infoKey.value =
@@ -116,9 +128,7 @@ const delCard = async () => {
       type: "success",
       duration: 1000,
     });
-    if (!props.cardKey && deviceType.value !== "mobile") {
-      router.push("/home/topic/" + receiver.value?._key);
-    }
+    router.back();
     store.commit("message/delMessageList", infoKey.value);
     store.commit("message/setEditContent", null);
     store.commit("message/setEditKey", "");
@@ -143,6 +153,23 @@ const delCard = async () => {
 //     store.commit("message/setEditKey", "");
 //   }
 // };
+const getReadList = async () => {
+  let readRes = (await api.request.get("card/readRecord", {
+    cardKey: infoKey.value,
+  })) as ResultProps;
+  if (readRes.msg === "OK") {
+    readList.value = readRes.data.hasRead.map((item) => {
+      item.readTime = dayjs(item.readTime).toNow();
+      console.log(item.readTime);
+      return item;
+    });
+    unReadList.value = readRes.data.unRead.map((item) => {
+      item.readTime = dayjs(item.readTime).toNow();
+      return item;
+    });
+    readVisible.value = true;
+  }
+};
 const favoriteCard = async () => {
   const postRes = (await api.request.patch("card/favorite", {
     cardKey: infoKey.value,
@@ -203,63 +230,57 @@ defineExpose({
           }
     "
   >
-    <div
-      class="header dp-space-center"
-      v-if="!cardKey && deviceType !== 'mobile'"
-    >
-      <div class="left dp--center">
-        <span class="title">
+    <theader v-if="!cardKey && deviceType !== 'mobile'">
+      <template #title>
+        <div class="dp-center-center">
+          <el-avatar
+            fit="cover"
+            :size="35"
+            :src="
+              info?.receiverInfo && info.receiverInfo.receiverType === 'group'
+                ? groupSvg
+                : user?._key === info?.creatorInfo?._key
+                ? info?.receiverInfo?.logo
+                : info?.creatorInfo?.userAvatar
+            "
+          />
           {{
-            info?.receiverInfo && info.receiverInfo.receiverType === "user"
-              ? user?._key === info?.creatorInfo?._key
-                ? `To : `
-                : `From : `
-              : `In : `
-          }}
-        </span>
-        <el-avatar
-          fit="cover"
-          :size="35"
-          :src="
-            info?.receiverInfo && info.receiverInfo.receiverType === 'group'
-              ? groupSvg
+            info?.receiverInfo && info.receiverInfo.receiverType === "group"
+              ? info?.receiverInfo?.title
               : user?._key === info?.creatorInfo?._key
-              ? info?.receiverInfo?.logo
-              : info?.creatorInfo?.userAvatar
-          "
-        />
-        {{
-          info?.receiverInfo && info.receiverInfo.receiverType === "group"
-            ? info?.receiverInfo?.title
-            : user?._key === info?.creatorInfo?._key
-            ? info?.receiverInfo?.title
-            : info?.creatorInfo?.userName
-        }}
-      </div>
-      <div class="dp--center">
-        <el-tooltip :content="'favorite'">
-          <el-icon
-            style="margin-right: 10px; margin-left: 10px; cursor: pointer"
-            size="20px"
-            @click="favoriteCard"
-          >
-            <star-filled v-if="favorite" />
-            <star v-else />
-          </el-icon>
-        </el-tooltip>
-        <el-icon
-          style="margin-right: 10px; cursor: pointer"
-          size="20px"
-          @click="
-            store.commit('message/setEditContent', null);
-            store.commit('message/setEditKey', '');
-            router.back();
-            // store.commit('message/setEditContent', null);
-          "
-          ><close
-        /></el-icon>
-      </div>
-    </div>
+              ? info?.receiverInfo?.title
+              : info?.creatorInfo?.userName
+          }}
+        </div>
+      </template>
+      <template #right>
+        <div class="dp--center">
+          <el-tooltip :content="'favorite'">
+            <el-icon
+              style="margin-right: 8px"
+              size="20px"
+              @click="favoriteCard"
+            >
+              <star-filled v-if="favorite" />
+              <star v-else />
+            </el-icon>
+          </el-tooltip>
+          <el-dropdown>
+            <el-icon :size="16"><more-filled /></el-icon>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item @click="delVisible = true"
+                  >删除</el-dropdown-item
+                >
+                <el-dropdown-item @click.stop="getReadList"
+                  >已读列表</el-dropdown-item
+                >
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+      </template>
+    </theader>
 
     <div class="box">
       <div class="center p-5">
@@ -322,7 +343,7 @@ defineExpose({
               />
             </el-tooltip>
           </div> -->
-          <div
+          <!-- <div
             class="button-item dp-center-center"
             :style="cardKey ? { width: '35px', height: '35px' } : {}"
             v-if="
@@ -343,19 +364,20 @@ defineExpose({
                 :hover="true"
               />
             </el-tooltip>
-          </div>
+          </div> -->
           <tbutton @click.once="postCard" v-if="updateState && !cardKey">{{
             $t(`button.Update`)
           }}</tbutton>
         </div>
       </div>
       <el-divider border-style="dashed" />
+      <!-- <div class="comment-title p-5">Comment</div> -->
       <div
         class="message p-5"
         v-for="(item, index) in replyList"
         :key="'reply' + index"
       >
-        <div class="header message-header dp-space-center">
+        <div class="message-header dp-space-center">
           <div class="dp--center">
             <el-avatar fit="cover" :size="25" :src="item.userAvatar" />
             {{ item.userName }}
@@ -421,6 +443,59 @@ defineExpose({
       </div>
     </div>
   </div>
+  <el-drawer
+    v-model="readVisible"
+    direction="rtl"
+    :size="350"
+    custom-class="p0-drawer"
+    :append-to-body="true"
+    title="Readed"
+  >
+    <div class="read-box">
+      <div
+        class="read-item dp-space-center"
+        v-for="(item, index) in readList"
+        :key="'read' + index"
+      >
+        <div class="left dp--center">
+          <el-avatar
+            fit="cover"
+            :size="25"
+            :src="item.userAvatar"
+            class="icon-point"
+          />
+          {{ item.userName }}
+        </div>
+        <div class="right dp--center">{{ item.readTime }}</div>
+      </div>
+      <div
+        class="read-title dp--center icon-point"
+        @click="unreadVisible = !unreadVisible"
+      >
+        <span style="margin-right: 10px">Unread</span>
+        <el-icon
+          ><arrow-up v-if="unreadVisible" /><arrow-down v-else
+        /></el-icon>
+      </div>
+      <template v-if="unreadVisible">
+        <div
+          class="read-item dp--center"
+          v-for="(item, index) in unReadList"
+          :key="'unRead' + index"
+        >
+          <div class="left dp--center">
+            <el-avatar
+              fit="cover"
+              :size="25"
+              :src="item.userAvatar"
+              class="icon-point"
+            />
+            {{ item.userName }}
+          </div>
+        </div>
+      </template>
+    </div>
+  </el-drawer>
   <el-dialog
     v-model="delVisible"
     :title="$t(`dialog['Delete prompt']`)"
@@ -466,7 +541,7 @@ defineExpose({
       margin-bottom: 20px;
       position: relative;
       z-index: 1;
-      padding-top: 20px;
+      // padding-top: 20px;
       box-sizing: border-box;
     }
     .button {
@@ -485,13 +560,19 @@ defineExpose({
         }
       }
     }
+    .comment-title {
+      font-size: 16px;
+    }
     .message {
       width: 100%;
       min-height: 100px;
       // background: var(--talk-item-color);
       .message-header {
+        width: 100%;
+        height: 30px;
         padding: 0px;
         box-sizing: border-box;
+        margin-bottom: 5px;
         .message-right {
           height: 100%;
           display: none;
@@ -505,6 +586,8 @@ defineExpose({
         height: 25px;
         font-size: 14px;
         color: var(--talk-font-color-1);
+        padding-left: 35px;
+        box-sizing: border-box;
       }
     }
   }
@@ -518,6 +601,24 @@ defineExpose({
     .button {
       justify-content: flex-end;
     }
+  }
+}
+.read-box {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 15px 5%;
+  box-sizing: border-box;
+  .read-item {
+    width: 100%;
+    height: 35px;
+  }
+  .read-title {
+    height: 35px;
+    margin: 10px 0px;
+    color: #9c9c9c;
+    font-size: 14px;
   }
 }
 </style>

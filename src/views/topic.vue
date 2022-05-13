@@ -200,6 +200,7 @@ watch(
           ref="avatarRef"
         >
           <template v-if="receiver?.receiverType === 'group'">
+            <!-- .slice(0, 5) -->
             <div
               v-for="(avatarItem, avatarIndex) in memberList"
               :key="'avatar' + avatarIndex"
@@ -215,8 +216,12 @@ watch(
             >
               <img :src="avatarItem.userAvatar" alt="" />
             </div>
-          </template></div
-      ></template>
+          </template>
+          <!-- <template v-if="memberList.length > 5"
+            >等 {{ memberList.length }} 人</template
+          > -->
+        </div>
+      </template>
       <el-divider border-style="dashed" />
       <div
         v-for="(item, index) in messageList"

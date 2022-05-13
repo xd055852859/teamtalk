@@ -1,13 +1,6 @@
 <script setup lang="ts">
 import { BoardObj } from "@/interface/User";
-import IconFont from "@/components/iconFont.vue";
 
-import { useStore } from "@/store";
-
-import groupSvg from "@/assets/svg/group.svg";
-
-const router = useRouter();
-const store = useStore();
 const props = defineProps<{
   item: BoardObj;
   type?: string;
@@ -15,11 +8,6 @@ const props = defineProps<{
 }>();
 
 const avatarRef = ref(null);
-
-const moveAvatar = (e) => {
-  //@ts-ignore
-  avatarRef.value.scrollLeft += e.deltaY;
-};
 </script>
 <template>
   <div
@@ -30,8 +18,8 @@ const moveAvatar = (e) => {
         : $router.push('/home/topic/' + item._key)
     "
   >
-    <div class="title dp--center single-to-long">
-      {{ item.title }}
+    <div class="dp-space-center">
+      <div class="title single-to-long">{{ item.title }}</div>
       <el-badge
         :value="item.unReadNum"
         :max="99"
@@ -39,20 +27,15 @@ const moveAvatar = (e) => {
         v-if="item.unReadNum > 0"
       ></el-badge>
     </div>
-    <div
-      class="avatar dp--center"
-      @wheel.prevent.stop="moveAvatar"
-      ref="avatarRef"
-    >
+    <div class="avatar dp--center" ref="avatarRef">
       <template v-if="item.receiverType === 'group' || type === 'member'">
-        <div
-          v-for="(avatarItem, avatarIndex) in item.moderator"
-          :key="'avatar' + avatarIndex"
-          class="icon-point avatar-item"
-        >
-          <img :src="avatarItem.userAvatar" alt="" />
+        <div class="icon-point avatar-item">
+          <img :src="item.webmasterInfo?.userAvatar" alt="" />
         </div>
-        <div style="color: #9c9c9c; font-size: 1px">
+        <div style="margin-right: 6px; font-size: 14px">
+          {{ item.webmasterInfo?.userName }}
+        </div>
+        <div style="color: #9c9c9c; font-size: 10px">
           等 {{ item.memberCount }} 人
         </div>
       </template>
@@ -64,7 +47,9 @@ const moveAvatar = (e) => {
     </div>
 
     <div class="bottom dp--center" v-if="item?.newestCard?.title">
-      <div class="newCard-title">{{ item.newestCard.creatorInfo?.userName }} 发布:</div>
+      <div class="newCard-title">
+        {{ item.newestCard.creatorInfo?.userName }} 发布:
+      </div>
       <div class="newCard single-to-long">{{ item.newestCard.title }}</div>
     </div>
     <!-- <div
@@ -108,14 +93,14 @@ const moveAvatar = (e) => {
   }
   .avatar {
     min-width: 100%;
-    height: 30px;
+    height: 35px;
     overflow-x: auto;
     overflow-y: hidden;
     margin: 10px 0px 15px 0px;
 
     .avatar-item {
-      width: 25px;
-      height: 25px;
+      width: 30px;
+      height: 30px;
       margin-right: 8px;
       flex-shrink: 0;
       border-radius: 50%;

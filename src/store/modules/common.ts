@@ -3,10 +3,8 @@ import { RootState } from "../types/RootState";
 import { CommonState } from "../types/CommonState";
 
 const state: CommonState = {
-  locale: localStorage.getItem("LANGUAGE")
-    ? (localStorage.getItem("LANGUAGE") as string)
-    : "zh",
-  dark: localStorage.getItem("DARK") ? true : false,
+  locale: localStorage.getItem("LANGUAGE") ?? "zh",
+  dark: !!localStorage.getItem("DARK"),
   theme: "#16ab78",
   // localStorage.getItem("THEME") ||
   loading: false,

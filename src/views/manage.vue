@@ -41,9 +41,14 @@ const memberKeyArray = computed(() =>
     return item._key;
   })
 );
-
+const adminArray = computed(() =>
+  memberList.value.filter((item: Member) => {
+    return item.role === 1;
+  })
+);
 const teamName = ref<string>("");
 const avatar = ref<string>("");
+const adminAvatar = ref<string>("");
 const avatarVisible = ref<boolean>(false);
 const avatarList = ref<any>([]);
 const memberList = ref<Member[]>([]);
@@ -62,6 +67,7 @@ const isPublic = ref<boolean>(false);
 const allowJoin = ref<boolean>(false);
 const isMute = ref<boolean>(false);
 const isBlock = ref<boolean>(false);
+const adminVisible = ref<boolean>(false);
 const filedVisible = ref<boolean>(false);
 const filedTotal = ref<number>(0);
 const trashVisible = ref<boolean>(false);
@@ -74,6 +80,7 @@ const applyArray = ref<Member[]>([]);
 const filedArray = ref<Message[]>([]);
 const trashArray = ref<Message[]>([]);
 const delItem = ref<{ item: Member; index: number; type: string } | null>(null);
+const webmasterInfo = ref<Member>();
 const roleArray = ["Owner", "Admin", "Editer", "writer", "Follower"];
 const moreIndex = ref<number>(5);
 const moreVisible = ref<boolean>(true);
@@ -97,6 +104,7 @@ const getInfo = async () => {
     applyArray.value = infoRes.data.applyList;
     followerCount.value = infoRes.data.followerCount;
     groupRole.value = infoRes.data.role;
+    webmasterInfo.value = infoRes.data.webmasterInfo;
   }
 };
 
@@ -258,7 +266,21 @@ const delMember = async (item: Member, index: number, type: string) => {
     delItem.value = null;
   }
 };
-
+const changeModerator = async (item) => {
+  const changeRes = (await api.request.patch("receiver/webmaster", {
+    receiverKey: teamKey.value,
+    webmasterKey: item._key,
+  })) as ResultProps;
+  if (changeRes.msg === "OK") {
+    ElMessage({
+      message: "Change Moderator successfully",
+      type: "success",
+      duration: 1000,
+    });
+    adminVisible.value = false;
+    webmasterInfo.value = { ...item };
+  }
+};
 // const getFiledInfo = async () => {
 //   let infoRes = (await api.request.get("card/filed/list", {
 //     receiverKey: teamKey.value,
@@ -500,7 +522,10 @@ const disbandGroup = async () => {
             :width="50"
             ref="popoverRef"
             trigger="click"
-            :disabled="!(groupRole < 2 && item._key !== user?._key)"
+            :disabled="
+              !(groupRole < 2 && item._key !== user?._key) ||
+              groupRole > item.role
+            "
           >
             <template #reference>
               <div class="manage-role dp--center">
@@ -611,6 +636,21 @@ const disbandGroup = async () => {
           <el-icon><arrow-right /></el-icon>
         </div>
       </div> -->
+      <div
+        class="manage-text dp-space-center icon-point"
+        @click="adminVisible = true"
+      >
+        <span>Moderator :</span>
+        <div class="dp--center">
+          <el-avatar
+            fit="cover"
+            :size="30"
+            :src="webmasterInfo?.userAvatar"
+            class="icon-point"
+          />
+          <el-icon><arrow-right /></el-icon>
+        </div>
+      </div>
       <!-- <div
         class="manage-text dp-space-center icon-point"
         @click="
@@ -676,6 +716,26 @@ const disbandGroup = async () => {
       Disband
     </tbutton> -->
   </div>
+
+  <el-drawer
+    v-model="adminVisible"
+    direction="rtl"
+    :size="350"
+    custom-class="p0-drawer"
+    title="Moderator"
+  >
+    <div class="add-member">
+      <div
+        class="container dp--center"
+        v-for="(item, index) in adminArray"
+        :key="'add-member' + index"
+        @click="changeModerator(item)"
+      >
+        <el-avatar fit="cover" :size="40" :src="item.userAvatar" />
+        <div class="name">{{ item.userName }}</div>
+      </div>
+    </div>
+  </el-drawer>
   <el-drawer
     v-model="followVisible"
     direction="rtl"

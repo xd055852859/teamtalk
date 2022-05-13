@@ -44,7 +44,7 @@ export interface Search {
   allowJoin?: boolean;
   hasApply?: boolean;
 }
-export interface BoardObj{
+export interface BoardObj {
   _key: string;
   avatar: string;
   block: boolean | null;
@@ -57,7 +57,9 @@ export interface BoardObj{
   toUserKey: null;
   unReadNum: 5;
   role?: number;
-  allowJoin?:boolean;
-  followerCount?:boolean;
-  cardNum?:boolean;
+  allowJoin?: boolean;
+  followerCount?: boolean;
+  cardNum?: boolean;
+  webmaster?: string;
+  webmasterInfo?:Member
 }

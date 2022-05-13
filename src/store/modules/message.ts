@@ -12,7 +12,7 @@ import dayjs from "dayjs";
 const state: MessageState = {
   receiver: null,
   talkKey: "",
-  receiverType: localStorage.getItem("receiverType") || "",
+  receiverType: localStorage.getItem("receiverType") ?? "",
   receiverNumber: 0,
   pageNumber: 1,
   page: 1,
@@ -167,7 +167,7 @@ const actions: ActionTree<MessageState, RootState> = {
       commit("setPage", page);
       commit("setPageNumber", messageRes.pageNum as number);
       messageRes.data = messageRes.data.map((item) => {
-        item.createTime = dayjs(item.createTime).toNow();
+        item.createTime = dayjs(item.createTime).fromNow();
         return item;
       });
       commit("setMessageList", [...messageRes.data]);

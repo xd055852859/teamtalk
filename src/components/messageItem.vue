@@ -42,7 +42,7 @@ const readVisible = ref<boolean>(false);
 const unreadVisible = ref<boolean>(false);
 const readList = ref<Read[]>([]);
 const unReadList = ref<Read[]>([]);
-
+const delVisible = ref<boolean>(false);
 const getInfo = async () => {
   let infoRes = (await api.request.get("card/detail", {
     cardKey: props.item._key,
@@ -185,11 +185,16 @@ const toInfo = () => {
 </script>
 <template>
   <div
-    class="item"
+    class="item dp--center"
     @click="
       editKey !== item._key && type !== 'filed' && type !== 'trash'
         ? getInfo()
         : null
+    "
+    :style="
+      receiverType
+        ? { padding: '15px 18px 0px 18px' }
+        : { flexDirection: 'column-reverse', padding: '10px 18px 15px 18px' }
     "
   >
     <div
@@ -205,7 +210,7 @@ const toInfo = () => {
       {{ item.receiverTitle }}
     </div>
     <template v-if="editKey === item._key">
-      <OnClickOutside @trigger="saveUpdate">
+      <OnClickOutside @trigger="saveUpdate" style="width: 100%">
         <Info :cardKey="item._key" ref="infoRef" />
       </OnClickOutside>
       <!-- <div style="margin-top: 30px">
@@ -223,7 +228,7 @@ const toInfo = () => {
           />
         </div> -->
     </template>
-    <div v-else>
+    <div v-else style="width: 100%">
       <div
         class="title single-to-long"
         :style="{
@@ -254,7 +259,10 @@ const toInfo = () => {
             }
           : {}
       " -->
-    <div class="footer dp-space-center">
+    <div
+      class="footer dp-space-center"
+      :style="receiverType ? { marginTop: '10px' } : { marginBottom: '10px' }"
+    >
       <div class="left dp--center">
         <el-avatar
           fit="cover"
@@ -281,7 +289,7 @@ const toInfo = () => {
         </div>
       </div>
       <div class="right dp--center">
-        <div class="dp--center" v-if="props.type === 'filed'">
+        <div class="dp--center" v-if="type === 'filed'">
           <icon-font
             name="archive"
             :size="18"
@@ -289,7 +297,7 @@ const toInfo = () => {
             @click.stop="filedCard(item._key)"
           />
         </div>
-        <div class="dp--center" v-if="props.type === 'trash'">
+        <div class="dp--center" v-if="type === 'trash'">
           <icon-font
             name="recover"
             :size="18"
@@ -350,9 +358,9 @@ const toInfo = () => {
                   >
                   <el-dropdown-item
                     @click.stop="
-                      item.creatorInfo._key !== user?._key
-                        ? delMessage()
-                        : delSelfMessage()
+                      item.creatorInfo._key === user?._key || !receiverType
+                        ? (delVisible = true)
+                        : delMessage()
                     "
                     >删除</el-dropdown-item
                   >
@@ -376,7 +384,10 @@ const toInfo = () => {
       </div>
       <div
         v-if="
-          !item.hasRead && !receiverType && item.creatorInfo._key !== user?._key
+          !item.hasRead &&
+          !receiverType &&
+          item.creatorInfo._key !== user?._key &&
+          type !== 'trash'
         "
         class="read-point"
       ></div>
@@ -435,6 +446,22 @@ const toInfo = () => {
         </template>
       </div>
     </el-drawer>
+    <el-dialog
+      v-model="delVisible"
+      :title="$t(`dialog['Delete prompt']`)"
+      :width="300"
+      :append-to-body="true"
+    >
+      <span>{{ $t(`dialog['Delete card']`) }}</span>
+      <template #footer>
+        <span class="dialog-footer dp-space-center">
+          <tbutton @click="delVisible = false" bgColor="#d1dbe5">{{
+            $t(`button.Cancel`)
+          }}</tbutton>
+          <tbutton @click="delSelfMessage()">{{ $t(`button.OK`) }}</tbutton>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 <style scoped lang="scss">
@@ -445,13 +472,14 @@ const toInfo = () => {
   position: relative;
   z-index: 1;
   margin-top: 18px;
-  padding: 15px 18px 0px 18px;
   box-sizing: border-box;
   background-color: var(--talk-item-color);
   // border: 1px solid var(--el-color-primary);
   // filter: drop-shadow(0px 2px 9px rgba(178, 178, 178, 0.5));
-  border-radius: 8px;
+  border-radius: 12px;
   color: var(--el-text-color-primary);
+  overflow: hidden;
+  flex-wrap: wrap;
   &:hover {
     box-shadow: 0px 4px 9px 0px var(--talk-hover-shadow);
   }
@@ -538,8 +566,7 @@ const toInfo = () => {
   }
   .footer {
     width: 100%;
-    height: 45px;
-    margin-top: 10px;
+    height: 35px;
     font-size: 12px;
     color: var(--talk-font-color-2);
     .left {
@@ -557,13 +584,18 @@ const toInfo = () => {
   }
 }
 .read-point {
-  width: 12px;
-  height: 12px;
-  background-color: #f56c6c;
+  width: 0;
+  height: 0;
+  // background-color: #f56c6c;
   position: absolute;
-  top: -4px;
-  right: -4px;
-  border-radius: 50%;
+  top: -7px;
+  right: -30px;
+  border-width: 30px;
+  border-top-color: #ff5d59;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  // border-bottom-color: #f56c6c;
 }
 .message-time {
   height: 20px;
@@ -585,7 +617,8 @@ const toInfo = () => {
   .read-title {
     height: 35px;
     margin: 10px 0px;
-    justify-content: flex-end;
+    color: #9c9c9c;
+    font-size: 14px;
   }
 }
 </style>

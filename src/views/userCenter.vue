@@ -10,6 +10,7 @@ import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
 const router = useRouter();
 const store = useStore();
+const dayjs: any = inject("dayjs");
 const emits = defineEmits(["close"]);
 const { proxy } = useCurrentInstance();
 const user = computed(() => store.state.auth.user);
@@ -25,6 +26,7 @@ const setVisible = ref<boolean>(false);
 const localeValue = ref<string>("");
 const darkValue = ref<string>("");
 const autoValue = ref<boolean>(false);
+
 const changeLanguage = (value: string) => {
   switch (value) {
     case "中文":
