@@ -46,7 +46,7 @@ const dark = computed(() => store.state.common.dark);
 </template>
 <style scoped lang="scss">
 .icon {
-  opacity: 0.52;
+  // opacity: 0.52;
   border-radius: 50%;
   background-color: transparent;
 }

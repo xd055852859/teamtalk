@@ -27,13 +27,16 @@ onMounted(() => {
 const getInfo = async () => {
   let infoRes = (await api.request.get("receiver/board")) as ResultProps;
   if (infoRes.msg === "OK") {
-    infoRes.data = infoRes.data.map((item) => {
-      if (item.moderator) {
-        item.moderator = item.moderator.filter((item) => item.role < 3);
+    let arr1: BoardObj[] = [];
+    let arr2: BoardObj[] = [];
+    infoRes.data.forEach((item) => {
+      if (item.top) {
+        arr1.push(item);
+      } else {
+        arr2.push(item);
       }
-      return item;
     });
-    boardList.value = [...boardList.value, ...infoRes.data];
+    boardList.value = [...arr1, ...arr2];
   }
 };
 // const scrollLoading = (e: any) => {

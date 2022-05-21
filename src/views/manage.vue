@@ -66,6 +66,8 @@ const disbandVisible = ref<boolean>(false);
 const isPublic = ref<boolean>(false);
 const allowJoin = ref<boolean>(false);
 const isMute = ref<boolean>(false);
+const isTop = ref<boolean>(false);
+
 const isBlock = ref<boolean>(false);
 const adminVisible = ref<boolean>(false);
 const filedVisible = ref<boolean>(false);
@@ -100,6 +102,7 @@ const getInfo = async () => {
     isPublic.value = infoRes.data.isPublic;
     isMute.value = infoRes.data.mute;
     isBlock.value = infoRes.data.block;
+    isTop.value = infoRes.data.top;
     memberList.value = infoRes.data.moderator;
     applyArray.value = infoRes.data.applyList;
     followerCount.value = infoRes.data.followerCount;
@@ -368,6 +371,7 @@ const changeConfig = async () => {
   let infoRes = (await api.request.patch("receiver/status", {
     receiverKey: teamKey.value,
     mute: isMute.value,
+    top: isTop.value,
     block: isBlock.value,
   })) as ResultProps;
   if (infoRes.msg === "OK") {
@@ -490,7 +494,7 @@ const disbandGroup = async () => {
       </div>
     </template>
     <div class="title dp-space-center">
-      Moderator {{ ` ( ${memberList.length} ) ` }}
+      Members {{ ` ( ${memberList.length} ) ` }}
       <!-- <div class="dp--center icon-point">
         <icon-font name="addmember" :size="25" @click="memberVisible = true" />
       </div> -->
@@ -604,7 +608,9 @@ const disbandGroup = async () => {
         getFollowInfo();
       "
     >
-      <span>Follower {{ ` ( ${followerCount} ) ` }}</span>
+      <span
+        >Follower {{ ` ( ${followerCount < 0 ? 0 : followerCount} ) ` }}</span
+      >
       <el-icon><arrow-right /></el-icon>
     </div>
     <el-divider />
@@ -639,6 +645,7 @@ const disbandGroup = async () => {
       <div
         class="manage-text dp-space-center icon-point"
         @click="adminVisible = true"
+        v-if="groupRole === 0"
       >
         <span>Moderator :</span>
         <div class="dp--center">
@@ -695,6 +702,14 @@ const disbandGroup = async () => {
       <el-switch
         active-color="#16ab78"
         v-model="isMute"
+        @change="changeConfig()"
+      />
+    </div>
+    <div class="manage-text dp-space-center">
+      <span>Set Top :</span>
+      <el-switch
+        active-color="#16ab78"
+        v-model="isTop"
         @change="changeConfig()"
       />
     </div>

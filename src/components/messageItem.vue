@@ -152,6 +152,7 @@ const delSelfMessage = async () => {
       duration: 1000,
     });
     store.commit("message/delMessageList", props.item._key);
+    delVisible.value = false;
   }
 };
 const saveUpdate = () => {
@@ -358,9 +359,9 @@ const toInfo = () => {
                   >
                   <el-dropdown-item
                     @click.stop="
-                      item.creatorInfo._key === user?._key || !receiverType
-                        ? (delVisible = true)
-                        : delMessage()
+                      receiverType === 'read' || receiverType === 'unRead'
+                        ? delMessage()
+                        : (delVisible = true)
                     "
                     >删除</el-dropdown-item
                   >

@@ -193,7 +193,7 @@ watch(
         </div>
       </div>
       <template v-if="!receiverType && receiver?.receiverType !== 'user'">
-        <div class="avatar-title">Moderator:</div>
+        <div class="avatar-title">Members :</div>
         <div
           class="avatar dp--center"
           @wheel.prevent.stop="moveAvatar"

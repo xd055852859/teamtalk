@@ -51,6 +51,7 @@ export interface BoardObj {
   memberCount: 3;
   moderator: Member[];
   mute: boolean | null;
+  top:boolean | null;
   newestCard: Card;
   receiverType: string;
   title: string;
