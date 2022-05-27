@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { is_mobile } from "@/services/util";
 import { useStore } from "@/store";
 
 import logoSvg from "../assets/svg/logo.svg";
@@ -15,11 +16,17 @@ onMounted(() => {
 });
 
 const login = () => {
-  let redirect = encodeURIComponent(`${window.location.protocol}//${window.location.host}/#/home/`);
-  console.log(redirect)
+  let redirect = encodeURIComponent(
+    `${window.location.protocol}//${window.location.host}/#/home/`
+  );
+  console.log(redirect);
   // `https://account.qingtime.cn?apphigh=50&redirect=&logo=https://workfly.qingtime.cn/1650849409262_workingVip.png`;
   let href: string = `https://account.qingtime.cn/?apphigh=50&logo=https://workfly.qingtime.cn/1650849409262_workingVip.png&redirect=${redirect}`;
-  window.open(href, "_self");
+  if (is_mobile()) {
+    window.open(href);
+  } else {
+    window.open(href, "_self");
+  }
 };
 </script>
 <template>

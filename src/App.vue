@@ -35,8 +35,10 @@ const editKey = computed(() => store.state.message.editKey);
 let talkKey = "";
 let infoKey = "";
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-onBeforeMount(() => {
-  window.addEventListener("message", handle, false);
+// onBeforeMount(() => {
+
+// });
+onMounted(() => {
   let url = window.location.href;
   //自动切换为https
   if (url.indexOf("http://localhost") === -1 && url.indexOf("https") < 0) {
@@ -68,8 +70,6 @@ onBeforeMount(() => {
       router.push("/home");
     }
   }
-});
-onMounted(() => {
   if (localStorage.getItem("AUTO")) {
     let hour = new Date().getHours() + 1;
     setDark(hour < 6 || hour >= 20);
@@ -77,9 +77,6 @@ onMounted(() => {
   } else {
     setDark(dark.value);
   }
-  const search = window.location.search
-    ? window.location.search.split("?")[1]
-    : window.location.hash.split("?")[1];
   const lang = getSearchParamValue(search, "lang") as string;
   const darkTheme = getSearchParamValue(search, "dark") as string;
   if (lang) {
@@ -95,6 +92,7 @@ onMounted(() => {
     store.commit("common/setDark", false);
     setDark(false);
   }
+  window.addEventListener("message", handle, false);
   proxy.$i18n.locale = localStorage.getItem("LANGUAGE");
   setTheme(theme.value);
 });

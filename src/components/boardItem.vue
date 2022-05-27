@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { BoardObj } from "@/interface/User";
+import { useStore } from "@/store";
 const dayjs: any = inject("dayjs");
+const store = useStore();
 const props = defineProps<{
   item: BoardObj;
   type?: string;
   overKey?: string;
 }>();
-
+const user = computed(() => store.state.auth.user);
 const avatarRef = ref(null);
 </script>
 <template>
@@ -17,7 +19,13 @@ const avatarRef = ref(null);
         ? $router.push('/home/viewTeam/' + item._key)
         : $router.push('/home/topic/' + item._key)
     "
-    :style="item.top?{borderLeft: '8px solid #ff6965'}:{}"
+    :style="
+      item.top
+        ? { borderLeft: '8px solid #ff6965' }
+        : item.webmasterInfo?._key === user?._key
+        ? { borderLeft: '8px solid #16ab78' }
+        : {}
+    "
   >
     <div class="dp-space-center">
       <div class="title single-to-long">
@@ -30,7 +38,9 @@ const avatarRef = ref(null);
         ></el-badge>
       </div>
 
-      <div style="color: #9c9c9c; font-size: 14px">{{  dayjs(item.newestCard.createTime).toNow()}}</div>
+      <div style="color: #9c9c9c; font-size: 14px">
+        {{ dayjs(item.newestCard.createTime).toNow() }}
+      </div>
     </div>
     <div class="avatar dp-space-center" ref="avatarRef">
       <div
@@ -49,7 +59,7 @@ const avatarRef = ref(null);
       <div class="icon-point avatar-item" v-else>
         <img :src="item.avatar" alt="" />
       </div>
-      <icon-font name="boardmute" style="margin-right: 5px" v-if="item.mute"/>
+      <icon-font name="boardmute" style="margin-right: 5px" v-if="item.mute" />
     </div>
 
     <!-- <div class="bottom dp--center" v-if="item?.newestCard?.title">
