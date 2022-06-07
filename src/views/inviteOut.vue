@@ -4,6 +4,7 @@ import { ElMessage } from "element-plus";
 import useClipboard from "vue-clipboard3";
 import QrcodeVue from "qrcode.vue";
 import { store } from "@/store";
+import i18n from "@/language/i18n";
 const { toClipboard } = useClipboard();
 const router = useRouter();
 const user = computed(() => store.state.auth.user);
@@ -32,7 +33,7 @@ const url = computed(
         @click="
           toClipboard(url);
           ElMessage({
-            message: 'Copy Success',
+            message: i18n.global.t(`tip['Copy Success']`),
             type: 'success',
             duration: 1000,
           });

@@ -52,7 +52,7 @@ const selectItem = (index) => {
   }
 };
 const chooseImg = (e, index: number) => {
-  let mimeType = ["image/png", "image/jpeg"];
+  let mimeType = ["image/png", "image/jpeg", "image/svg+xml"];
   uploadImage(e.target.files[0], uploadToken.value, mimeType, (url: string) => {
     props.items[index].props = { url: url };
     console.log(props.items[index]);
@@ -102,7 +102,7 @@ defineExpose({
 </template>
 <style scoped lang="scss">
 .items {
-  width: 120px;
+  width: 200px;
   position: relative;
   border-radius: 10px;
   background-color: var(--talk-bg-color);

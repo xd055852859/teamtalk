@@ -6,8 +6,11 @@ import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
 import { Member } from "@/interface/User";
 import { useStore } from "@/store";
+import { Search } from "@element-plus/icons-vue";
 
 import toTopSvg from "../assets/svg/toTop.svg";
+import Board from "./board.vue";
+import router from "@/router";
 
 const store = useStore();
 const route = useRoute();
@@ -21,6 +24,7 @@ const editorInfo = computed(() => store.state.message.editorInfo);
 const page = computed(() => store.state.message.page);
 const user = computed(() => store.state.auth.user);
 const applyList = computed(() => store.state.auth.applyList);
+const deviceType = computed(() => store.state.common.deviceType);
 
 const teamKey = ref<string>("");
 const talkRef = ref(null);
@@ -29,20 +33,26 @@ const avatarRef = ref(null);
 
 const topVisible = ref<boolean>(false);
 const shakeState = ref<boolean>(false);
+const boardVisible = ref<boolean>(false);
 const overKey = ref<string>("");
+const searchInput = ref<string>("");
+
 const loading = ref<boolean>(false);
 const memberList = ref<Member[]>([]);
 onMounted(() => {
-  teamKey.value = route.params.id as string;
-  if (teamKey.value) {
-    getInfo();
-    store.dispatch("auth/getMemberList", teamKey.value);
-  }
-  store.commit("message/setEditContent", null);
-  store.commit("message/setEditKey", "");
+  init(route.params.id as string);
   //@ts-ignore
   // talkRef.value.scrollTop = top.value;
 });
+const init = (key: string) => {
+  teamKey.value = key as string;
+  if (key) {
+    getInfo();
+    store.dispatch("auth/getMemberList", key);
+  }
+  store.commit("message/setEditContent", null);
+  store.commit("message/setEditKey", "");
+};
 const getInfo = async () => {
   let infoRes = (await api.request.get("receiver/info", {
     receiverKey: teamKey.value,
@@ -114,11 +124,28 @@ watch(
   },
   { immediate: true }
 );
+watch(
+  route,
+  (newVal) => {
+    if (newVal && newVal.name === "topic") {
+      //@ts-ignore
+      init(newVal.params.id as string);
+    }
+  },
+  { deep: true }
+);
 </script>
 <template>
   <theader
     v-if="!receiverType"
-    @iconClick="api.request.patch('message', { receiverKey: teamKey })"
+    @clickBack="
+      $router.push('/home');
+      api.request.patch('message', { receiverKey: teamKey });
+    "
+    clickState
+    headerState
+    :headerIcon="deviceType === 'phone' ? 'menu' : ''"
+    @headerClick="boardVisible = true"
   >
     <template v-slot:title>{{ receiver?.title }}</template>
     <template v-slot:right>
@@ -142,17 +169,26 @@ watch(
     </template>
   </theader>
   <div
-    class="talk-box p-5 dp-center-center"
+    class="talk-box"
     @scroll="scrollLoading"
     ref="talkRef"
+    :class="{
+      'dp-center-center': deviceType === 'phone',
+      'dp-space-center': deviceType !== 'phone',
+    }"
   >
+    <div class="talk-left" v-if="deviceType !== 'phone'"></div>
+    <div class="talk-menu" v-if="deviceType !== 'phone'">
+      <board type="menu" :boardHeight="'110px'"></board>
+    </div>
     <div
-      class="talk-container"
+      class="talk-container p-5"
       :style="{
         height:
           receiverType && receiverType !== 'favorite'
             ? 'calc(100vh - 95px)'
             : 'calc(100vh - 55px)',
+        width: deviceType === 'phone' ? '100%' : 'calc(100% - 300px)',
       }"
     >
       <div
@@ -161,6 +197,10 @@ watch(
           !receiverType &&
           ((receiver?.receiverType === 'group' && groupRole <= 3) ||
             receiver?.receiverType === 'user')
+        "
+        @click="
+          store.commit('message/setEditContent', null);
+          store.commit('message/setEditKey', '');
         "
       >
         <div class="editor">
@@ -223,6 +263,9 @@ watch(
         </div>
       </template>
       <el-divider border-style="dashed" />
+      <!-- <el-input v-model="searchInput" placeholder="Enter Topic Title">
+        <template #append> <el-button :icon="Search" /> </template
+      ></el-input> -->
       <div
         v-for="(item, index) in messageList"
         :key="'chat' + index"
@@ -242,16 +285,20 @@ watch(
     </div>
   </div>
 
-  <!-- <el-drawer
-    v-model="talkVisible"
+  <el-drawer
+    v-model="boardVisible"
     direction="ltr"
     :with-header="false"
-    :size="'80%'"
+    :size="280"
     custom-class="p0-drawer"
     destroy-on-close
   >
-   
-  </el-drawer> -->
+    <board
+      type="menu"
+      :boardHeight="'calc(100% - 55px)'"
+      @close="boardVisible = false"
+    ></board>
+  </el-drawer>
 </template>
 <style scoped lang="scss">
 .talk-box {
@@ -261,17 +308,25 @@ watch(
   background: var(--talk-bg-color);
   position: relative;
   z-index: 1;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+  .talk-menu {
+    width: 280px;
+    height: calc(100vh - 55px);
+    top: 55px;
+    left: 0px;
+    position: fixed;
+    z-index: 10;
+  }
   .talk-container {
-    width: 100%;
-    max-width: 960px;
-
     .talk-edit {
       width: 100%;
       min-height: 200px;
       background-color: var(--talk-item-color);
       border: 2px solid rgba(30, 30, 30, 1);
       border-radius: 8px;
-      padding: 10px 22px;
+      padding: 10px 0px;
       box-sizing: border-box;
       .editor {
         width: 100%;
@@ -279,11 +334,11 @@ watch(
         overflow: auto;
         position: relative;
         z-index: 1;
-        padding: 0px 5px;
         box-sizing: border-box;
       }
       .bottom {
         height: 30px;
+        padding: 0px 12px 0px 22px;
         .button {
           img {
             width: 20px;

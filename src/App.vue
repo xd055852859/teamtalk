@@ -1,5 +1,7 @@
 <script setup lang="ts">
 // This starter template is using Vue 3 <script setup> SFCs
+import { is_mobile } from "@/services/util";
+import { useDebounceFn } from "@vueuse/core";
 import { useStore } from "@/store";
 import "dayjs/locale/zh-cn";
 import "dayjs/locale/en";
@@ -55,6 +57,10 @@ onMounted(() => {
   if (inviteKey) {
     localStorage.setItem("inviteKey", inviteKey);
   }
+  const deviceWidth = document.documentElement.offsetWidth;
+  if (is_mobile() || deviceWidth < 700) {
+    store.commit("common/setDeviceType", "phone");
+  }
   if (token) {
     request.setToken(token);
     store.commit("auth/setToken", token);
@@ -95,6 +101,14 @@ onMounted(() => {
   window.addEventListener("message", handle, false);
   proxy.$i18n.locale = localStorage.getItem("LANGUAGE");
   setTheme(theme.value);
+  window.onresize = useDebounceFn(() => {
+    const deviceWidth = document.documentElement.offsetWidth;
+    if (deviceWidth < 700) {
+      store.commit("common/setDeviceType", "phone");
+    } else if (deviceWidth >= 700) {
+      store.commit("common/setDeviceType", "computer");
+    }
+  }, 500);
 });
 onUnmounted(() => {
   window.removeEventListener("message", handle, false);
@@ -164,7 +178,7 @@ watch(user, (newVal, oldVal) => {
       socket.on("card", function (msg) {
         // 1:1卡片
         if (
-          msg.creatorInfo._key !== newVal._key &&
+          msg.creatorInfo._key !== user.value?._key &&
           ((msg.receiverType === "user" &&
             muteList.value.indexOf(msg.creatorInfo._key) === -1) ||
             (msg.receiverType === "group" &&
@@ -189,7 +203,7 @@ watch(user, (newVal, oldVal) => {
         }
         console.log("addCard", msg);
         if (
-          msg.creatorInfo._key !== newVal._key ||
+          msg.creatorInfo._key !== user.value?._key ||
           msg.type === "recovery" ||
           msg.type === "filed"
         ) {
@@ -237,22 +251,24 @@ watch(user, (newVal, oldVal) => {
       // });
       socket.on("addComment", function (msg) {
         console.log("addComment", msg);
-        let obj = {
-          ...msg,
-          unRead: 1,
-          commentCount: msg.commentCount - 1,
-          _key: msg.cardKey,
-        };
-        // store.commit("message/updateMessageList", msg);
-        store.commit("message/updateMessageList", obj);
-        if (
-          (msg?.atUser === newVal._key || msg.receiverType === "user") &&
-          muteList.value.indexOf(msg.receiverKey) === -1
-        ) {
-          //@ts-ignore
-          musicRef.value.src = strongestMusic;
-          //@ts-ignore
-          musicRef.value.play();
+        if (msg.creatorInfo._key !==  user.value?._key) {
+          let obj = {
+            ...msg,
+            unRead: 1,
+            commentCount: msg.commentCount - 1,
+            _key: msg.cardKey,
+          };
+          // store.commit("message/updateMessageList", msg);
+          store.commit("message/updateMessageList", obj);
+          if (
+            (msg?.atUser === newVal._key || msg.receiverType === "user") &&
+            muteList.value.indexOf(msg.receiverKey) === -1
+          ) {
+            //@ts-ignore
+            musicRef.value.src = strongestMusic;
+            //@ts-ignore
+            musicRef.value.play();
+          }
         }
       });
       socket.on("deleteComment", function (msg) {
@@ -275,7 +291,7 @@ watch(
       case "en":
         dayjs.locale("en");
         break;
-      case "jp":
+      case "ja":
         dayjs.locale("ja");
         break;
       case "tc":

@@ -12,6 +12,7 @@ const user = computed(() => store.state.auth.user);
 const avatarRef = ref(null);
 </script>
 <template>
+  <!--   -->
   <div
     class="board-item"
     @click="
@@ -19,16 +20,19 @@ const avatarRef = ref(null);
         ? $router.push('/home/viewTeam/' + item._key)
         : $router.push('/home/topic/' + item._key)
     "
-    :style="
-      item.top
-        ? { borderLeft: '8px solid #ff6965' }
+    :style="{
+      borderLeft: item.top
+        ? '8px solid #ff6965'
         : item.webmasterInfo?._key === user?._key
-        ? { borderLeft: '8px solid #16ab78' }
-        : {}
-    "
+        ? '8px solid #16ab78'
+        : '8px solid #c8c8c8',
+    }"
   >
     <div class="dp-space-center">
-      <div class="title single-to-long">
+      <div
+        class="title single-to-long"
+        :class="{ 'dp--center': item.receiverType === 'user' }"
+      >
         {{ item.title }}
         <el-badge
           :value="item.unReadNum"
@@ -36,17 +40,28 @@ const avatarRef = ref(null);
           class="title-item"
           v-if="item.unReadNum > 0"
         ></el-badge>
+        <div
+          class="icon-point avatar-item"
+          v-if="item.receiverType === 'user'"
+          style="margin-left: 10px"
+        >
+          <img :src="item.avatar" alt="" />
+        </div>
       </div>
 
-      <div style="color: #9c9c9c; font-size: 14px">
+      <div
+        style="color: #9c9c9c; font-size: 14px"
+        v-if="item?.newestCard?.createTime"
+      >
         {{ dayjs(item.newestCard.createTime).toNow() }}
       </div>
     </div>
-    <div class="avatar dp-space-center" ref="avatarRef">
-      <div
-        class="dp--center"
-        v-if="item.receiverType === 'group' || type === 'member'"
-      >
+    <div
+      class="avatar dp-space-center"
+      ref="avatarRef"
+      v-if="item.receiverType === 'group' || type === 'member'"
+    >
+      <div class="dp--center">
         <!-- <div class="icon-point avatar-item">
           <img :src="item.webmasterInfo?.userAvatar" alt="" />
         </div> -->
@@ -55,9 +70,6 @@ const avatarRef = ref(null);
           {{ item.webmasterInfo?.userName }}
         </div>
         <div>等 {{ item.memberCount }} 人</div>
-      </div>
-      <div class="icon-point avatar-item" v-else>
-        <img :src="item.avatar" alt="" />
       </div>
       <icon-font name="boardmute" style="margin-right: 5px" v-if="item.mute" />
     </div>
@@ -91,7 +103,6 @@ const avatarRef = ref(null);
   padding: 10px 15px;
   box-sizing: border-box;
   background-color: var(--talk-item-color);
-  border-left: 8px solid #c8c8c8;
   // filter: drop-shadow(0px 2px 9px rgba(178, 178, 178, 0.5));
   border-radius: 8px;
   color: var(--el-text-color-primary);
@@ -111,21 +122,6 @@ const avatarRef = ref(null);
     margin-top: 5px;
     color: #9c9c9c;
     font-size: 14px;
-    .avatar-item {
-      width: 30px;
-      height: 30px;
-      margin-right: 8px;
-      flex-shrink: 0;
-      border-radius: 50%;
-      overflow: hidden;
-      img {
-        user-select: none;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        -webkit-user-drag: none;
-      }
-    }
     &::-webkit-scrollbar {
       width: 0px;
       height: 0px;
@@ -153,6 +149,21 @@ const avatarRef = ref(null);
     position: absolute;
     top: 22px;
     right: 15px;
+  }
+}
+.avatar-item {
+  width: 30px;
+  height: 30px;
+  margin-right: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  img {
+    user-select: none;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    -webkit-user-drag: none;
   }
 }
 </style>

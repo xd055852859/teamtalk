@@ -16,6 +16,9 @@ const insertNode = (type) => {
     case "progress":
       editorInfo.value?.chain().setProgress().focus().run();
       break;
+    case "star":
+      editorInfo.value?.chain().setStar().focus().run();
+      break;
     case "text":
       editorInfo.value?.chain().focus().run();
       break;
@@ -48,6 +51,22 @@ const insertNode = (type) => {
       break;
     case "codeBlock":
       editorInfo.value?.chain().setCodeBlock().focus().run();
+      break;
+    case "link":
+      if (!editorInfo) return;
+      const previousUrl = editorInfo.value?.getAttributes("link").href;
+      const url = window.prompt("URL", previousUrl);
+      // cancelled
+      if (url === null) {
+        return;
+      }
+      // empty
+      if (url === "") {
+        editorInfo.value?.chain().focus().extendMarkRange("link").unsetLink().run();
+        return;
+      }
+      // update link
+      editorInfo.value?.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
       break;
   }
   emits("close");
@@ -85,11 +104,25 @@ const insertNode = (type) => {
       <icon-font name="h3" />Heading3
     </div>
     <div
+      @click="insertNode('link')"
+      :style="itemHeight + 'px' ? { height: itemHeight + 'px' } : {}"
+    >
+      <icon-font name="link" />
+      Link
+    </div>
+    <div
       @click="insertNode('progress')"
       :style="itemHeight + 'px' ? { height: itemHeight + 'px' } : {}"
     >
       <icon-font name="progress" />
       Progress
+    </div>
+    <div
+      @click="insertNode('star')"
+      :style="itemHeight + 'px' ? { height: itemHeight + 'px' } : {}"
+    >
+      <icon-font name="star" />
+      Star
     </div>
     <!-- <div>Card</div> -->
     <div

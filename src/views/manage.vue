@@ -453,7 +453,7 @@ const disbandGroup = async () => {
 };
 </script>
 <template>
-  <theader>
+  <theader @clickBack="router.push('/home/topic/' + teamKey)" clickState>
     <template v-slot:title>
       {{ teamName }}
     </template>

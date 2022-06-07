@@ -19,6 +19,12 @@ export default {
     "Group members deleted successfully": "Group members deleted successfully",
     "Audit successful": "Audit successful",
     "Please enter the team name": "Please enter the team name",
+    "Send success":"Send success",
+    "blacklist successful":"Removal from blacklist successful",
+    "selectMember":"Please select a member",
+    "Delete reply successfully":"Delete reply successfully",
+    "Copy Success":"Copy Success",
+    "edit success":"Edit user information successfully"
   },
   icon: {
     Filter: "Filter",
@@ -74,6 +80,9 @@ export default {
     "Traditional Chinese": "Traditional Chinese",
     English: "English",
     Japanese: "Japanese",
+    Boards:"Boards",
+    News:"News",
+    Bookmark:"Bookmark",
   },
   button: {
     Login: "Login",

@@ -7,6 +7,7 @@ import { Group } from "@/interface/User";
 import { ResultProps } from "@/interface/Common";
 
 import groupSvg from "@/assets/svg/group.svg";
+import i18n from "@/language/i18n";
 
 const store = useStore();
 const blockArray = ref<Group[]>([]);
@@ -26,7 +27,7 @@ const outBlock = async (key: string, index: number) => {
   })) as ResultProps;
   if (outRes.msg === "OK") {
     ElMessage({
-      message: "Out Block Success",
+      message: i18n.global.t(`tip["blacklist successful"]`),
       type: "success",
       duration: 1000,
     });

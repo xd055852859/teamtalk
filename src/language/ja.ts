@@ -19,6 +19,12 @@ export default {
     "Group members deleted successfully": "グループメンバーを削除した",
     "Audit successful": "審査成功",
     "Please enter the team name": "グループ名を入力してください",
+    "Send success":"送信成功",
+    "blacklist successful":"ブラックリストから削除しました。",
+    "selectMember":"メンバーを選択して下さい",
+    "Delete reply successfully":"返信を削除した",
+    "Copy Success":"コピーしました",
+    "edit success":"プロフィールを更新した"
   },
   icon: {
     Filter: "フィルター",

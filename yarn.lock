@@ -256,6 +256,15 @@
   resolved "https://registry.npmmirror.com/@tiptap/extension-italic/-/extension-italic-2.0.0-beta.26.tgz"
   integrity sha512-vejGe2ra4K5ipFOn1U9viqF9X9nPTX8WSJpSOux+9UbKjHpANy7bz69tp66OIi/Wh5L/MMDc+luH/04qfVnpZw==
 
+"@tiptap/extension-link@^2.0.0-beta.38":
+  version "2.0.0-beta.38"
+  resolved "https://registry.npmmirror.com/@tiptap/extension-link/-/extension-link-2.0.0-beta.38.tgz#e7fb0ebee0d557ef921bf3c7fa6a7c62335f66a5"
+  integrity sha512-j+ygwq3cpDu5/8zPBcHyfgC5cuyO3jfV+2KcJw2I6Qi73y4Kwo3PW/leEYlSHkIt7i1zjyFHo/oDfC4K9x9eQg==
+  dependencies:
+    linkifyjs "^3.0.5"
+    prosemirror-model "^1.16.1"
+    prosemirror-state "^1.3.4"
+
 "@tiptap/extension-list-item@^2.0.0-beta.20":
   version "2.0.0-beta.20"
   resolved "https://registry.npmmirror.com/@tiptap/extension-list-item/-/extension-list-item-2.0.0-beta.20.tgz"
@@ -284,6 +293,33 @@
   version "2.0.0-beta.27"
   resolved "https://registry.npmmirror.com/@tiptap/extension-strike/-/extension-strike-2.0.0-beta.27.tgz"
   integrity sha512-2dmCgtesuDdivM/54Q+Y6Tc3JbGz1SkHP6c62piuqBiYLWg3xa16zChZOhfN8szbbQlBgLT6XRTDt3c2Ux+Dug==
+
+"@tiptap/extension-table-cell@^2.0.0-beta.20":
+  version "2.0.0-beta.20"
+  resolved "https://registry.npmmirror.com/@tiptap/extension-table-cell/-/extension-table-cell-2.0.0-beta.20.tgz#859456fe8d7276a87161006a3f9b3642b306524c"
+  integrity sha512-IllQyxLQvgm1FAewz3U+DkgNHRthmuVrtUQnG6la45qdUOLCOrpFbRRaQ1LJ/BpbvZ2Xs1o2yAa97BqZOPwovQ==
+
+"@tiptap/extension-table-header@^2.0.0-beta.22":
+  version "2.0.0-beta.22"
+  resolved "https://registry.npmmirror.com/@tiptap/extension-table-header/-/extension-table-header-2.0.0-beta.22.tgz#a1672970d8985c383411bb21c18e71fc7e53e262"
+  integrity sha512-nMrghrfl+ZS4EDixs3lgXnHw1Q+ECyTugpRvS36rP7b8GFp3GXm9DfbIAUzwGGfcq1D7DwRnJUDM6ARdWXyw0w==
+
+"@tiptap/extension-table-row@^2.0.0-beta.19":
+  version "2.0.0-beta.19"
+  resolved "https://registry.npmmirror.com/@tiptap/extension-table-row/-/extension-table-row-2.0.0-beta.19.tgz#b45e82f29dfcc7405440ba237b069dbb93d1a94a"
+  integrity sha512-ldEVDpIUX7ZqbViTy4c/RfyNGRv++O/r3A/Ivuon1PykaDDTbPlp5JM89FunAD39cLAbo2HKtweqdmzCMlZsqA==
+
+"@tiptap/extension-table@^2.0.0-beta.49":
+  version "2.0.0-beta.49"
+  resolved "https://registry.npmmirror.com/@tiptap/extension-table/-/extension-table-2.0.0-beta.49.tgz#10e2fbc204290ae39b6768c9247f6aaced666776"
+  integrity sha512-7irrvMUe9z/6Y8DcFwSuxaIVQ71VUUT1xxv6NZADvdf0HJWesCaTpVORISTnNuQdO5nwEyJXXJ5Ri/82YzWe0g==
+  dependencies:
+    "@types/prosemirror-model" "^1.16.0"
+    "@types/prosemirror-state" "^1.2.8"
+    prosemirror-model "^1.16.1"
+    prosemirror-state "^1.3.4"
+    prosemirror-tables "^1.1.1"
+    prosemirror-view "^1.23.6"
 
 "@tiptap/extension-task-item@^2.0.0-beta.31":
   version "2.0.0-beta.31"
@@ -1197,6 +1233,11 @@ klona@^2.0.4:
   resolved "https://registry.npmmirror.com/klona/-/klona-2.0.5.tgz"
   integrity sha512-pJiBpiXMbt7dkzXe8Ghj/u4FfXOOa98fPW+bihOJ4SjnoijweJrNThJfd3ifXpXhREjpoF2mZVH1GfS9LV3kHQ==
 
+linkifyjs@^3.0.5:
+  version "3.0.5"
+  resolved "https://registry.npmmirror.com/linkifyjs/-/linkifyjs-3.0.5.tgz#99e51a3a0c0e232fcb63ebb89eea3ff923378f34"
+  integrity sha512-1Y9XQH65eQKA9p2xtk+zxvnTeQBG7rdAXSkUG97DmuI/Xhji9uaUzaWxRj6rf9YC0v8KKHkxav7tnLX82Sz5Fg==
+
 local-pkg@^0.4.1:
   version "0.4.1"
   resolved "https://registry.npmmirror.com/local-pkg/-/local-pkg-0.4.1.tgz"
@@ -1364,10 +1405,25 @@ prosemirror-keymap@^1.0.0, prosemirror-keymap@^1.1.5:
     prosemirror-state "^1.0.0"
     w3c-keyname "^2.2.0"
 
+prosemirror-keymap@^1.1.2:
+  version "1.2.0"
+  resolved "https://registry.npmmirror.com/prosemirror-keymap/-/prosemirror-keymap-1.2.0.tgz#d5cc9da9b712020690a994b50b92a0e448a60bf5"
+  integrity sha512-TdSfu+YyLDd54ufN/ZeD1VtBRYpgZnTPnnbY+4R08DDgs84KrIPEPbJL8t1Lm2dkljFx6xeBE26YWH3aIzkPKg==
+  dependencies:
+    prosemirror-state "^1.0.0"
+    w3c-keyname "^2.2.0"
+
 prosemirror-model@^1.0.0, prosemirror-model@^1.16.0, prosemirror-model@^1.16.1:
   version "1.16.1"
   resolved "https://registry.npmmirror.com/prosemirror-model/-/prosemirror-model-1.16.1.tgz"
   integrity sha512-r1/w0HDU40TtkXp0DyKBnFPYwd8FSlUSJmGCGFv4DeynfeSlyQF2FD0RQbVEMOe6P3PpUSXM6LZBV7W/YNZ4mA==
+  dependencies:
+    orderedmap "^1.1.0"
+
+prosemirror-model@^1.8.1:
+  version "1.17.0"
+  resolved "https://registry.npmmirror.com/prosemirror-model/-/prosemirror-model-1.17.0.tgz#f99fe93e9b45e48559ebf0f50262ef900a6246b7"
+  integrity sha512-RJBDgZs/W26yyx1itrk5b3H9FxIro3K7Xjc2QWJI99Gu1nxYAnIggqI3fIOD8Jd/6QZfM+t6elZFJPycVexMTA==
   dependencies:
     orderedmap "^1.1.0"
 
@@ -1387,6 +1443,25 @@ prosemirror-state@^1.0.0, prosemirror-state@^1.2.2, prosemirror-state@^1.3.4:
     prosemirror-model "^1.0.0"
     prosemirror-transform "^1.0.0"
 
+prosemirror-state@^1.3.1:
+  version "1.4.0"
+  resolved "https://registry.npmmirror.com/prosemirror-state/-/prosemirror-state-1.4.0.tgz#0b0c23b38d9f5bb23d19ad043cf8453d876c0414"
+  integrity sha512-mVDZdjNX/YT5FvypiwbphJe9psA5h+j9apsSszVRFc6oKFoIInvzdujh8QW9f9lwHtSYajLxNiM1hPhd0Sl1XA==
+  dependencies:
+    prosemirror-model "^1.0.0"
+    prosemirror-transform "^1.0.0"
+
+prosemirror-tables@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.npmmirror.com/prosemirror-tables/-/prosemirror-tables-1.1.1.tgz#ad66300cc49500455cf1243bb129c9e7d883321e"
+  integrity sha512-LmCz4jrlqQZRsYRDzCRYf/pQ5CUcSOyqZlAj5kv67ZWBH1SVLP2U9WJEvQfimWgeRlIz0y0PQVqO1arRm1+woA==
+  dependencies:
+    prosemirror-keymap "^1.1.2"
+    prosemirror-model "^1.8.1"
+    prosemirror-state "^1.3.1"
+    prosemirror-transform "^1.2.1"
+    prosemirror-view "^1.13.3"
+
 prosemirror-transform@^1.0.0, prosemirror-transform@^1.1.0, prosemirror-transform@^1.3.3:
   version "1.4.2"
   resolved "https://registry.npmmirror.com/prosemirror-transform/-/prosemirror-transform-1.4.2.tgz"
@@ -1394,10 +1469,26 @@ prosemirror-transform@^1.0.0, prosemirror-transform@^1.1.0, prosemirror-transfor
   dependencies:
     prosemirror-model "^1.0.0"
 
+prosemirror-transform@^1.2.1:
+  version "1.6.0"
+  resolved "https://registry.npmmirror.com/prosemirror-transform/-/prosemirror-transform-1.6.0.tgz#8162dbfaf124f9253a7ab28605a9460411a96a53"
+  integrity sha512-MAp7AjsjEGEqQY0sSMufNIUuEyB1ZR9Fqlm8dTwwWwpEJRv/plsKjWXBbx52q3Ml8MtaMcd7ic14zAHVB3WaMw==
+  dependencies:
+    prosemirror-model "^1.0.0"
+
 prosemirror-view@^1.0.0, prosemirror-view@^1.1.0, prosemirror-view@^1.23.6:
   version "1.23.11"
   resolved "https://registry.npmmirror.com/prosemirror-view/-/prosemirror-view-1.23.11.tgz"
   integrity sha512-iBqsyrQZz9NYcJ13JC7sPZ+4PdbBbUXhs1qzbxkDQ2tplcVROwxmAn3bnxpVFst/guv+XFI5KTHHbw5stvKt0g==
+  dependencies:
+    prosemirror-model "^1.16.0"
+    prosemirror-state "^1.0.0"
+    prosemirror-transform "^1.1.0"
+
+prosemirror-view@^1.13.3:
+  version "1.25.0"
+  resolved "https://registry.npmmirror.com/prosemirror-view/-/prosemirror-view-1.25.0.tgz#a0d7fc427c41276bab643369d2f37eb6dd3addb6"
+  integrity sha512-9eJ7VYOqUl/l2P3Q126PoUhfrWAGF0GU4zHXZssbVnhqLZBKpHTcTYx1W9DMg1PCuS69sHLMJdm3UFHmD5SGdw==
   dependencies:
     prosemirror-model "^1.16.0"
     prosemirror-state "^1.0.0"

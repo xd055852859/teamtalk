@@ -6,8 +6,10 @@ const props = defineProps<{
   noIcon?: boolean;
   headerIcon?: string;
   headerTitle?: string;
+  headerState?: boolean;
+  clickState?: boolean;
 }>();
-const emits = defineEmits(["iconClick"]);
+const emits = defineEmits(["iconClick", "clickBack", "headerClick"]);
 
 const themeVisible = ref<boolean>(false);
 const menuVisible = ref<boolean>(true);
@@ -31,7 +33,7 @@ const back = () => {
     <div class="left dp--center">
       <icon-font
         :name="'menu'"
-        @mouseenter="themeVisible = true"
+        @mouseenter="headerState ? emits('headerClick') : (themeVisible = true)"
         style="cursor: pointer"
         v-if="headerIcon"
       />
@@ -53,9 +55,9 @@ const back = () => {
       <slot name="right"></slot>
       <icon-font
         :name="'close'"
-        @click="back()"
+        @click="clickState ? emits('clickBack') : back()"
         style="cursor: pointer; margin-left: 10px"
-        v-if="!headerIcon"
+        v-if="!headerIcon || headerState"
       />
     </div>
   </div>
@@ -73,7 +75,7 @@ const back = () => {
   width: 100%;
   height: 55px;
   text-align: center;
-  padding: 0px 5% 0px 10px;
+  padding: 0px 10px;
   box-sizing: border-box;
   position: relative;
   z-index: 1;
@@ -93,7 +95,7 @@ const back = () => {
     left: 10px;
   }
   .right {
-    right: 5%;
+    right: 15px;
   }
 }
 </style>

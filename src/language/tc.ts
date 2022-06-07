@@ -19,6 +19,12 @@ export default {
     "Group members deleted successfully": "刪除小組成員成功",
     "Audit successful": "審核成功",
     "Please enter the team name": "請輸入小組名稱",
+    "Send success":"發送成功",
+    "blacklist successful":"移出黑名單成功",
+    "selectMember":"請選擇一個成員",
+    "Delete reply successfully":"刪除回復成功",
+    "Copy Success":"復製成功",
+    "edit success":"編輯用戶信息成功"
   },
   icon: {
     Filter: "過濾",

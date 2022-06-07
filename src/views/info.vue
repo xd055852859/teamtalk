@@ -56,7 +56,9 @@ onMounted(() => {
       : (props.cardKey as string);
   getInfo();
   socket.on("addComment", function (msg) {
-    replyList.value.push(msg);
+    if (msg.creatorInfo._key !== user.value?._key) {
+      replyList.value.push(msg);
+    }
   });
   socket.on("deleteComment", function (msg) {
     replyList.value = replyList.value.filter((item: Reply) => {
@@ -196,6 +198,14 @@ const addReply = async () => {
       duration: 1000,
     });
     replyInput.value = "";
+    let obj = {
+      ...postRes.data,
+      unRead: 0,
+      commentCount: postRes.data.commentCount,
+      _key: postRes.data.cardKey,
+    };
+    store.commit("message/updateMessageList", obj);
+    replyList.value.push(postRes.data);
   }
 };
 const delReply = async (replyKey: string, index: number) => {
@@ -204,7 +214,7 @@ const delReply = async (replyKey: string, index: number) => {
   })) as ResultProps;
   if (postRes.msg === "OK") {
     ElMessage({
-      message: `Delete Reply Success`,
+      message: i18n.global.t(`tip['Delete reply successfully']`),
       type: "success",
       duration: 1000,
     });

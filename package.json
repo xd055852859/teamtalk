@@ -6,12 +6,17 @@
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
-    "scp": "scp -r dist/* root@47.251.3.104:/home/work/websites/wandou.app/",
+    "scp": "scp -r dist/* root@132.232.47.47:/home/work/websites/ttalk.qingtime.cn/",
     "deploy": "npm run build && npm run scp"
   },
   "dependencies": {
     "@tiptap/extension-image": "^2.0.0-beta.27",
+    "@tiptap/extension-link": "^2.0.0-beta.38",
     "@tiptap/extension-placeholder": "^2.0.0-beta.48",
+    "@tiptap/extension-table": "^2.0.0-beta.49",
+    "@tiptap/extension-table-cell": "^2.0.0-beta.20",
+    "@tiptap/extension-table-header": "^2.0.0-beta.22",
+    "@tiptap/extension-table-row": "^2.0.0-beta.19",
     "@tiptap/extension-task-item": "^2.0.0-beta.31",
     "@tiptap/extension-task-list": "^2.0.0-beta.26",
     "@tiptap/extension-underline": "^2.0.0-beta.23",

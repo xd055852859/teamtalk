@@ -7,17 +7,24 @@ import {
 } from "@tiptap/vue-3";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
+import Table from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+import Link from "@tiptap/extension-link";
 import IconFont from "@/components/iconFont.vue";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import Progress from "@/components/editor/progress";
+import Star from "@/components/editor/star";
 import i18n from "@/language/i18n";
 import { Card } from "@/interface/Message";
 import { ElMessage } from "element-plus";
 import { useStore } from "@/store";
 import EditorNav from "./editorNav.vue";
+import { uploadImage } from "@/services/util";
 import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
 
@@ -39,6 +46,7 @@ const dark = computed(() => store.state.common.dark);
 const editKey = computed(() => store.state.message.editKey);
 const editContent = computed(() => store.state.message.editContent);
 const updateState = computed(() => store.state.common.updateState);
+const uploadToken = computed(() => store.state.auth.uploadToken);
 const editor = useEditor({
   content: {
     type: "doc",
@@ -46,6 +54,10 @@ const editor = useEditor({
       {
         type: "heading",
         attrs: { level: 2 },
+      },
+      {
+        type: "paragraph",
+        content: [],
       },
     ],
   },
@@ -62,7 +74,7 @@ const editor = useEditor({
         } else if (node.type.name === "paragraph") {
           return placeholderStr;
         } else {
-          return placeholderStr;
+          return placeholderTitle;
         }
       },
     }),
@@ -76,6 +88,14 @@ const editor = useEditor({
       suggestion: slashSuggestion,
     }),
     Progress,
+    Star,
+    Table.configure({
+      resizable: true,
+    }),
+    TableRow,
+    TableHeader,
+    TableCell,
+    Link,
     // Dot.configure({
     //   suggestion: dotSuggestion,
     // }),
@@ -93,9 +113,9 @@ const editor = useEditor({
       store.commit("common/setUpdateState", true);
     }
     if (editContent.value) {
-      console.log(editor.getJSON());
       store.commit("message/updateEditContent", { detail: editor.getJSON() });
     }
+
   },
   onCreate: ({ editor }) => {
     if (props.initData) {
@@ -120,8 +140,50 @@ const editor = useEditor({
           },
         ],
       });
+      editor.commands.focus();
       store.commit("message/setEditor", editor);
     }
+  },
+  editorProps: {
+    handleDOMEvents: {
+      paste(view, event: ClipboardEvent) {
+        if (event.clipboardData && event.clipboardData.files.length) {
+          const text = event.clipboardData?.getData("text/plain");
+          if (text) {
+            console.log(text);
+            return false;
+          }
+          event.preventDefault();
+          const { schema } = view.state;
+          const files = event.clipboardData.files;
+          for (let index = 0; index < files.length; index++) {
+            const file = files[index];
+            if (file.type.includes("image/")) {
+              let mimeType = ["image/png", "image/jpeg", "image/svg+xml"];
+              uploadImage(file, uploadToken.value, mimeType, (url: string) => {
+                const node = schema.nodes.image.create({
+                  src: url,
+                });
+                const transaction = view.state.tr.replaceSelectionWith(node);
+                view.dispatch(transaction);
+              });
+              // uploadImg(qiniuToken.value || "", file).then((url) => {
+              //   const node = schema.nodes.image.create({
+              //     src: url,
+              //   });
+              //   const transaction = view.state.tr.replaceSelectionWith(node);
+              //   view.dispatch(transaction);
+              // });
+            } else {
+              return false;
+            }
+          }
+          return true;
+        } else {
+          return false;
+        }
+      },
+    },
   },
 });
 const checked = ref<number>(0);
@@ -249,7 +311,7 @@ const handlePost = async (
       if (postRes.msg === "OK") {
         if (!noMessage) {
           ElMessage({
-            message: "Post Success",
+            message: i18n.global.t(`tip["Send success"]`),
             type: "success",
             duration: 1000,
           });
@@ -315,6 +377,9 @@ const insertNode = (type) => {
     case "progress":
       editor.value?.chain().setProgress().focus().run();
       break;
+    case "star":
+      editor.value?.chain().setStar().focus().run();
+      break;
     case "text":
       editor.value?.chain().focus().run();
       break;
@@ -348,8 +413,67 @@ const insertNode = (type) => {
     case "codeBlock":
       editor.value?.chain().setCodeBlock().focus().run();
       break;
+    case "link":
+      const previousUrl = editor.value?.getAttributes("link").href;
+      let url = window.prompt("URL", previousUrl);
+      // cancelled
+      if (url === null) {
+        return;
+      }
+      // empty
+      if (url === "") {
+        editor.value?.chain().focus().extendMarkRange("link").unsetLink().run();
+        return;
+      }
+      if (url.indexOf("http") === -1 || url.indexOf("https") === -1) {
+        url = "https://" + url;
+      }
+      // update link
+      editor.value
+        ?.chain()
+        .focus()
+        .extendMarkRange("link")
+        .setLink({ href: url })
+        .run();
+      break;
   }
 };
+// 点击编辑器空白处
+// const handleClickBlankSpace = () => {
+//   if (editor.value && !props.readonly) {
+//     // 末尾如果不是空行，则添加空行
+//     const lastChild = editor.value.state.doc.lastChild;
+//     // console.log("------", "handleClickBlankSpace");
+//     if (lastChild && lastChild.content.size !== 0) {
+//       editor.value
+//         .chain()
+//         // 光标定位到末尾
+//         .focus("end")
+//         // 插入空行
+//         .insertContent({
+//           type: "paragraph",
+//         })
+//         // 执行
+//         .run();
+//     } else if (
+//       lastChild &&
+//       (lastChild.type.name === "image" ||
+//         lastChild.type.name === "progress" ||
+//         lastChild.type.name === "star" ||
+//         lastChild.type.name === "table")
+//     ) {
+//       // 光标定位到末尾
+//       editor.value.commands.focus("end");
+//       /// 当前光标位置
+//       let currentPosition = editor.value.state.selection.anchor;
+//       editor.value.commands.insertContentAt(currentPosition + 1, {
+//         type: "paragraph",
+//       });
+//     } else {
+//       editor.value.commands.focus("end");
+//     }
+//   }
+// };
 defineExpose({
   handlePost,
   toInfo,
@@ -387,8 +511,14 @@ defineExpose({
     <div @click="insertNode('h3')" class="button dp--center">
       <icon-font name="h3" />
     </div>
+    <div @click="insertNode('link')" class="button dp--center">
+      <icon-font name="link" />
+    </div>
     <div @click="insertNode('progress')" class="button dp--center">
       <icon-font name="progress" />
+    </div>
+    <div @click="insertNode('star')" class="button dp--center">
+      <icon-font name="star" />
     </div>
     <div @click="insertNode('bulletList')" class="button dp--center">
       <icon-font name="bulletList" />
@@ -433,19 +563,13 @@ defineExpose({
 <style lang="scss">
 /* Basic editor styles */
 .ProseMirror {
-  outline: none;
-  &:focus {
-    outline: none;
-  }
   > * + * {
     margin-top: 0.75em;
   }
-
   ul,
   ol {
     padding: 0 1rem;
   }
-
   h1,
   h2,
   h3,
@@ -454,19 +578,114 @@ defineExpose({
   h6 {
     line-height: 1.1;
   }
-
+  mark {
+    background-color: #faf594;
+  }
+  a {
+    color: #68cef8;
+    cursor: pointer;
+  }
+  table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+    margin: 0;
+    overflow: hidden;
+    td,
+    th {
+      min-width: 1em;
+      border: 2px solid #ced4da;
+      padding: 3px 5px;
+      vertical-align: top;
+      box-sizing: border-box;
+      position: relative;
+      > * {
+        margin-bottom: 0;
+      }
+    }
+    th {
+      font-weight: bold;
+      text-align: left;
+      background-color: var(--talk-hover-color);
+    }
+    .selectedCell:after {
+      z-index: 2;
+      position: absolute;
+      content: "";
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      background: rgba(200, 200, 255, 0.4);
+      pointer-events: none;
+    }
+    .column-resize-handle {
+      position: absolute;
+      right: -2px;
+      top: 0;
+      bottom: -2px;
+      width: 4px;
+      background-color: #adf;
+      pointer-events: none;
+    }
+    p {
+      margin: 0;
+    }
+  }
   code {
     background-color: rgba(#616161, 0.1);
     color: #616161;
   }
-
+  .hljs-comment,
+  .hljs-quote {
+    color: #616161;
+  }
+  .hljs-variable,
+  .hljs-template-variable,
+  .hljs-attribute,
+  .hljs-tag,
+  .hljs-name,
+  .hljs-regexp,
+  .hljs-link,
+  .hljs-name,
+  .hljs-selector-id,
+  .hljs-selector-class {
+    color: #f98181;
+  }
+  .hljs-number,
+  .hljs-meta,
+  .hljs-built_in,
+  .hljs-builtin-name,
+  .hljs-literal,
+  .hljs-type,
+  .hljs-params {
+    color: #fbbc88;
+  }
+  .hljs-string,
+  .hljs-symbol,
+  .hljs-bullet {
+    color: #b9f18d;
+  }
+  .hljs-title,
+  .hljs-section {
+    color: #faf594;
+  }
+  .hljs-keyword,
+  .hljs-selector-tag {
+    color: #70cff8;
+  }
+  .hljs-emphasis {
+    font-style: italic;
+  }
+  .hljs-strong {
+    font-weight: 700;
+  }
   pre {
     background: #0d0d0d;
     color: #fff;
     font-family: "JetBrainsMono", monospace;
     padding: 0.75rem 1rem;
     border-radius: 0.5rem;
-
     code {
       color: inherit;
       padding: 0;
@@ -474,22 +693,94 @@ defineExpose({
       font-size: 0.8rem;
     }
   }
-
   img {
-    max-width: 80%;
+    max-width: 100%;
+    height: auto;
   }
-
   blockquote {
     padding-left: 1rem;
     border-left: 2px solid rgba(#0d0d0d, 0.1);
   }
-
   hr {
     border: none;
     border-top: 2px solid rgba(#0d0d0d, 0.1);
     margin: 2rem 0;
   }
-
+}
+/* Placeholder (at the top) */
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.tableWrapper {
+  padding: 1rem 0;
+  overflow-x: auto;
+}
+.resize-cursor {
+  cursor: ew-resize;
+  cursor: col-resize;
+}
+ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+  p {
+    margin: 0;
+  }
+  li {
+    display: flex;
+    > label {
+      flex: 0 0 auto;
+      margin-right: 0.5rem;
+      user-select: none;
+    }
+    > div {
+      flex: 1 1 auto;
+    }
+  }
+}
+/* Color swatches */
+.color {
+  white-space: nowrap;
+  &::before {
+    content: " ";
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    vertical-align: middle;
+    margin-right: 0.1em;
+    margin-bottom: 0.15em;
+    border-radius: 2px;
+    background-color: var(--color);
+  }
+}
+/* 自加 */
+:focus-visible {
+  outline: none;
+}
+.ProseMirror-selectednode {
+  outline: 3px solid #68cef8;
+}
+// 标题Placeholder
+.ProseMirror h1.is-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.ProseMirror p.is-empty::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.ProseMirror {
+  padding: 0 15px;
   // 自定义checkbox样式
   ul[data-type="taskList"] > li {
     margin: 6px 0;
@@ -531,69 +822,47 @@ defineExpose({
       transform: all 0.5s;
     }
   }
-}
-
-/* Placeholder (at the top) */
-.ProseMirror p.is-editor-empty:first-child::before {
-  color: #adb5bd;
-  content: attr(data-placeholder);
-  float: left;
-  height: 0;
-  pointer-events: none;
-}
-
-ul[data-type="taskList"] {
-  list-style: none;
-  padding: 0;
-
-  p {
-    margin: 0;
+  .el-progress-bar__inner {
+    transition: unset;
   }
-
-  li {
-    display: flex;
-
-    > label {
-      flex: 0 0 auto;
-      margin-right: 0.5rem;
-      user-select: none;
-    }
-
-    > div {
-      flex: 1 1 auto;
-    }
+  .progress-container {
+    padding: unset;
+  }
+  .mention-card {
+    color: #64a1df;
+    background-color: #ebf2fb;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .mention-coop {
+    color: #64a1df;
+    background-color: #ebf2fb;
   }
 }
-
-/* 自加 */
-:focus-visible {
-  outline: none;
-}
-.ProseMirror-selectednode {
-  outline: 3px solid #68cef8;
-}
-// 标题Placeholder
-.ProseMirror h1.is-empty:first-child::before,
-.ProseMirror h2.is-empty:first-child::before,
-.ProseMirror h3.is-empty:first-child::before,
-.ProseMirror h4.is-empty:first-child::before,
-.ProseMirror h5.is-empty:first-child::before,
-.ProseMirror h6.is-empty:first-child::before {
-  color: #adb5bd;
-  content: attr(data-placeholder);
-  float: left;
-  height: 0;
+/* Give a remote user a caret */
+.collaboration-cursor__caret {
+  position: relative;
+  margin-left: -1px;
+  margin-right: -1px;
+  border-left: 1px solid #0d0d0d;
+  border-right: 1px solid #0d0d0d;
+  word-break: normal;
   pointer-events: none;
 }
-.ProseMirror p.is-empty::before {
-  color: #adb5bd;
-  content: attr(data-placeholder);
-  float: left;
-  height: 0;
-  pointer-events: none;
-}
-.ProseMirror input[type="checkbox"] {
-  border-radius: 50%;
+/* Render the username above the caret */
+.collaboration-cursor__label {
+  position: absolute;
+  top: -1.4em;
+  left: -1px;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  user-select: none;
+  color: #0d0d0d;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px 3px 3px 0;
+  white-space: nowrap;
 }
 .editor-nav {
   width: 100%;

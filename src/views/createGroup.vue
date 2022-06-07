@@ -3,7 +3,7 @@ import i18n from "@/language/i18n";
 import api from "@/services/api";
 import { ElMessage } from "element-plus";
 import { store } from "@/store";
-
+import { Search } from "@element-plus/icons-vue";
 import { ResultProps } from "@/interface/Common";
 import { Group } from "@/interface/User";
 
@@ -17,10 +17,14 @@ const memberArray = computed(() =>
     return item.receiverType === "user" && item.toUserKey !== user.value?._key;
   })
 );
-
+const searchList = computed(() =>
+  memberArray.value.filter((item) => {
+    return item.title.indexOf(memberName.value) !== -1;
+  })
+);
 const teamKeyArray = ref<string[]>([]);
 const teamName = ref<string>("");
-
+const memberName = ref<string>("");
 const chooseMember = (memberKey: string) => {
   let index = teamKeyArray.value.indexOf(memberKey);
   if (index === -1) {
@@ -32,7 +36,7 @@ const chooseMember = (memberKey: string) => {
 const createGroup = async () => {
   if (teamKeyArray.value.length === 0) {
     ElMessage({
-      message: "please choose a member",
+      message: i18n.global.t(`tip.selectMember`),
       type: "error",
       duration: 1000,
     });
@@ -52,17 +56,17 @@ const createGroup = async () => {
       type: "success",
       duration: 1000,
     });
-    router.push("/home");
+    router.push("/manage/" + groupRes.data._key);
     store.commit("auth/addGroupList", [groupRes.data]);
   }
 };
 </script>
 <template>
+  <theader>
+    <template v-slot:title>{{ $t(`button['New Team']`) }}</template>
+    <template v-slot:right><div></div></template>
+  </theader>
   <div class="create p-5">
-    <theader @clickBack="router.back()">
-      <template v-slot:title>{{ $t(`button['New Team']`) }}</template>
-      <template v-slot:right><div></div></template>
-    </theader>
     <div class="input dp-space-center">
       <el-input
         v-model="teamName"
@@ -74,11 +78,22 @@ const createGroup = async () => {
         {{ $t(`button.Save`) }}
       </tbutton>
     </div>
-    <div class="title">{{ $t(`text['Team members']`) }}</div>
+    <div class="title dp-space-center">
+      {{ $t(`text['Team members']`) }}
+      <el-input
+        v-model="memberName"
+        size="large"
+        :placeholder="$t(`input['Enter Mate Name']`)"
+        style="width: calc(100% - 200px)"
+      >
+        <template #append> <el-button :icon="Search" /> </template>
+      </el-input>
+    </div>
+
     <div class="info">
       <div
         class="container dp-space-center"
-        v-for="(item, index) in memberArray"
+        v-for="(item, index) in searchList"
         :key="'manage' + index"
         @click="chooseMember(item.toUserKey as string)"
       >
@@ -102,7 +117,7 @@ const createGroup = async () => {
 <style scoped lang="scss">
 .create {
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 55px);
   background: var(--talk-bg-color);
   .input {
     width: 100%;
@@ -114,10 +129,11 @@ const createGroup = async () => {
     font-size: 18px;
     font-weight: 400;
     line-height: 45px;
+    margin: 10px 0px;
   }
   .info {
     width: 100%;
-    height: calc(100vh - 160px);
+    height: calc(100vh - 180px);
     overflow-x: hidden;
     overflow-y: auto;
   }

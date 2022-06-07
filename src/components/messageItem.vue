@@ -43,6 +43,10 @@ const unreadVisible = ref<boolean>(false);
 const readList = ref<Read[]>([]);
 const unReadList = ref<Read[]>([]);
 const delVisible = ref<boolean>(false);
+const favorite = ref<boolean>(false);
+onMounted(() => {
+  favorite.value = props.item.favorite;
+});
 const getInfo = async () => {
   let infoRes = (await api.request.get("card/detail", {
     cardKey: props.item._key,
@@ -167,14 +171,15 @@ const saveUpdate = () => {
     // store.commit("message/setEditKey", "");
   }
 };
-const favoriteCard = async (key, favorite) => {
+const favoriteCard = async (key, newFavorite) => {
   const postRes = (await api.request.patch("card/favorite", {
     cardKey: key,
   })) as ResultProps;
   if (postRes.msg === "OK") {
     // ElMessage.success(i18n.global.t(`tip['Set Favourite successfully']`));
+    favorite.value = !newFavorite;
     store.commit("message/updateMessageList", {
-      favorite: !favorite,
+      favorite: !newFavorite,
       _key: key,
     });
     // favorite.value = !favorite.value;
@@ -318,20 +323,19 @@ const toInfo = () => {
             v-if="item.unRead || item?.commentCount"
           >
             <div class="dp--center" style="margin-right: 10px">
-              <el-badge :value="item.unRead">
-                <icon-font name="all" :size="15" style="margin-right: 5px" />
-              </el-badge>
+              <icon-font name="all" :size="15" style="margin-right: 5px" />
+              <el-badge :value="item.unRead" v-if="item.unRead"> </el-badge>
               <span>{{ item?.commentCount ? item.commentCount : 0 }}</span>
             </div>
           </el-tooltip>
           <el-tooltip :content="'favorite'" placeholder="top">
             <el-icon
               style="margin-right: 10px"
-              @click.stop="favoriteCard(item._key, item.favorite)"
+              @click.stop="favoriteCard(item._key, favorite)"
               class="icon-point"
               :size="18"
             >
-              <template v-if="item.favorite"> <star-filled /></template>
+              <template v-if="favorite"> <star-filled /></template>
               <template v-else> <star /></template>
             </el-icon>
           </el-tooltip>

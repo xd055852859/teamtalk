@@ -134,7 +134,7 @@ const mutations: MutationTree<MessageState> = {
 };
 
 const actions: ActionTree<MessageState, RootState> = {
-  async getMessageList({ commit }, page: number) {
+  async getMessageList({ commit }, page: number,title?:string) {
     let obj: any = {
       page: page,
       limit: 30,

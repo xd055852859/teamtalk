@@ -38,7 +38,7 @@ const changeLanguage = (value: string) => {
       darkValue.value = dark.value ? "Dark mode" : "Bright mode";
       break;
     case "日本語":
-      value = "jp";
+      value = "ja";
       darkValue.value = dark.value ? "ダークモード" : "ブライトモード";
       break;
     case "繁体":
@@ -67,7 +67,7 @@ const changeConfig = async () => {
   })) as ResultProps;
   if (configRes.msg === "OK") {
     ElMessage({
-      message: "edit success",
+      message: i18n.global.t(`tip['edit success']`),
       type: "success",
       duration: 1000,
     });
@@ -77,7 +77,7 @@ const changeConfig = async () => {
 };
 
 const chooseImg = (e) => {
-  let mimeType = ["image/png", "image/jpeg"];
+  let mimeType =["image/png", "image/jpeg", "image/svg+xml"];
   uploadImage(e.target.files[0], uploadToken.value, mimeType, (url: string) => {
     avatar.value = url;
   });
@@ -104,7 +104,7 @@ watch(
         case "en":
           localeValue.value = "English";
           break;
-        case "jp":
+        case "ja":
           localeValue.value = "日本語";
           break;
         case "tc":
@@ -148,7 +148,7 @@ watch(autoValue, (newVal) => {
         @click="changeReceiver('', 'board')"
       >
         <icon-font name="board" :size="22" style="margin-right: 18px" />
-        <span>Boards </span>
+        <span>{{ $t(`text.Boards`) }} </span>
       </div>
       <!-- <div class="userCenter-item dp--center" @click="$router.push('/')">
     <img
@@ -190,7 +190,9 @@ watch(autoValue, (newVal) => {
         @click="changeReceiver('unRead', 'read')"
       >
         <icon-font name="news" :size="24" style="margin-right: 15px" />
-        <span> News </span>
+        <span>
+          <span>{{ $t(`text.News`) }} </span>
+        </span>
       </div>
       <div
         class="userCenter-item dp--center"
@@ -209,7 +211,9 @@ watch(autoValue, (newVal) => {
         @click="changeReceiver('favorite', 'bookmark')"
       >
         <icon-font name="bookmark" :size="24" style="margin-right: 15px" />
-        <span> Bookmark </span>
+        <span>
+          <span>{{ $t(`text.Bookmark`) }} </span>
+        </span>
       </div>
       <!-- <div
         class="userCenter-item dp--center"
@@ -288,7 +292,7 @@ watch(autoValue, (newVal) => {
       </span>
     </template>
   </el-dialog>
-  <el-dialog v-model="setVisible" :title="$t(`text.Setting`)" :width="320">
+  <el-dialog v-model="setVisible" :title="$t(`text.Setting`)" :width="400">
     <div class="user-edit dp-center-center">
       <div class="text dp-space-center">
         {{ $t(`text.Language`) }} :

@@ -34,7 +34,6 @@ const saveMember = async () => {
   if (groupRes.msg === "OK") {
     ElMessage({
       message: i18n.global.t(`tip['Join the group successfully']`),
-
       type: "success",
       duration: 1000,
     });

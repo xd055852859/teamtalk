@@ -19,6 +19,12 @@ export default {
     "Group members deleted successfully": "删除小组成员成功",
     "Audit successful": "审核成功",
     "Please enter the team name": "请输入小组名称",
+    "Send success": "发送成功",
+    "blacklist successful": "移出黑名单成功",
+    selectMember: "请选择一个成员",
+    "Delete reply successfully": "删除回复成功",
+    "Copy Success": "复制成功",
+    "edit success": "编辑用户信息成功",
   },
   icon: {
     Filter: "过滤",
@@ -74,6 +80,9 @@ export default {
     "Traditional Chinese": "中文繁体",
     English: "英文",
     Japanese: "日文",
+    Boards: "看板",
+    News: "消息",
+    Bookmark: "收藏",
   },
   button: {
     Login: "登录",

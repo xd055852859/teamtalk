@@ -13,7 +13,7 @@ const editorInfo = computed(() => store.state.message.editorInfo);
 
 const drawer = ref<boolean>(false);
 const chooseImg = (e) => {
-  let mimeType = ["image/png", "image/jpeg"];
+  let mimeType = ["image/png", "image/jpeg", "image/svg+xml"];
   uploadImage(e.target.files[0], uploadToken.value, mimeType, (url: string) => {
     editorInfo.value?.commands.setImage({ src: url });
   });
