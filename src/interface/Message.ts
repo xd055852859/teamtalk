@@ -32,6 +32,7 @@ export interface Card {
   };
   title?: string;
   createTime?: number;
+  updateTime?: number;
 }
 export interface Reply {
   cardKey: string;

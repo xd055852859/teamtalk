@@ -5,6 +5,7 @@ import EditorItem from "./editorItem.vue";
 import { useStore } from "@/store";
 
 import IconFont from "../iconFont.vue";
+import { ElMessage } from "element-plus";
 
 const store = useStore();
 const dark = computed(() => store.state.common.dark);
@@ -14,6 +15,100 @@ const editorInfo = computed(() => store.state.message.editorInfo);
 const drawer = ref<boolean>(false);
 const chooseImg = (e) => {
   let mimeType = ["image/png", "image/jpeg", "image/svg+xml"];
+  let fileList = e.target.files;
+  // for (let index = 0; index < fileList.length; index++) {
+  //   if (index < 9) {
+  // if (index != 0) {
+  //   console.log(index);
+  //   editorInfo.value
+  //     ?.chain()
+  //     // 光标定位到末尾
+  //     .focus("end")
+  //     // 插入空行
+  //     .insertContent({
+  //       type: "paragraph",
+  //       content: [
+  //         {
+  //           type: "text",
+  //           text: "Example Text",
+  //         },
+  //       ],
+  //     })
+  //     // 执行
+  //     .run();
+  //   // editorInfo.value
+  //   //   ?.chain()
+  //   //   .createParagraphNear()
+  //   //   .insertContent("foo!")
+  //   //   .insertContent("bar!")
+  //   //   // .focus()
+  //   //   .run();
+  // } else {
+  //   editorInfo.value
+  //     ?.chain()
+  //     // 光标定位到末尾
+  //     .focus("end")
+  //     // 插入空行
+  //     .insertContent({
+  //       type: "paragraph",
+  //       content: [
+  //         {
+  //           type: "text",
+  //           text: "Example Text",
+  //         },
+  //       ],
+  //     })
+  //     // 执行
+  //     .run();
+  // }
+  // uploadImage(fileList[0], uploadToken.value, mimeType, (url: string) => {
+  //   console.log(url);
+  //   editorInfo.value
+  //     ?.chain()
+  //     .focus("end")
+  //     .insertContent(`<img src="${url}" />`)
+  //     .run();
+  // });
+  // uploadImage(fileList[1], uploadToken.value, mimeType, (url: string) => {
+  //   console.log(url);
+  //   editorInfo.value
+  //     ?.chain()
+  //     .focus("end")
+  //     .insertContent(`<img src="${url}" />`)
+  //     .run();
+  // });
+  // editorInfo.value
+  //   ?.chain()
+  //   .focus("end")
+  //   .insertContent({
+  //     type: "paragraph",
+  //   })
+  //   .setImage({
+  //     src: "https://cdn-ttalk.qingtime.cn/1654742608708_workingVipaddMembe.svg",
+  //   })
+  //   .focus("end")
+  //   .insertContent({
+  //     type: "paragraph",
+  //   })
+  //   .setImage({
+  //     src: "https://cdn-ttalk.qingtime.cn/1654742608706_workingVipaddBea.svg",
+  //   })
+  // .insertContent(
+  //   `<img src="https://cdn-ttalk.qingtime.cn/1654742608708_workingVipaddMembe.svg" />`
+  // )
+  // .insertContent(
+  //   `<img src="https://cdn-ttalk.qingtime.cn/1654742608706_workingVipaddBea.svg" />`
+  // )
+  // .run();
+  // } else {
+  //   ElMessage({
+  //     message: "123",
+  //     type: "success",
+  //     duration: 1000,
+  //   });
+  //   break;
+  // }
+  // };
   uploadImage(e.target.files[0], uploadToken.value, mimeType, (url: string) => {
     editorInfo.value?.commands.setImage({ src: url });
   });
@@ -40,6 +135,7 @@ const chooseImg = (e) => {
           accept="image/*"
           @change="chooseImg"
           class="upload-img"
+          multiple
         />
       </div>
     </el-tooltip>

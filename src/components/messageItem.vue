@@ -44,8 +44,12 @@ const readList = ref<Read[]>([]);
 const unReadList = ref<Read[]>([]);
 const delVisible = ref<boolean>(false);
 const favorite = ref<boolean>(false);
+const title = ref<string>("");
+const summary = ref<string>("");
 onMounted(() => {
   favorite.value = props.item.favorite;
+  title.value = props.item.title;
+  summary.value = props.item.summary;
 });
 const getInfo = async () => {
   let infoRes = (await api.request.get("card/detail", {
@@ -188,6 +192,16 @@ const favoriteCard = async (key, newFavorite) => {
 const toInfo = () => {
   router.push("/info/" + props.item._key);
 };
+watch(
+  () => props.item,
+  (newVal) => {
+    if (newVal) {
+      title.value = newVal.title;
+      summary.value = newVal.summary;
+    }
+  },
+  { deep: true }
+);
 </script>
 <template>
   <div
@@ -241,7 +255,7 @@ const toInfo = () => {
           marginBottom: item.summary ? '15px' : '0px',
         }"
       >
-        {{ item.title }}
+        {{ title }}
       </div>
       <div
         class="center dp-space-center"
@@ -254,7 +268,7 @@ const toInfo = () => {
           class="left more-to-long"
           :style="{ width: item.cover ? 'calc(100% - 115px)' : '100%' }"
         >
-          {{ item.summary }}
+          {{ summary }}
         </div>
       </div>
     </div>

@@ -72,7 +72,6 @@ const postContent = async () => {
     //@ts-ignore
     editorRef.value.handlePost(receiver.value._key, (res) => {
       if (res.data.creatorInfo._key === user.value?._key) {
-        res.data.type = "self";
         store.commit("message/addMessageList", res.data);
         shakeState.value = false;
         console.log(loading.value);
@@ -309,8 +308,6 @@ watch(
   position: relative;
   z-index: 1;
   box-sizing: border-box;
-  position: relative;
-  z-index: 1;
   .talk-menu {
     width: 280px;
     height: calc(100vh - 55px);

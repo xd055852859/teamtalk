@@ -51,9 +51,9 @@ const avatarRef = ref(null);
 
       <div
         style="color: #9c9c9c; font-size: 14px"
-        v-if="item?.newestCard?.createTime"
+        v-if="item?.newestCard?.updateTime"
       >
-        {{ dayjs(item.newestCard.createTime).toNow() }}
+        {{ dayjs(item.newestCard.updateTime).toNow() }}
       </div>
     </div>
     <div

@@ -251,7 +251,7 @@ watch(user, (newVal, oldVal) => {
       // });
       socket.on("addComment", function (msg) {
         console.log("addComment", msg);
-        if (msg.creatorInfo._key !==  user.value?._key) {
+        if (msg.userKey !== user.value?._key) {
           let obj = {
             ...msg,
             unRead: 1,
@@ -285,7 +285,6 @@ watch(
     console.log(newVal);
     switch (newVal) {
       case "zh":
-        console.log("111");
         dayjs.locale("zh-cn");
         break;
       case "en":

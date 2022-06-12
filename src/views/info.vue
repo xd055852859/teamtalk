@@ -56,7 +56,7 @@ onMounted(() => {
       : (props.cardKey as string);
   getInfo();
   socket.on("addComment", function (msg) {
-    if (msg.creatorInfo._key !== user.value?._key) {
+    if (msg.userKey !== user.value?._key && msg.cardKey === infoKey.value) {
       replyList.value.push(msg);
     }
   });
@@ -218,6 +218,7 @@ const delReply = async (replyKey: string, index: number) => {
       type: "success",
       duration: 1000,
     });
+    replyList.value.splice(index, 1);
   }
 };
 

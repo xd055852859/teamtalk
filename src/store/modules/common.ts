@@ -3,7 +3,13 @@ import { RootState } from "../types/RootState";
 import { CommonState } from "../types/CommonState";
 
 const state: CommonState = {
-  locale: localStorage.getItem("LANGUAGE") ?? "en",
+  locale: localStorage.getItem("LANGUAGE")
+    ? (localStorage.getItem("LANGUAGE") as string)
+    : navigator.language === "zh-TW"
+    ? "tc"
+    : navigator.language === "zh-CN"
+    ? "zh"
+    : navigator.language,
   dark: !!localStorage.getItem("DARK"),
   theme: "#16ab78",
   // localStorage.getItem("THEME") ||
