@@ -33,7 +33,7 @@ const clearRead = async () => {
         <icon-font name="clear" :size="26" style="margin-right: 15px" />
       </div> -->
       <tbutton v-if="receiverType === 'unRead'" @click="clearVisible = true">
-        Set Readed
+        {{ $t(`SetRead`) }}
       </tbutton>
     </template>
   </theader>
@@ -45,7 +45,7 @@ const clearRead = async () => {
       @click="store.commit('message/setReceiverType', 'unRead')"
       class="tab-nav"
     >
-      unread {{ `( ${unReadNum} )` }}
+      {{ $t(`Unread`) }} {{ `( ${unReadNum} )` }}
     </div>
     <el-divider direction="vertical" />
     <div
@@ -55,7 +55,7 @@ const clearRead = async () => {
       @click="store.commit('message/setReceiverType', 'read')"
        class="tab-nav"
     >
-      Readed
+     {{ $t(`Read`) }}
     </div>
   </div>
   <Topic />
@@ -65,13 +65,13 @@ const clearRead = async () => {
     :width="300"
     :append-to-body="true"
   >
-    <span>Clear UnRead</span>
+    <span> {{ $t(`SetRead`) }}</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
         <tbutton @click="clearVisible = false"  bgColor="#d1dbe5">{{
-          $t(`button.Cancel`)
+          $t(`Cancel`)
         }}</tbutton>
-        <tbutton @click="clearRead()">{{ $t(`button.OK`) }}</tbutton>
+        <tbutton @click="clearRead()">{{ $t(`OK`) }}</tbutton>
       </span>
     </template>
   </el-dialog>

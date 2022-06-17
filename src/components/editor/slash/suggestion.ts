@@ -84,12 +84,18 @@ export default {
           type: "common",
           command: ({ editor, range, props }) => {
             console.log(props.props.url);
-            editor
-              .chain()
-              .focus()
-              .deleteRange(range)
-              .setImage({ src: props.props.url })
-              .run();
+            if (props.props.index) {
+              editor
+                .chain()
+                .insertContent(`<p><img src="${props.props.url}"/></p>`)
+                .run();
+            } else {
+              editor
+                .chain()
+                .deleteRange(range)
+                .insertContent(`<p><img src="${props.props.url}"/></p>`)
+                .run();
+            }
           },
         },
       ].filter((item) =>
@@ -138,12 +144,18 @@ export default {
         type: "common",
         command: ({ editor, range, props }) => {
           console.log(props.props.url);
-          editor
-            .chain()
-            .focus()
-            .deleteRange(range)
-            .setImage({ src: props.props.url })
-            .run();
+          if (props.props.index) {
+            editor
+              .chain()
+              .insertContent(`<p><img src="${props.props.url}"/></p>`)
+              .run();
+          } else {
+            editor
+              .chain()
+              .deleteRange(range)
+              .insertContent(`<p><img src="${props.props.url}"/></p>`)
+              .run();
+          }
         },
       },
       // {

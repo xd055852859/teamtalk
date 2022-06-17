@@ -1,4 +1,17 @@
 <script setup lang="ts">
+const closeVisible = ref<boolean>(false);
+const route = useRoute();
+// onMounted(() => {
+//   if (route.name !== "welcome") {
+//     window.addEventListener("beforeunload", homeTip);
+//   } else {
+//     window.removeEventListener("beforeunload", homeTip);
+//   }
+// });
+// const homeTip = (e) => {
+//   console.log(route.name);
+//   e.returnValue = "是否已保存修改";
+// };
 </script>
 <template>
   <div class="home dp-center-center">

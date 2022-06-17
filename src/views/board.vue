@@ -23,7 +23,7 @@ const searchVisible = ref<boolean>(false);
 const searchInput = ref<string>("");
 const overKey = ref<string>("");
 const user = computed(() => store.state.auth.user);
-const clickKey=ref<string>("");
+const clickKey = ref<string>("");
 // const page = ref<number>(1);
 // const pageNumber = ref<number>(0);
 onMounted(() => {
@@ -78,13 +78,17 @@ const getInfo = async () => {
 // };
 </script>
 <template>
-  <theader :headerIcon="'menu'" :headerTitle="'Boards'" v-if="type !== 'menu'">
+  <theader
+    :headerIcon="'menu'"
+    :headerTitle="$t(`Boards`)"
+    v-if="type !== 'menu'"
+  >
     <template #right>
       <div class="dp--center">
         <el-input
           v-if="searchVisible"
           v-model="searchInput"
-          :placeholder="$t(`input['Enter Team Name']`)"
+          :placeholder="$t(`Enter Team Name`)"
           style="width: 50vw; margin-right: 10px"
         />
         <icon-font
@@ -104,7 +108,7 @@ const getInfo = async () => {
   <div v-if="type === 'menu'" class="board-search dp-center-center">
     <el-input
       v-model="searchInput"
-      :placeholder="$t(`input['Enter Team Name']`)"
+      :placeholder="$t(`Enter Team Name`)"
       style="width: 90%"
     >
       <template #append> <el-button :icon="Search" /> </template
@@ -135,7 +139,8 @@ const getInfo = async () => {
               : item.webmasterInfo?._key === user?._key
               ? '8px solid #16ab78'
               : '8px solid #c8c8c8',
-              backgroundColor:clickKey===item._key?'#EDEDED':'var(--talk-item-color)'
+            backgroundColor:
+              clickKey === item._key ? '#EDEDED' : 'var(--talk-item-color)',
           }"
         >
           {{ item.title }}

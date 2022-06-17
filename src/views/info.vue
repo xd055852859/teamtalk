@@ -21,7 +21,7 @@ import IconFont from "@/components/iconFont.vue";
 
 const socket: any = inject("socket");
 const dayjs: any = inject("dayjs");
-const props = defineProps<{ cardKey?: string }>();
+const props = defineProps<{ cardKey?: string; type?: string }>();
 const router = useRouter();
 const route = useRoute();
 const user = computed(() => store.state.auth.user);
@@ -47,13 +47,15 @@ const readVisible = ref<boolean>(false);
 const unreadVisible = ref<boolean>(false);
 const readList = ref<Read[]>([]);
 const unReadList = ref<Read[]>([]);
-
+const timer = ref<any>(null);
+const saveTitle = ref<string>("");
 onMounted(() => {
   console.log(route.name);
   infoKey.value =
     route.name === "info"
       ? (route.params.id as string)
       : (props.cardKey as string);
+  saveTitle.value = i18n.global.t(`Save`);
   getInfo();
   socket.on("addComment", function (msg) {
     if (msg.userKey !== user.value?._key && msg.cardKey === infoKey.value) {
@@ -65,6 +67,15 @@ onMounted(() => {
       return item._key !== msg._key;
     });
   });
+  timer.value = setInterval(() => {
+    postCard("auto");
+    console.log(updateState.value);
+  }, 5000);
+});
+onUnmounted(() => {
+  if (timer.value) {
+    clearInterval(timer.value);
+  }
 });
 const getInfo = async () => {
   let infoRes = (await api.request.get("card/detail", {
@@ -87,8 +98,13 @@ const getInfo = async () => {
     });
   }
 };
-const postCard = async () => {
-  if (editorRef.value && updateState.value) {
+const postCard = async (type?: string) => {
+  if (editorRef.value && (updateState.value || type === "save")) {
+    console.log(type);
+    if (type === "auto") {
+      saveTitle.value = "Loading";
+      console.log(saveTitle.value);
+    }
     //@ts-ignore
     editorRef.value.handlePost(
       "",
@@ -97,10 +113,20 @@ const postCard = async () => {
           store.commit("message/updateMessageList", res.data);
           shakeState.value = false;
         }
+        if (type === "auto") {
+          saveTitle.value = "Has Saved";
+          console.log(saveTitle.value);
+        }
       },
-      true
+      true,
+      type === "auto",
+      false,
+      type === "auto"
     );
     store.commit("common/setUpdateState", false);
+    if (type === "auto") {
+      saveTitle.value = i18n.global.t(`Update`);
+    }
   }
 };
 const rePostCard = async () => {
@@ -118,6 +144,7 @@ const rePostCard = async () => {
       props.cardKey ? true : false,
       true
     );
+    store.commit("common/setUpdateState", false);
   }
 };
 const delCard = async () => {
@@ -126,7 +153,7 @@ const delCard = async () => {
   })) as ResultProps;
   if (delRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Deleted successfully']`),
+      message: i18n.global.t(`Deleted successfully`),
       type: "success",
       duration: 1000,
     });
@@ -178,7 +205,7 @@ const favoriteCard = async () => {
   })) as ResultProps;
   if (postRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Set Favourite successfully']`),
+      message: i18n.global.t(`Set Favourite successfully`),
       type: "success",
       duration: 1000,
     });
@@ -193,7 +220,7 @@ const addReply = async () => {
   })) as ResultProps;
   if (postRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Reply succeeded']`),
+      message: i18n.global.t(`Reply succeeded`),
       type: "success",
       duration: 1000,
     });
@@ -214,14 +241,18 @@ const delReply = async (replyKey: string, index: number) => {
   })) as ResultProps;
   if (postRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Delete reply successfully']`),
+      message: i18n.global.t(`Delete reply successfully`),
       type: "success",
       duration: 1000,
     });
     replyList.value.splice(index, 1);
   }
 };
-
+watch(updateState, (newVal) => {
+  if (newVal) {
+    saveTitle.value = "Update";
+  }
+});
 defineExpose({
   postCard,
   rePostCard,
@@ -241,7 +272,14 @@ defineExpose({
           }
     "
   >
-    <theader v-if="!cardKey && deviceType !== 'mobile'">
+    <theader
+      v-if="!cardKey && deviceType !== 'mobile'"
+      clickState
+      @clickBack="
+        store.commit('common/setUpdateState', false);
+        router.back();
+      "
+    >
       <template #title>
         <div class="dp-center-center">
           <el-avatar
@@ -376,9 +414,13 @@ defineExpose({
               />
             </el-tooltip>
           </div> -->
-          <tbutton @click.once="postCard" v-if="updateState && !cardKey">{{
-            $t(`button.Update`)
-          }}</tbutton>
+          <tbutton
+            @click="postCard('save')"
+            v-if="!cardKey"
+            :bgColor="saveTitle === 'Loading' ? 'd1dbe5' : ''"
+            :disabled="saveTitle === 'Loading'"
+            >{{ saveTitle }}</tbutton
+          >
         </div>
       </div>
       <el-divider border-style="dashed" />
@@ -449,7 +491,7 @@ defineExpose({
           @click="addReply"
           :disabled="!replyInput"
           :bgColor="replyInput ? '' : '#d1dbe5'"
-          >{{ $t(`button.Reply`) }}</tbutton
+          >{{ $t(`Reply`) }}</tbutton
         >
       </div>
     </div>
@@ -509,17 +551,17 @@ defineExpose({
   </el-drawer>
   <el-dialog
     v-model="delVisible"
-    :title="$t(`dialog['Delete prompt']`)"
+    :title="$t(`Delete prompt`)"
     :width="300"
     :append-to-body="true"
   >
-    <span>{{ $t(`dialog['Delete card']`) }}</span>
+    <span>{{ $t(`Delete card`) }}</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
         <tbutton @click="delVisible = false" bgColor="#d1dbe5">{{
-          $t(`button.Cancel`)
+          $t(`Cancel`)
         }}</tbutton>
-        <tbutton @click="delCard()">{{ $t(`button.OK`) }}</tbutton>
+        <tbutton @click="delCard()">{{ $t(`OK`) }}</tbutton>
       </span>
     </template>
   </el-dialog>

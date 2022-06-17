@@ -51,7 +51,7 @@ const changeLanguage = (value: string) => {
   localStorage.setItem("LANGUAGE", value);
 };
 const changeDark = (value: string | boolean) => {
-  value = value === i18n.global.t(`text['Dark mode']`);
+  value = value === i18n.global.t(`Dark mode`);
   setDark(value);
   store.commit("common/setDark", value);
 };
@@ -67,7 +67,7 @@ const changeConfig = async () => {
   })) as ResultProps;
   if (configRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['edit success']`),
+      message: i18n.global.t(`edit success`),
       type: "success",
       duration: 1000,
     });
@@ -77,7 +77,7 @@ const changeConfig = async () => {
 };
 
 const chooseImg = (e) => {
-  let mimeType =["image/png", "image/jpeg", "image/svg+xml"];
+  let mimeType = ["image/png", "image/jpeg", "image/svg+xml"];
   uploadImage(e.target.files[0], uploadToken.value, mimeType, (url: string) => {
     avatar.value = url;
   });
@@ -112,13 +112,16 @@ watch(
           break;
       }
       darkValue.value = dark.value
-        ? i18n.global.t(`text['Dark mode']`)
-        : i18n.global.t(`text['Bright mode']`);
+        ? i18n.global.t(`Dark mode`)
+        : i18n.global.t(`Bright mode`);
       autoValue.value = localStorage.getItem("AUTO") ? true : false;
     }
   },
   { immediate: true }
 );
+const toUrl = (url) => {
+  window.open(url);
+};
 watch(autoValue, (newVal) => {
   newVal
     ? localStorage.setItem("AUTO", "auto")
@@ -148,7 +151,7 @@ watch(autoValue, (newVal) => {
         @click="changeReceiver('', 'board')"
       >
         <icon-font name="board" :size="22" style="margin-right: 18px" />
-        <span>{{ $t(`text.Boards`) }} </span>
+        <span>{{ $t(`Boards`) }} </span>
       </div>
       <!-- <div class="userCenter-item dp--center" @click="$router.push('/')">
     <img
@@ -170,7 +173,7 @@ watch(autoValue, (newVal) => {
       >
         <icon-font name="mate" style="margin-right: 20px" />
         <span>
-          {{ $t(`icon.Mates`) }}
+          {{ $t(`Mates`) }}
         </span>
       </div>
       <!-- <div
@@ -191,7 +194,7 @@ watch(autoValue, (newVal) => {
       >
         <icon-font name="news" :size="24" style="margin-right: 15px" />
         <span>
-          <span>{{ $t(`text.News`) }} </span>
+          <span>{{ $t(`News`) }} </span>
         </span>
       </div>
       <div
@@ -204,7 +207,7 @@ watch(autoValue, (newVal) => {
           style="margin-right: 15px"
           color="#7e7e7e"
         />
-        <span> {{ $t(`text['I send']`) }} </span>
+        <span> {{ $t(`I Send`) }} </span>
       </div>
       <div
         class="userCenter-item dp--center"
@@ -212,7 +215,7 @@ watch(autoValue, (newVal) => {
       >
         <icon-font name="bookmark" :size="24" style="margin-right: 15px" />
         <span>
-          <span>{{ $t(`text.Bookmark`) }} </span>
+          <span>{{ $t(`BookMark`) }} </span>
         </span>
       </div>
       <!-- <div
@@ -230,35 +233,38 @@ watch(autoValue, (newVal) => {
       <div class="userCenter-item dp--center" @click="setVisible = true">
         <icon-font name="set" :size="18" style="margin-right: 15px" />
         <span>
-          {{ $t(`text.Setting`) }}
+          {{ $t(`Setting`) }}
         </span>
       </div>
-      <div class="userCenter-item dp--center">
+      <div
+        class="userCenter-item dp--center"
+        @click="toUrl('https://www.wolai.com/o8uSSmzviyU6RuA4SvYPiq')"
+      >
         <icon-font name="help" :size="18" style="margin-right: 15px" />
         <span>
-          {{ $t(`text.Help`) }}
+          {{ $t(`Help`) }}
         </span>
       </div>
-      <div class="userCenter-item dp--center">
+      <!-- <div class="userCenter-item dp--center">
         <icon-font name="community" :size="18" style="margin-right: 15px" />
         <span>
           {{ $t(`text.Communication`) }}
         </span>
-      </div>
+      </div> -->
       <div
         class="userCenter-item dp--center"
         @click="store.commit('auth/setLogout')"
       >
         <icon-font name="quit" :size="18" style="margin-right: 15px" />
         <span>
-          {{ $t(`text['Sign out']`) }}
+          {{ $t(`Sign out`) }}
         </span>
       </div>
     </div>
   </div>
   <el-dialog
     v-model="userVisible"
-    :title="$t(`dialog['Information tips']`)"
+    :title="$t(`Information tips`)"
     :width="400"
   >
     <div class="user-edit dp-center-center">
@@ -273,7 +279,7 @@ watch(autoValue, (newVal) => {
       </div>
 
       <div class="text dp-space-center">
-        {{ $t(`text['User name']`) }} :
+        {{ $t(`User name`) }} :
         <el-input
           class="input"
           v-model="userName"
@@ -281,7 +287,7 @@ watch(autoValue, (newVal) => {
         />
       </div>
       <div class="text dp-space-center">
-        {{ $t(`text.email`) }} :
+        {{ $t(`email`) }} :
         <el-input class="input" v-model="email" placeholder="enter email" />
       </div>
     </div>
@@ -295,7 +301,7 @@ watch(autoValue, (newVal) => {
   <el-dialog v-model="setVisible" :title="$t(`text.Setting`)" :width="400">
     <div class="user-edit dp-center-center">
       <div class="text dp-space-center">
-        {{ $t(`text.Language`) }} :
+        {{ $t(`Language`) }} :
         <el-select
           v-model="localeValue"
           :placeholder="'choose language'"
@@ -309,11 +315,11 @@ watch(autoValue, (newVal) => {
         </el-select>
       </div>
       <div class="text dp-space-center">
-        {{ $t(`text['Automatic mode']`) }} :
+        {{ $t(`Auto mode`) }} :
         <el-switch v-model="autoValue" active-color="#16ab78" />
       </div>
       <div class="text dp-space-center">
-        {{ $t(`text['Dark mode']`) }} :
+        {{ $t(`Dark mode`) }} :
         <el-select
           v-model="darkValue"
           :placeholder="'choose mode'"
@@ -322,10 +328,10 @@ watch(autoValue, (newVal) => {
           :disabled="autoValue"
         >
           <el-option :value="$t(`text['Dark mode']`)">{{
-            $t(`text['Dark mode']`)
+            $t(`Dark mode`)
           }}</el-option>
           <el-option :value="$t(`text['Bright mode']`)"
-            >{{ $t(`text['Bright mode']`) }}
+            >{{ $t(`Bright mode`) }}
           </el-option>
         </el-select>
       </div>

@@ -13,7 +13,7 @@ import api from "@/services/api";
 import { ResultProps } from "@/interface/Common";
 
 const state: AuthState = {
-  token: localStorage.getItem("token") ?? "",
+  token: "",
   user: null,
   groupList: [],
   muteList: [],
@@ -107,7 +107,7 @@ const mutations: MutationTree<AuthState> = {
     localStorage.removeItem("token");
     router.push("/");
     ElMessage({
-      message: i18n.global.t(`tip['LogOut successfully']`),
+      message: i18n.global.t(`SignOut`),
       type: "success",
       duration: 1000,
     });

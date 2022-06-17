@@ -172,12 +172,31 @@ watch(
     @scroll="scrollLoading"
     ref="talkRef"
     :class="{
-      'dp-center-center': deviceType === 'phone',
-      'dp-space-center': deviceType !== 'phone',
+      'dp-center-center':
+        deviceType === 'phone' ||
+        receiverType === 'favorite' ||
+        receiverType === 'sent' ||
+        receiverType === 'read' ||
+        receiverType === 'unRead',
+      'dp-space-center':
+        deviceType !== 'phone' &&
+        receiverType !== 'favorite' &&
+        receiverType !== 'sent' &&
+        receiverType !== 'read' &&
+        receiverType !== 'unRead',
     }"
   >
     <div class="talk-left" v-if="deviceType !== 'phone'"></div>
-    <div class="talk-menu" v-if="deviceType !== 'phone'">
+    <div
+      class="talk-menu"
+      v-if="
+        deviceType !== 'phone' &&
+        receiverType !== 'favorite' &&
+        receiverType !== 'sent' &&
+        receiverType !== 'read' &&
+        receiverType !== 'unRead'
+      "
+    >
       <board type="menu" :boardHeight="'110px'"></board>
     </div>
     <div
@@ -187,7 +206,14 @@ watch(
           receiverType && receiverType !== 'favorite'
             ? 'calc(100vh - 95px)'
             : 'calc(100vh - 55px)',
-        width: deviceType === 'phone' ? '100%' : 'calc(100% - 300px)',
+        width:
+          deviceType === 'phone' ||
+          receiverType === 'favorite' ||
+          receiverType === 'sent' ||
+          receiverType === 'read' ||
+          receiverType === 'unRead'
+            ? '100%'
+            : 'calc(100% - 300px)',
       }"
     >
       <div
@@ -214,7 +240,7 @@ watch(
           <editor-nav :editor="editorInfo" v-if="editorInfo" />
           <div class="bottom dp--center">
             <template v-if="receiver?.receiverType === 'user'">
-              <el-tooltip :content="$t(`icon.Shake`)">
+              <el-tooltip :content="$t(`Shake`)">
                 <icon-font
                   :name="shakeState ? 'shake' : 'unshake'"
                   class="icon-point"
@@ -226,13 +252,13 @@ watch(
               </el-tooltip>
             </template>
             <tbutton @click="postContent" @loading="loading">{{
-              $t(`button.Send`)
+              $t(`Send`)
             }}</tbutton>
           </div>
         </div>
       </div>
       <template v-if="!receiverType && receiver?.receiverType !== 'user'">
-        <div class="avatar-title">Members :</div>
+        <div class="avatar-title">{{$t(`Members :`)}}</div>
         <div
           class="avatar dp--center"
           @wheel.prevent.stop="moveAvatar"

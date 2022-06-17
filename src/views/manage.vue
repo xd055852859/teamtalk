@@ -83,12 +83,19 @@ const filedArray = ref<Message[]>([]);
 const trashArray = ref<Message[]>([]);
 const delItem = ref<{ item: Member; index: number; type: string } | null>(null);
 const webmasterInfo = ref<Member>();
-const roleArray = ["Owner", "Admin", "Editer", "writer", "Follower"];
+const roleArray = ref<string[]>([]);
 const moreIndex = ref<number>(5);
 const moreVisible = ref<boolean>(true);
 const clearVisible = ref<boolean>(false);
 onMounted(() => {
   teamKey.value = route.params.id as string;
+   roleArray.value = [
+    i18n.global.t(`Owner`),
+    i18n.global.t(`Admin`),
+    i18n.global.t(`Editer`),
+    i18n.global.t(`Writer`),
+    i18n.global.t(`Follower`),
+  ];
   getInfo();
 });
 const getInfo = async () => {
@@ -128,7 +135,7 @@ const applyMember = async (key: string, state: boolean, index: number) => {
   })) as ResultProps;
   if (applyRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Audit successful']`),
+      message: i18n.global.t(`Audit successful`),
       type: "success",
       duration: 1000,
     });
@@ -144,7 +151,7 @@ const saveGroup = async (type, done?: any) => {
     case "name":
       if (!teamName.value) {
         ElMessage({
-          message: i18n.global.t(`input['Enter Team Name']`),
+          message: i18n.global.t(`Enter Team Name`),
           type: "error",
           duration: 1000,
         });
@@ -172,7 +179,7 @@ const saveGroup = async (type, done?: any) => {
   if (groupRes.msg === "OK") {
     if (type === "name") {
       ElMessage({
-        message: i18n.global.t(`tip['Update group succeeded']`),
+        message: i18n.global.t(`Update group succeeded`),
         type: "success",
         duration: 1000,
       });
@@ -241,7 +248,7 @@ const saveMember = async (userKey: string) => {
   })) as ResultProps;
   if (saveRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Successfully added team members']`),
+      message: i18n.global.t(`Successfully added team members`),
       type: "success",
       duration: 1000,
     });
@@ -255,7 +262,7 @@ const delMember = async (item: Member, index: number, type: string) => {
   })) as ResultProps;
   if (delRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Group members deleted successfully']`),
+      message: i18n.global.t(`Group members deleted successfully`),
       type: "success",
       duration: 1000,
     });
@@ -376,7 +383,7 @@ const changeConfig = async () => {
   })) as ResultProps;
   if (infoRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Update group succeeded']`),
+      message: i18n.global.t(`Update group succeeded`),
       type: "success",
       duration: 1000,
     });
@@ -429,7 +436,7 @@ const exitGroup = async () => {
   })) as ResultProps;
   if (exitRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Quit the group successfully']`),
+      message: i18n.global.t(`Quit the group successfully`),
       type: "success",
       duration: 1000,
     });
@@ -461,7 +468,7 @@ const disbandGroup = async () => {
   <div class="manage p-5">
     <template v-if="applyArray && applyArray.length > 0 && groupRole < 2">
       <div class="title dp-space-center">
-        {{ $t(`icon.Join`) }}
+        {{ $t(`Join`) }}
       </div>
       <div class="info">
         <div
@@ -494,12 +501,12 @@ const disbandGroup = async () => {
       </div>
     </template>
     <div class="title dp-space-center">
-      Members {{ ` ( ${memberList.length} ) ` }}
+      {{ $t(`Members`) }}  {{ ` ( ${memberList.length} ) ` }}
       <!-- <div class="dp--center icon-point">
         <icon-font name="addmember" :size="25" @click="memberVisible = true" />
       </div> -->
       <tbutton @click="memberVisible = true" style="height: 30px">
-        Add Member
+        {{ $t(`Add Member`) }}
       </tbutton>
     </div>
     <div class="info">
@@ -542,18 +549,18 @@ const disbandGroup = async () => {
               </div>
             </template>
             <div class="role-container">
-              <div class="role-item" v-if="groupRole === 0">Owner</div>
+              <div class="role-item" v-if="groupRole === 0">{{ $t(`Owner`) }}</div>
               <div class="role-item" @click="changeRole(item, index, 1)">
-                {{ $t(`text.Admin`) }}
+                {{ $t(`Admin`) }}
               </div>
               <div class="role-item" @click="changeRole(item, index, 2)">
-                {{ $t(`text.Edit`) }}
+                {{ $t(`Editer`) }}
               </div>
               <div class="role-item" @click="changeRole(item, index, 3)">
-                Writer
+               {{ $t(`Writer`) }} 
               </div>
               <div class="role-item" @click="changeRole(item, index, 4)">
-                Follower
+                {{ $t(`Follower`) }} 
               </div>
               <el-divider />
               <div
@@ -567,13 +574,13 @@ const disbandGroup = async () => {
                   delVisible = true;
                 "
               >
-                {{ $t(`icon.Delete`) }}
+                {{ $t(`Delete`) }}
               </div>
             </div>
           </el-popover>
           <div style="width: 20px; height: 20px; margin-left: 10px">
             <el-tooltip
-              :content="$t(`icon.Mates`)"
+              :content="$t(`Mates`)"
               placement="top"
               v-if="
                 groupKeyArray.indexOf(item._key) === -1 &&
@@ -599,7 +606,7 @@ const disbandGroup = async () => {
       class="more-button icon-point p-5 common-color"
       v-if="memberList.length > 5 && moreVisible"
     >
-      {{ $t(`text.More`) }}
+      {{ $t(`More`) }}
     </div>
     <div
       class="title dp-space-center"
@@ -609,14 +616,14 @@ const disbandGroup = async () => {
       "
     >
       <span
-        >Follower {{ ` ( ${followerCount < 0 ? 0 : followerCount} ) ` }}</span
+        >{{ $t(`Follower`) }} {{ ` ( ${followerCount < 0 ? 0 : followerCount} ) ` }}</span
       >
       <el-icon><arrow-right /></el-icon>
     </div>
     <el-divider />
     <template v-if="groupRole < 2">
       <div class="manage-text dp-space-center">
-        <span>Team Name :</span>
+        <span>{{ $t(`Team Name `) }} :</span>
         <el-input
           v-model="teamName"
           placeholder="请输入小组名"
@@ -644,10 +651,9 @@ const disbandGroup = async () => {
       </div> -->
       <div
         class="manage-text dp-space-center icon-point"
-        @click="adminVisible = true"
-        v-if="groupRole === 0"
+        @click="groupRole === 0 ? (adminVisible = true) : ''"
       >
-        <span>Moderator :</span>
+        <span>{{ $t(`Moderator`) }} :</span>
         <div class="dp--center">
           <el-avatar
             fit="cover"
@@ -655,7 +661,7 @@ const disbandGroup = async () => {
             :src="webmasterInfo?.userAvatar"
             class="icon-point"
           />
-          <el-icon><arrow-right /></el-icon>
+          <el-icon v-if="groupRole === 0"><arrow-right /></el-icon>
         </div>
       </div>
       <!-- <div
@@ -675,11 +681,11 @@ const disbandGroup = async () => {
           getTrashInfo();
         "
       >
-        <span>Trash :</span>
+        <span>{{ $t(`Trash`) }} :</span>
         <el-icon><arrow-right /></el-icon>
       </div>
       <div class="manage-text dp-space-center">
-        <span>{{ $t(`text['Public Team']`) }} :</span>
+        <span>{{ $t(`Public Team`) }} :</span>
         <el-switch
           active-color="#16ab78"
           v-model="isPublic"
@@ -687,7 +693,7 @@ const disbandGroup = async () => {
         />
       </div>
       <div class="manage-text dp-space-center">
-        <span>{{ $t(`text['Open  Join']`) }} :</span>
+        <span>{{ $t(`Open  Join`) }} :</span>
         <el-switch
           active-color="#16ab78"
           v-model="allowJoin"
@@ -698,7 +704,7 @@ const disbandGroup = async () => {
     </template>
 
     <div class="manage-text dp-space-center">
-      <span>{{ $t(`text.Mute`) }} :</span>
+      <span>{{ $t(`Mute`) }} :</span>
       <el-switch
         active-color="#16ab78"
         v-model="isMute"
@@ -706,7 +712,7 @@ const disbandGroup = async () => {
       />
     </div>
     <div class="manage-text dp-space-center">
-      <span>Set Top :</span>
+      <span>{{ $t(`Set Top`) }} :</span>
       <el-switch
         active-color="#16ab78"
         v-model="isTop"
@@ -714,7 +720,7 @@ const disbandGroup = async () => {
       />
     </div>
     <div class="manage-text dp-space-center">
-      <span> Block :</span>
+      <span>{{ $t(`Block`) }} :</span>
       <el-switch
         active-color="#16ab78"
         v-model="isBlock"
@@ -722,14 +728,21 @@ const disbandGroup = async () => {
       />
     </div>
 
-    <div class="button dp-center-center" v-if="groupRole">
-      <tbutton @click="exitVisible = true" style="width: 120px">{{
-        groupRole === 4 ? "Unscribe" : "Exit"
-      }}</tbutton>
+    <div class="button dp-center-center">
+      <tbutton
+        @click="exitVisible = true"
+        style="width: 120px"
+        v-if="groupRole"
+        >{{ groupRole === 4 ? "Unscribe" : "Exit" }}</tbutton
+      >
+      <tbutton
+        v-else-if="groupRole === 0"
+        @click="disbandVisible = true"
+        style="width: 120px"
+      >
+        Disband
+      </tbutton>
     </div>
-    <!-- <tbutton @click="disbandVisible = true" style="width: 120px">
-      Disband
-    </tbutton> -->
   </div>
 
   <el-drawer
@@ -799,13 +812,13 @@ const disbandGroup = async () => {
                 class="role-item"
                 @click="changeRole(item, index, 1, 'follow')"
               >
-                {{ $t(`text.Admin`) }}
+                {{ $t(`Admin`) }}
               </div>
               <div
                 class="role-item"
                 @click="changeRole(item, index, 2, 'follow')"
               >
-                {{ $t(`text.Edit`) }}
+                {{ $t(`Edit`) }}
               </div>
               <div
                 class="role-item"
@@ -825,13 +838,13 @@ const disbandGroup = async () => {
                   delVisible = true;
                 "
               >
-                {{ $t(`icon.Delete`) }}
+                {{ $t(`Delete`) }}
               </div>
             </div>
           </el-popover>
           <div style="width: 20px; height: 20px; margin-left: 10px">
             <el-tooltip
-              :content="$t(`icon.Mates`)"
+              :content="$t(`Mates`)"
               placement="top"
               v-if="
                 groupKeyArray.indexOf(item._key) === -1 &&
@@ -925,7 +938,7 @@ const disbandGroup = async () => {
     v-model="trashVisible"
     direction="rtl"
     :size="350"
-    :title="$t(`icon.Archive`)"
+    :title="$t(`Archive`)"
     custom-class="p0-drawer"
   >
     <div class="filed p-5" @scroll="scrollTrash">
@@ -945,23 +958,23 @@ const disbandGroup = async () => {
     <template #footer>
       <span class="dialog-footer dp-space-center">
         <tbutton @click="exitVisible = false" bgColor="#d1dbe5">{{
-          $t(`button.Cancel`)
+          $t(`Cancel`)
         }}</tbutton>
-        <tbutton @click="exitGroup()">{{ $t(`button.OK`) }}</tbutton>
+        <tbutton @click="exitGroup()">{{ $t(`OK`) }}</tbutton>
       </span>
     </template>
   </el-dialog>
 
   <el-dialog
     v-model="delVisible"
-    :title="$t(`dialog['Delete prompt']`)"
+    :title="$t(`Delete prompt`)"
     width="350px"
   >
-    <span>{{ $t(`dialog['Delete team members']`) }}</span>
+    <span>{{ $t(`Delete team members`) }}</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
         <tbutton @click="delVisible = false" bgColor="#d1dbe5">{{
-          $t(`button.Cancel`)
+          $t(`Cancel`)
         }}</tbutton>
         <tbutton
           @click="
@@ -969,34 +982,34 @@ const disbandGroup = async () => {
               ? delMember(delItem.item, delItem.index, delItem.type)
               : null
           "
-          >{{ $t(`button.OK`) }}</tbutton
+          >{{ $t(`OK`) }}</tbutton
         >
       </span>
     </template>
   </el-dialog>
   <el-dialog
     v-model="clearVisible"
-    :title="$t(`dialog['Delete prompt']`)"
+    :title="$t(`Delete prompt`)"
     width="350px"
   >
     <span>Clear All</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
         <tbutton @click="delVisible = false" :disabled="true">{{
-          $t(`button.Cancel`)
+          $t(`Cancel`)
         }}</tbutton>
-        <tbutton @click="deleteTrash">{{ $t(`button.OK`) }}</tbutton>
+        <tbutton @click="deleteTrash">{{ $t(`OK`) }}</tbutton>
       </span>
     </template>
   </el-dialog>
   <el-dialog v-model="disbandVisible" title="Tips" width="350px">
-    <span>disband</span>
+    <span>Disband This Board</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
         <tbutton @click="disbandVisible = false" bgColor="#d1dbe5">{{
-          $t(`button.Cancel`)
+          $t(`Cancel`)
         }}</tbutton>
-        <tbutton @click="disbandGroup()">{{ $t(`button.OK`) }}</tbutton>
+        <tbutton @click="disbandGroup()">{{ $t(`OK`) }}</tbutton>
       </span>
     </template>
   </el-dialog>

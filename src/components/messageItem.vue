@@ -94,7 +94,7 @@ const filedCard = async (key) => {
   })) as ResultProps;
   if (filedRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Archived successfully']`),
+      message: i18n.global.t(`Archived successfully`),
       type: "success",
       duration: 1000,
     });
@@ -142,7 +142,7 @@ const delMessage = async () => {
   })) as ResultProps;
   if (delRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Deleted successfully']`),
+      message: i18n.global.t(`Deleted successfully`),
       type: "success",
       duration: 1000,
     });
@@ -155,7 +155,7 @@ const delSelfMessage = async () => {
   })) as ResultProps;
   if (delRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Deleted successfully']`),
+      message: i18n.global.t(`Deleted successfully`),
       type: "success",
       duration: 1000,
     });
@@ -231,7 +231,7 @@ watch(
     </div>
     <template v-if="editKey === item._key">
       <OnClickOutside @trigger="saveUpdate" style="width: 100%">
-        <Info :cardKey="item._key" ref="infoRef" />
+        <Info :cardKey="item._key" ref="infoRef" type="info"/>
       </OnClickOutside>
       <!-- <div style="margin-top: 30px">
           <Editor
@@ -342,7 +342,7 @@ watch(
               <span>{{ item?.commentCount ? item.commentCount : 0 }}</span>
             </div>
           </el-tooltip>
-          <el-tooltip :content="'favorite'" placeholder="top">
+          <el-tooltip :content="$t(`favorite`)" placeholder="top">
             <el-icon
               style="margin-right: 10px"
               @click.stop="favoriteCard(item._key, favorite)"
@@ -353,7 +353,7 @@ watch(
               <template v-else> <star /></template>
             </el-icon>
           </el-tooltip>
-          <el-tooltip :content="'fullScreen'" placeholder="top">
+          <el-tooltip :content="$t(`fullScreen`)" placeholder="top">
             <div
               class="dp--center icon-point full-button"
               style="margin-right: 10px"
@@ -366,14 +366,14 @@ watch(
               />
             </div>
           </el-tooltip>
-          <el-tooltip :content="'more'" placeholder="top">
+          <el-tooltip :content="$t(`More`)" placeholder="top">
             <el-dropdown>
               <el-icon :size="16"><more-filled /></el-icon>
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item
                     @click.stop="$router.push('/info/' + item._key)"
-                    >打开</el-dropdown-item
+                    >{{$t(`open`)}}</el-dropdown-item
                   >
                   <el-dropdown-item
                     @click.stop="
@@ -381,10 +381,10 @@ watch(
                         ? delMessage()
                         : (delVisible = true)
                     "
-                    >删除</el-dropdown-item
+                    >{{$t(`delete`)}}</el-dropdown-item
                   >
                   <el-dropdown-item @click.stop="getReadList"
-                    >已读列表</el-dropdown-item
+                    >{{$t(`Readers`)}}</el-dropdown-item
                   >
                   <el-dropdown-item
                     @click.stop="rePostCard"
@@ -418,7 +418,7 @@ watch(
       :size="350"
       custom-class="p0-drawer"
       :append-to-body="true"
-      title="Readed"
+      :title="$t(`Readers`)"
     >
       <div class="read-box">
         <div
@@ -467,7 +467,7 @@ watch(
     </el-drawer>
     <el-dialog
       v-model="delVisible"
-      :title="$t(`dialog['Delete prompt']`)"
+      :title="$t(`Delete prompt`)"
       :width="300"
       :append-to-body="true"
     >
@@ -475,9 +475,9 @@ watch(
       <template #footer>
         <span class="dialog-footer dp-space-center">
           <tbutton @click="delVisible = false" bgColor="#d1dbe5">{{
-            $t(`button.Cancel`)
+            $t(`Cancel`)
           }}</tbutton>
-          <tbutton @click="delSelfMessage()">{{ $t(`button.OK`) }}</tbutton>
+          <tbutton @click="delSelfMessage()">{{ $t(`OK`) }}</tbutton>
         </span>
       </template>
     </el-dialog>

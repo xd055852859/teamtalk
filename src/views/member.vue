@@ -67,7 +67,7 @@ const changeConfig = async () => {
   })) as ResultProps;
   if (infoRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Update succeeded']`),
+      message: i18n.global.t(`Update succeeded`),
       type: "success",
       duration: 1000,
     });
@@ -89,7 +89,7 @@ const saveMember = async () => {
   })) as ResultProps;
   if (saveRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Friend add succeeded']`),
+      message: i18n.global.t(`Friend add succeeded`),
       type: "success",
       duration: 1000,
     });
@@ -120,7 +120,7 @@ const deleteMember = async () => {
 </script>
 <template>
   <theader @clickBack="$router.back()">
-    <template v-slot:title>{{ $t(`icon.Mates`) }}</template>
+    <template v-slot:title>{{ $t(`Mates`) }}</template>
     <template v-slot:right><div></div></template>
   </theader>
   <div class="member dp-center-center p-5">
@@ -136,7 +136,7 @@ const deleteMember = async () => {
       >
         <div class="left dp--center">
           <icon-font name="boards" :size="30" style="margin-right: 15px" />
-          Boards
+          {{ $t(`Boards`) }}
         </div>
         <div class="dp-space-center">
           <span style="margin-right: 10px">{{ info?.boardNum }}</span>
@@ -162,7 +162,7 @@ const deleteMember = async () => {
       <div class="dp-space-center member-item">
         <div class="left dp--center">
           <icon-font name="mute" :size="30" style="margin-right: 15px" />{{
-            $t(`text.Mute`)
+            $t(`Mute`)
           }}
         </div>
         <el-switch
@@ -173,7 +173,8 @@ const deleteMember = async () => {
       </div>
       <div class="dp-space-center member-item">
         <div class="left dp--center">
-          <icon-font name="block" :size="30" style="margin-right: 15px" /> Block
+          <icon-font name="block" :size="30" style="margin-right: 15px" />
+          {{ $t(`Block`) }}
         </div>
         <el-switch
           active-color="#16ab78"
@@ -187,7 +188,7 @@ const deleteMember = async () => {
       >
         <div class="left dp--center">
           <icon-font name="delete" :size="30" style="margin-right: 15px" />
-          {{ $t(`icon.Delete`) }}
+          {{ $t(`Delete`) }}
         </div>
       </div>
     </template>
@@ -195,18 +196,14 @@ const deleteMember = async () => {
       <tbutton @click="saveMember()" style="width: 120px">{{ `Add` }}</tbutton>
     </div>
   </div>
-  <el-dialog
-    v-model="delVisible"
-    :title="$t(`dialog['Delete prompt']`)"
-    :width="300"
-  >
-    <span>{{ $t(`dialog['Delete friends']`) }}</span>
+  <el-dialog v-model="delVisible" :title="$t(`Delete prompt`)" :width="300">
+    <span>{{ $t(`Delete friends`) }}</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
         <tbutton @click="delVisible = false" bgColor="#d1dbe5">{{
-          $t(`button.Cancel`)
+          $t(`Cancel`)
         }}</tbutton>
-        <tbutton @click="deleteMember()">{{ $t(`button.OK`) }}</tbutton>
+        <tbutton @click="deleteMember()">{{ $t(`OK`) }}</tbutton>
       </span>
     </template>
   </el-dialog>

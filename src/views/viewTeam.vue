@@ -33,7 +33,7 @@ const saveMember = async () => {
   })) as ResultProps;
   if (groupRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Join the group successfully']`),
+      message: i18n.global.t(`Join the group successfully`),
       type: "success",
       duration: 1000,
     });
@@ -45,7 +45,7 @@ const joinTeam = async () => {
   })) as ResultProps;
   if (joinRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Successfully applied']`),
+      message: i18n.global.t(`Successfully applied`),
       type: "success",
       duration: 1000,
     });

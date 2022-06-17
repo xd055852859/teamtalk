@@ -40,7 +40,7 @@ const saveMember = async (key, index) => {
   })) as ResultProps;
   if (saveRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Friend add succeeded']`),
+      message: i18n.global.t(`Friend add succeeded`),
       type: "success",
       duration: 1000,
     });
@@ -68,7 +68,7 @@ const saveMember = async (key, index) => {
       <el-input
         v-model="searchName"
         size="large"
-        :placeholder="$t(`input['Enter Name']`)"
+        :placeholder="$t(`Enter Name`)"
         :suffix-icon="Search"
         @change="searchMember"
       />

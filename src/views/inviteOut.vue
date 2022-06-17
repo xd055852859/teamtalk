@@ -16,15 +16,13 @@ const url = computed(
 <template>
   <div class="invite-out p-5">
     <theader @clickBack="router.push('/invite')">
-      <template v-slot:title> Invite Partner </template>
+      <template v-slot:title> {{ $t(`Invite Partner`) }} </template>
       <template v-slot:right><div></div> </template>
     </theader>
     <div class="invite-item dp-center-center">
-      <div class="title">Way2</div>
+      <div class="title">{{ $t(`Way2`) }}</div>
       <div class="title">
-        你的好友
-        <span class="common-color">{{ user?.userName }}</span>
-        邀请您加入TeamTalk
+        {{ $t(`invite TeamTalk`, { MateName: user?.userName }) }}
       </div>
       <div class="title">
         {{ url }}
@@ -33,7 +31,7 @@ const url = computed(
         @click="
           toClipboard(url);
           ElMessage({
-            message: i18n.global.t(`tip['Copy Success']`),
+            message: i18n.global.t(`Copy Success`),
             type: 'success',
             duration: 1000,
           });
@@ -44,7 +42,7 @@ const url = computed(
     </div>
     <el-divider />
     <div class="invite-item dp-center-center" v-if="url">
-      <div class="title">Way3</div>
+      <div class="title">{{ $t(`Way3`) }}</div>
       <div
         class="invite-item dp-center-center"
         style="width: 100%; height: 200px"
@@ -55,13 +53,13 @@ const url = computed(
         @click="
           toClipboard(url);
           ElMessage({
-            message: 'Copy Success',
+            message: i18n.global.t(`Copy Success`),
             type: 'success',
             duration: 1000,
           });
         "
         style="height: 30px"
-        >Download</tbutton
+        >{{ $t(`Download`) }}</tbutton
       >
     </div>
   </div>

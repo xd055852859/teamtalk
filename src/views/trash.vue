@@ -82,16 +82,16 @@ const scrollLoading = (e: any) => {
   </div>
   <el-dialog
     v-model="delVisible"
-    :title="$t(`dialog['Delete prompt']`)"
+    :title="$t(`Delete prompt`)"
     :width="300"
   >
     <span>Clear All</span>
     <template #footer>
       <span class="dialog-footer dp-space-center">
         <tbutton @click="delVisible = false"  bgColor="#d1dbe5">{{
-          $t(`button.Cancel`)
+          $t(`Cancel`)
         }}</tbutton>
-        <tbutton @click="deleteTrash()">{{ $t(`button.OK`) }}</tbutton>
+        <tbutton @click="deleteTrash()">{{ $t(`OK`) }}</tbutton>
       </span>
     </template>
   </el-dialog>

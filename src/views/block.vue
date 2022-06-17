@@ -27,7 +27,7 @@ const outBlock = async (key: string, index: number) => {
   })) as ResultProps;
   if (outRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip["blacklist successful"]`),
+      message: i18n.global.t(`blacklist successful`),
       type: "success",
       duration: 1000,
     });
@@ -42,7 +42,7 @@ const outBlock = async (key: string, index: number) => {
 <template>
   <theader @clickBack="$router.back()">
     <template v-slot:title>
-      <div class="dp-center-center">{{ $t(`text.BlockList`) }}</div>
+      <div class="dp-center-center">{{ $t(`BlockList`) }}</div>
     </template>
   </theader>
   <div class="block p-5">

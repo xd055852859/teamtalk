@@ -5,7 +5,7 @@ const store = useStore();
 const receiverType = computed(() => store.state.message.receiverType);
 </script>
 <template>
-  <theader headerIcon="menu" :headerTitle="$t(`text['I send']`)"></theader>
+  <theader headerIcon="menu" :headerTitle="$t(`I Send`)"></theader>
   <div class="dp-center-center icon-point">
     <div
       :style="
@@ -14,7 +14,7 @@ const receiverType = computed(() => store.state.message.receiverType);
       @click="store.commit('message/setReceiverType', 'sent')"
       class="tab-nav"
     >
-      {{ $t(`text['I send']`) }}
+      {{ $t(`I Send`) }}
     </div>
     <el-divider direction="vertical" />
     <div
@@ -24,7 +24,7 @@ const receiverType = computed(() => store.state.message.receiverType);
       @click="store.commit('message/setReceiverType', 'reply')"
       class="tab-nav"
     >
-      I reply
+     {{ $t(`I Reply`) }}
     </div>
   </div>
   <Topic />

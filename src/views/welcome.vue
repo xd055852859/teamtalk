@@ -57,7 +57,7 @@ const login = () => {
       </div>
       <div class="button-box dp-center-center">
         <tbutton @click="login" class="button" round bgColor="#1a1a1a">
-          {{ $t(`button.Login`) }}
+          {{ $t(`Login`) }}
         </tbutton>
       </div>
     </div>

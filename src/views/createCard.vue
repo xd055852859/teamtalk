@@ -44,7 +44,7 @@ const postContent = async () => {
     <editor-nav :editor="editorInfo" v-if="editorInfo" />
     <div class="button dp--center">
       <template v-if="userState">
-        <el-tooltip :content="$t(`icon.Shake`)">
+        <el-tooltip :content="$t(`Shake`)">
           <icon-font
             :name="shakeState ? 'shake' : 'unshake'"
             class="icon-point"
@@ -56,7 +56,7 @@ const postContent = async () => {
         </el-tooltip>
       </template>
       <tbutton class="button" @click="postContent" v-if="talkKey">{{
-        $t(`button.Send`)
+        $t(`Send`)
       }}</tbutton>
     </div>
   </div>

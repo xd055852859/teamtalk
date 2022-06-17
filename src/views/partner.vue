@@ -70,7 +70,7 @@ const saveMate = async (userKey: string, index: number) => {
   })) as ResultProps;
   if (saveRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Friend add succeeded']`),
+      message: i18n.global.t(`Friend add succeeded`),
       type: "success",
       duration: 1000,
     });
@@ -85,7 +85,7 @@ const saveMember = async (teamKey: string, userKey: string) => {
   })) as ResultProps;
   if (groupRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Join the group successfully']`),
+      message: i18n.global.t(`Join the group successfully`),
 
       type: "success",
       duration: 1000,
@@ -99,7 +99,7 @@ const joinTeam = async (key: string, index: number) => {
   })) as ResultProps;
   if (joinRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Successfully applied']`),
+      message: i18n.global.t(`Successfully applied`),
       type: "success",
       duration: 1000,
     });
@@ -118,7 +118,7 @@ watch(partnerType, () => {
 <template>
   <theader
     headerIcon="menu"
-    :headerTitle="route.params.id === 'user' ? 'Mates' : 'Team'"
+    :headerTitle="route.params.id === 'user' ? $t(`Mates`) : $t(`Boards`)"
   >
     <template v-slot:title></template>
     <template v-slot:right><div></div></template>
@@ -130,8 +130,8 @@ watch(partnerType, () => {
         size="large"
         :placeholder="
           partnerType === 'user'
-            ? $t(`input['Enter Mate Name']`)
-            : $t(`input['Enter Team Name']`)
+            ? $t(`Enter Mates Name`)
+            : $t(`Enter Team Name`)
         "
         :style="
           partnerType === 'user'
@@ -143,14 +143,14 @@ watch(partnerType, () => {
         style="height: 40px; padding: 0px 30px"
         @click="router.push('/home/invite')"
       >
-        {{ $t(`button.Invite`) }}
+        {{ $t(`Invite`) }}
       </tbutton>
       <tbutton
         style="height: 40px; padding: 0px 30px"
         @click="router.push('/createGroup')"
         v-if="partnerType === 'group'"
       >
-        {{ $t(`button['New Team']`) }}
+        {{ $t(`New Team`) }}
       </tbutton>
     </div>
     <div class="info">
@@ -178,7 +178,7 @@ watch(partnerType, () => {
         class="more-button icon-point"
         :class="{ 'common-color': !moreVisible ? true : false }"
       >
-        {{ $t(`text.More`) }}
+        {{ $t(`More`) }}
       </div>
       <template v-if="searchMoreList.length > 0">
         <div

@@ -11,7 +11,7 @@ axios.interceptors.response.use(
     if (response.data.status === 701 && message) {
       message = false;
       ElMessage({
-        message: i18n.global.t(`tip['Please login']`),
+        message: i18n.global.t(`Please login`),
         type: "error",
         duration: 1000,
       });

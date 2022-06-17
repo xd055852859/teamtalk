@@ -52,13 +52,22 @@ const selectItem = (index) => {
   }
 };
 const chooseImg = (e, index: number) => {
+  // uploadImage(e.target.files[0], uploadToken.value, mimeType, (url: string) => {
+  //   props.items[index].props = { url: url };
+  //   console.log(props.items[index]);
+  //   props.command(props.items[index]);
+  //   // editorInfo.value?.chain().focus().deleteRange(range).setImage({ src: url });
+  // });
   let mimeType = ["image/png", "image/jpeg", "image/svg+xml"];
-  uploadImage(e.target.files[0], uploadToken.value, mimeType, (url: string) => {
-    props.items[index].props = { url: url };
-    console.log(props.items[index]);
-    props.command(props.items[index]);
-    // editorInfo.value?.chain().focus().deleteRange(range).setImage({ src: url });
-  });
+  let fileList = e.target.files;
+  for (let i = 0; i < fileList.length; i++) {
+    uploadImage(fileList[i], uploadToken.value, mimeType, (url: string) => {
+      props.items[index].props = { url: url, index: i };
+      console.log(props.items[index]);
+      props.command(props.items[index]);
+      // editorInfo.value?.chain().insertContent(`<img src="${url}">`).run();
+    });
+  }
 };
 watch(
   () => props.items,
@@ -93,6 +102,7 @@ defineExpose({
           accept="image/*"
           @change="chooseImg($event, index)"
           class="upload-img"
+          multiple
         />
         <icon-font name="image" />
         <div class="title">{{ item.title }}</div>

@@ -31,6 +31,7 @@ const muteList = computed(() => store.state.auth.muteList);
 const musicRef = ref(null);
 const dark = computed(() => store.state.common.dark);
 const theme = computed(() => store.state.common.theme);
+const deviceType = computed(() => store.state.common.deviceType);
 const token = computed(() => store.state.auth.token);
 const editKey = computed(() => store.state.message.editKey);
 
@@ -40,7 +41,7 @@ let infoKey = "";
 // onBeforeMount(() => {
 
 // });
-onMounted(() => {
+onBeforeMount(() => {
   let url = window.location.href;
   //自动切换为https
   if (url.indexOf("http://localhost") === -1 && url.indexOf("https") < 0) {
@@ -50,7 +51,9 @@ onMounted(() => {
   const search = window.location.search
     ? window.location.search.split("?")[1]
     : window.location.hash.split("?")[1];
-  const token = getSearchParamValue(search, "token") as string;
+  const token = getSearchParamValue(search, "token")
+    ? (getSearchParamValue(search, "token") as string)
+    : localStorage.getItem("token");
   const inviteKey = getSearchParamValue(search, "inviteKey") as string;
   talkKey = getSearchParamValue(search, "talkKey") as string;
   infoKey = getSearchParamValue(search, "infoKey") as string;
@@ -102,11 +105,13 @@ onMounted(() => {
   proxy.$i18n.locale = localStorage.getItem("LANGUAGE");
   setTheme(theme.value);
   window.onresize = useDebounceFn(() => {
-    const deviceWidth = document.documentElement.offsetWidth;
-    if (deviceWidth < 700) {
-      store.commit("common/setDeviceType", "phone");
-    } else if (deviceWidth >= 700) {
-      store.commit("common/setDeviceType", "computer");
+    if (deviceType.value !== "mobile") {
+      const deviceWidth = document.documentElement.offsetWidth;
+      if (deviceWidth < 700) {
+        store.commit("common/setDeviceType", "phone");
+      } else if (deviceWidth >= 700) {
+        store.commit("common/setDeviceType", "computer");
+      }
     }
   }, 500);
 });

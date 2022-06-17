@@ -28,12 +28,12 @@ const changeReceiver = (
 <template>
   <div class="filter p-5">
     <div class="header">
-      {{ $t(`text['Message center']`) }}
+      {{ $t(`Message center`) }}
     </div>
     <div class="container dp-space-center" @click="changeReceiver('all')">
       <div class="left dp--center">
         <icon-font name="all" :size="22"></icon-font>
-        <div class="name">{{ $t(`text.All`) }}</div>
+        <div class="name">{{ $t(`All`) }}</div>
       </div>
     </div>
     <div
@@ -42,31 +42,31 @@ const changeReceiver = (
     >
       <div class="left dp--center">
         <icon-font name="private" :size="22"></icon-font>
-        <div class="name">{{ $t(`text.Private`) }}</div>
+        <div class="name">{{ $t(`Private`) }}</div>
       </div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('favorite')">
       <div class="left dp--center">
         <icon-font name="favorite" :size="22"></icon-font>
-        <div class="name">{{ $t(`text.Favourite`) }}</div>
+        <div class="name">{{ $t(`Favourite`) }}</div>
       </div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('sent')">
       <div class="left dp--center">
         <icon-font name="send" :size="22"></icon-font>
-        <div class="name">{{ $t(`text['I send']`) }}</div>
+        <div class="name">{{ $t(`I send`) }}</div>
       </div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('receive')">
       <div class="left dp--center">
         <icon-font name="received" :size="22"></icon-font>
-        <div class="name">{{ $t(`text['I received']`) }}</div>
+        <div class="name">{{ $t(`I received`) }}</div>
       </div>
     </div>
     <div class="container dp-space-center" @click="changeReceiver('notice')">
       <div class="left dp--center">
         <icon-font name="notice" :size="22"></icon-font>
-        <div class="name">{{ $t(`text['System messages']`) }}</div>
+        <div class="name">{{ $t(`System messages`) }}</div>
       </div>
     </div>
     <el-divider />

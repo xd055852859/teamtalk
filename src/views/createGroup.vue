@@ -36,7 +36,7 @@ const chooseMember = (memberKey: string) => {
 const createGroup = async () => {
   if (teamKeyArray.value.length === 0) {
     ElMessage({
-      message: i18n.global.t(`tip.selectMember`),
+      message: i18n.global.t(`selectMember`),
       type: "error",
       duration: 1000,
     });
@@ -52,7 +52,7 @@ const createGroup = async () => {
   })) as ResultProps;
   if (groupRes.msg === "OK") {
     ElMessage({
-      message: i18n.global.t(`tip['Group created successfully']`),
+      message: i18n.global.t(`Group created successfully`),
       type: "success",
       duration: 1000,
     });
@@ -63,7 +63,7 @@ const createGroup = async () => {
 </script>
 <template>
   <theader>
-    <template v-slot:title>{{ $t(`button['New Team']`) }}</template>
+    <template v-slot:title>{{ $t(`New Team`) }}</template>
     <template v-slot:right><div></div></template>
   </theader>
   <div class="create p-5">
@@ -71,19 +71,19 @@ const createGroup = async () => {
       <el-input
         v-model="teamName"
         size="large"
-        :placeholder="$t(`input['Enter Team Name']`)"
+        :placeholder="$t(`Enter Team Name`)"
         style="width: calc(100% - 120px)"
       />
       <tbutton style="height: 40px; padding: 0px 30px" @click="createGroup">
-        {{ $t(`button.Save`) }}
+        {{ $t(`Save`) }}
       </tbutton>
     </div>
     <div class="title dp-space-center">
-      {{ $t(`text['Team members']`) }}
+      {{ $t(`Team members`) }}
       <el-input
         v-model="memberName"
         size="large"
-        :placeholder="$t(`input['Enter Mate Name']`)"
+        :placeholder="$t(`Enter Mate Name`)"
         style="width: calc(100% - 200px)"
       >
         <template #append> <el-button :icon="Search" /> </template>

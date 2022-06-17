@@ -65,9 +65,9 @@ const editor = useEditor({
     StarterKit,
     Placeholder.configure({
       placeholder: ({ node }) => {
-        const placeholderTitle = i18n.global.t(`input['Enter title ...']`);
+        const placeholderTitle = i18n.global.t(`Enter title ...`);
         const placeholderStr = i18n.global.t(
-          `input["Enter text,or type '/' to select"]`
+          `Enter text,or type '/' to select`
         );
         if (node.type.name === "heading") {
           return placeholderTitle;
@@ -78,7 +78,9 @@ const editor = useEditor({
         }
       },
     }),
-    Image,
+    Image.configure({
+      inline: true,
+    }),
     Underline,
     TaskList,
     TaskItem.configure({
@@ -115,7 +117,6 @@ const editor = useEditor({
     if (editContent.value) {
       store.commit("message/updateEditContent", { detail: editor.getJSON() });
     }
-
   },
   onCreate: ({ editor }) => {
     if (props.initData) {
@@ -183,6 +184,31 @@ const editor = useEditor({
           return false;
         }
       },
+      drop(view, event: DragEvent) {
+        if (event.dataTransfer && event.dataTransfer.files.length) {
+          event.preventDefault();
+          const { schema } = view.state;
+          const files = event.dataTransfer.files;
+          for (let index = 0; index < files.length; index++) {
+            const file = files[index];
+            let mimeType = ["image/png", "image/jpeg", "image/svg+xml"];
+            uploadImage(file, uploadToken.value, mimeType, (url: string) => {
+              const node = schema.nodes.image.create({
+                src: url,
+              });
+              const transaction = view.state.tr.replaceSelectionWith(node);
+              view.dispatch(transaction);
+            });
+          }
+          return true;
+        } else {
+          return false;
+        }
+      },
+      click(view, event: MouseEvent) {
+        event.stopPropagation();
+        return false;
+      },
     },
   },
 });
@@ -215,7 +241,8 @@ const handlePost = async (
   callback?: any,
   clear?: boolean,
   noMessage?: boolean,
-  rePost?: boolean
+  rePost?: boolean,
+  auto?: boolean
 ) => {
   if (!editor.value) return;
   const json: JSONContent = editor.value.getJSON();
@@ -288,6 +315,9 @@ const handlePost = async (
     if (rePost) {
       obj.forcePost = 1;
     }
+    if (auto) {
+      obj.autoSave = true;
+    }
     if (props.cardKey) {
       const postRes = (await api.request.patch("card", {
         cardKey: props.cardKey,
@@ -296,7 +326,7 @@ const handlePost = async (
       if (postRes.msg === "OK") {
         if (!noMessage) {
           ElMessage({
-            message: `Has Saved`,
+            message: i18n.global.t(`Has Saved`),
             type: "success",
             duration: 1000,
           });
@@ -311,7 +341,7 @@ const handlePost = async (
       if (postRes.msg === "OK") {
         if (!noMessage) {
           ElMessage({
-            message: i18n.global.t(`tip["Send success"]`),
+            message: i18n.global.t(`Send success`),
             type: "success",
             duration: 1000,
           });

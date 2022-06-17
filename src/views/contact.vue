@@ -29,7 +29,7 @@ const chooseTalker = (item: Group) => {
     <div class="search dp--center">
       <el-input
         v-model="memberName"
-        :placeholder="$t(`input['Enter Name']`)"
+        :placeholder="$t(`Enter Name`)"
         :prefix-icon="Search"
       />
     </div>
